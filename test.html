@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Simple Contact Reader</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<style>
+  body { font-family: Arial; max-width: 600px; margin: 20px auto; background: #f9f9f9; }
+  h1 { text-align: center; color: #1E429B; }
+  input[type=file], input[type=text] { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+  #contacts { background: #fff; border-radius: 6px; padding: 15px; max-height: 400px; overflow-y: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .contact { padding: 8px 0; border-bottom: 1px solid #eee; }
+  .contact:last-child { border-bottom: none; }
+  .contact b { color: #3FC7F1; }
+  .contact a { color: #F3802D; text-decoration: none; }
+  .contact a:hover { text-decoration: underline; }
+  #status { text-align: center; margin-top: 10px; color: gray; }
+</style>
+</head>
+<body>
+
+<h1>📇 Contact PDF Reader</h1>
+<input type="file" id="fileInput" accept="application/pdf" />
+<input type="text" id="searchInput" placeholder="Search contacts by name, village, or phone..." />
+<div id="status"></div>
+<div id="contacts"></div>
+
+<script>
+  // Firebase config - apni firebase config se replace karna
+  const firebaseConfig = {
+    apiKey: "AIzaSyBeqaDJLifgdpBQPRL0OLtkovB-m4OM7kw",
+    authDomain: "cricker2.firebaseapp.com",
+    databaseURL: "https://cricker2-default-rtdb.firebaseio.com",
+    projectId: "cricker2",
+    storageBucket: "cricker2.appspot.com",
+    messagingSenderId: "757574903179",
+    appId: "1:757574903179:web:8cfa2a2e3ac157029f7b8e",
+    measurementId: "G-DZNF4BTH35"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const fileInput = document.getElementById('fileInput');
+  const searchInput = document.getElementById('searchInput');
+  const contactsDiv = document.getElementById('contacts');
+  const statusDiv = document.getElementById('status');
+
+  let allContacts = [];  // local store for search
+
+  // Debounce function to limit search calls
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  // Display contacts on page
+  function displayContacts(list) {
+    contactsDiv.innerHTML = '';
+    if (list.length === 0) {
+      contactsDiv.innerHTML = '<i>No contacts found.</i>';
+      return;
+    }
+    const fragment = document.createDocumentFragment();
+    list.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'contact';
+      div.innerHTML = `<b>${c.name}</b><br>${c.village} | ${c.block}<br><a href="tel:${c.phone}">${c.phone}</a>`;
+      fragment.appendChild(div);
+    });
+    contactsDiv.appendChild(fragment);
+  }
+
+  // Filter contacts by search - optimized
+  function filterContacts() {
+    const q = searchInput.value.trim().toLowerCase();
+
+    if (!q) {
+      displayContacts(allContacts);
+      return;
+    }
+
+    // Check if input is number only (allow spaces, but ignore them)
+    const onlyDigits = q.replace(/\s+/g, '').match(/^\d+$/);
+
+    let filtered;
+
+    if (onlyDigits) {
+      // Number search - search phone contains q
+      filtered = allContacts.filter(c => c.phone.includes(q.replace(/\s+/g, '')));
+    } else {
+      // Text search - search name, village, block contains q (case-insensitive)
+      filtered = allContacts.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.village.toLowerCase().includes(q) ||
+        c.block.toLowerCase().includes(q)
+      );
+    }
+    displayContacts(filtered);
+  }
+
+  const debouncedFilterContacts = debounce(filterContacts, 300);
+
+  // Attach input listener with debounce
+  searchInput.addEventListener('input', debouncedFilterContacts);
+
+  // On file upload - extract text and parse
+  fileInput.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    statusDiv.textContent = "Reading PDF...";
+    contactsDiv.innerHTML = '';
+    allContacts = [];
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const typedArray = new Uint8Array(reader.result);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const strings = content.items.map(item => item.str);
+          fullText += strings.join(' ') + '\n';
+        }
+
+        // Simple regex to catch 10-digit phone numbers with some text around them
+        // Adjust this based on your PDFs structure
+        const regex = /([A-Za-z\s\-]+)\s+([A-Za-z\s\-]+)\s+([A-Za-z\s\-]+)\s+(\d{10})/g;
+        // groups: block, village, name, phone
+
+        let match;
+        let contactsFound = 0;
+        const updates = {};
+
+        while ((match = regex.exec(fullText)) !== null) {
+          contactsFound++;
+          const contact = {
+            block: match[1].trim(),
+            village: match[2].trim(),
+            name: match[3].trim(),
+            phone: match[4].trim()
+          };
+
+          const id = db.ref('contacts').push().key;
+          updates[id] = contact;
+          allContacts.push(contact);
+        }
+
+        if (contactsFound === 0) {
+          statusDiv.textContent = "No contacts found in the PDF.";
+          displayContacts([]);
+          return;
+        }
+
+        // Save to Firebase
+        await db.ref('contacts').update(updates);
+
+        statusDiv.textContent = `Uploaded ${contactsFound} contacts.`;
+        displayContacts(allContacts);
+        searchInput.value = '';
+
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = "Error reading PDF.";
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+
+  // Load contacts from firebase on page load
+  function loadFromFirebase() {
+    statusDiv.textContent = "Loading contacts from Firebase...";
+    db.ref('contacts').once('value').then(snapshot => {
+      const data = snapshot.val() || {};
+      allContacts = Object.values(data);
+      displayContacts(allContacts);
+      statusDiv.textContent = "";
+    }).catch(err => {
+      console.error(err);
+      statusDiv.textContent = "Error loading contacts.";
+    });
+  }
+
+  loadFromFirebase();
+
+</script>
+
+</body>
+</html>
