@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>📇 TrueFetch</title>
+  <title>📇 Contact PDF Reader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#1E429B">
   <link rel="manifest" href="manifest.json">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+  </script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
   <style>
@@ -160,7 +163,15 @@
       grid-column: 1 / -1;
     }
 
-    /* Mobile optimizations */
+    .card p.raw-text {
+      max-height: 100px;
+      overflow-y: auto;
+      border-top: 1px solid #eee;
+      padding-top: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
     @media screen and (max-width: 600px) {
       .container {
         padding: 12px;
@@ -186,7 +197,6 @@
       }
     }
 
-    /* Loading animation */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -201,11 +211,11 @@
 <body>
 
 <div class="container">
-  <h1>📇 TrueFetch</h1>
+  <h1>📇 Contact PDF Reader</h1>
   
   <div class="input-group">
     <input type="file" id="fileInput" accept="application/pdf" />
-    <input type="text" id="searchInput" placeholder="Search contacts by name, village, or phone..." />
+    <input type="text" id="searchInput" placeholder="Search by name, phone, address, email..." />
   </div>
   
   <div id="status">Loading contacts...</div>
@@ -224,7 +234,7 @@
     messagingSenderId: "757574903179",
     appId: "1:757574903179:web:8cfa2a2e3ac157029f7b8e"
   };
-  
+
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -241,22 +251,22 @@
   let currentPage = 1;
   const contactsPerPage = 40;
 
-  // Function to highlight search matches
+  // Highlight search matches
   function highlightText(text, query) {
     if (!query) return text;
-    
     const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     return text.replace(regex, '<span class="highlight">$1</span>');
   }
 
-  // Function to format name properly (First Last)
+  // Format name
   function formatName(name) {
-    // Split name into parts and reverse if it looks like "Last, First" format
-    const parts = name.trim().split(/\s+/);
+    if (!name) return 'Unknown';
+    const trimmed = name.trim().replace(/\s+/g, ' ');
+    const parts = trimmed.split(/\s+/);
     if (parts.length === 2 && parts[0].endsWith(',')) {
       return `${parts[1]} ${parts[0].replace(',', '')}`;
     }
-    return name;
+    return trimmed;
   }
 
   // Debounce search input
@@ -268,25 +278,35 @@
     };
   }
 
-  // Filter contacts based on search query
+  // Filter contacts
   function getFilteredContacts() {
     const q = searchInput.value.trim().toLowerCase();
     if (!q || q.length < 2) return allContacts;
 
     const isNumber = /^\d+$/.test(q.replace(/\s+/g, ''));
     return allContacts.filter(c => {
-      if (isNumber) return c.phone.includes(q);
-      
-      const formattedName = formatName(c.name).toLowerCase();
+      const phones = Array.isArray(c.phones) ? c.phones : c.phone ? [c.phone] : [];
+      const name = formatName(c.name || '').toLowerCase();
+      const address = (c.address || c.village || '').toLowerCase();
+      const email = (c.email || '').toLowerCase();
+      const village = (c.village || '').toLowerCase();
+      const block = (c.block || '').toLowerCase();
+      const rawText = (c.rawText || '').toLowerCase();
+
+      if (isNumber) return phones.some(p => p.includes(q)) || rawText.includes(q);
       return (
-        formattedName.includes(q) ||
-        c.village.toLowerCase().includes(q) ||
-        c.block.toLowerCase().includes(q)
+        name.includes(q) ||
+        address.includes(q) ||
+        phones.some(p => p.includes(q)) ||
+        email.includes(q) ||
+        village.includes(q) ||
+        block.includes(q) ||
+        rawText.includes(q)
       );
     });
   }
 
-  // Render contacts with animation
+  // Render contacts
   function renderContacts() {
     const filtered = getFilteredContacts();
     const total = filtered.length;
@@ -296,21 +316,26 @@
     const query = searchInput.value.trim().toLowerCase();
 
     contactsDiv.innerHTML = '';
-    
+
     if (toShow.length === 0) {
       contactsDiv.innerHTML = '<div class="empty-state">No contacts found. Try a different search.</div>';
     } else {
       toShow.forEach((c, index) => {
-        const formattedName = formatName(c.name);
-        const formattedVillage = c.village;
-        const formattedBlock = c.block;
-        
+        const formattedName = formatName(c.name || 'Unknown');
+        const formattedAddress = c.address || (c.village && c.block ? `${c.village}, ${c.block}` : 'No address');
+        const phones = Array.isArray(c.phones) ? c.phones : c.phone ? [c.phone] : ['No phone'];
+        const formattedPhones = phones.join(', ');
+        const formattedEmail = c.email || 'No email';
+        const rawText = c.rawText || 'No additional text';
+
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
           <b>${query ? highlightText(formattedName, query) : formattedName}</b>
-          <p>🏘️ ${query ? highlightText(formattedVillage, query) : formattedVillage} | ${query ? highlightText(formattedBlock, query) : formattedBlock}</p>
-          <p>📞 <a href="tel:${c.phone}">${query && c.phone.includes(query) ? highlightText(c.phone, query) : c.phone}</a></p>
+          <p>🏠 ${query ? highlightText(formattedAddress, query) : formattedAddress}</p>
+          <p>📞 ${phones.map(p => `<a href="tel:${p}">${query && p.includes(query) ? highlightText(p, query) : p}</a>`).join(', ')}</p>
+          <p>📧 ${query ? highlightText(formattedEmail, query) : formattedEmail}</p>
+          <p class="raw-text">📄 Raw Text: ${query ? highlightText(rawText, query) : rawText}</p>
         `;
         card.style.animationDelay = `${index * 0.05}s`;
         contactsDiv.appendChild(card);
@@ -320,14 +345,13 @@
     renderPagination(total);
   }
 
-  // Render pagination buttons
+  // Render pagination
   function renderPagination(totalContacts) {
     const totalPages = Math.ceil(totalContacts / contactsPerPage);
     paginationDiv.innerHTML = '';
 
     if (totalPages <= 1) return;
 
-    // Previous button
     if (currentPage > 1) {
       const prevBtn = document.createElement('button');
       prevBtn.textContent = '←';
@@ -340,7 +364,6 @@
       paginationDiv.appendChild(prevBtn);
     }
 
-    // Page buttons
     const maxVisible = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let endPage = Math.min(totalPages, startPage + maxVisible - 1);
@@ -361,7 +384,6 @@
       paginationDiv.appendChild(btn);
     }
 
-    // Next button
     if (currentPage < totalPages) {
       const nextBtn = document.createElement('button');
       nextBtn.textContent = '→';
@@ -375,6 +397,32 @@
     }
   }
 
+  // Batch Firebase writes
+  async function batchFirebaseWrite(contacts) {
+    const batchSize = 20;
+    const updates = {};
+    contacts.forEach(contact => {
+      const id = db.ref('contacts').push().key;
+      updates[id] = contact;
+    });
+
+    const keys = Object.keys(updates);
+    for (let i = 0; i < keys.length; i += batchSize) {
+      const batch = {};
+      keys.slice(i, i + batchSize).forEach(key => {
+        batch[key] = updates[key];
+      });
+      try {
+        await db.ref('contacts').update(batch);
+        statusDiv.textContent = `Saved ${Math.min(i + batchSize, keys.length)} of ${keys.length} contacts...`;
+      } catch (err) {
+        console.error("Firebase batch write error:", err);
+        statusDiv.textContent = `⚠️ Error saving contacts: ${err.message}`;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
   // Handle search input
   searchInput.addEventListener('input', debounce(() => {
     currentPage = 1;
@@ -384,10 +432,13 @@
   // Handle file upload
   fileInput.addEventListener('change', async e => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      statusDiv.textContent = "No file selected.";
+      return;
+    }
 
     statusDiv.textContent = "Reading PDF...";
-    allContacts = [];
+    const newContacts = [];
     contactsDiv.innerHTML = '';
     paginationDiv.innerHTML = '';
 
@@ -395,69 +446,144 @@
       const reader = new FileReader();
       reader.onload = async () => {
         try {
+          const startTime = performance.now();
           const typedArray = new Uint8Array(reader.result);
           const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
 
-          const textPromises = [];
+          statusDiv.textContent = `Reading ${pdf.numPages} pages...`;
+          let fullText = '';
           for (let i = 1; i <= pdf.numPages; i++) {
-            textPromises.push(pdf.getPage(i).then(p => p.getTextContent()));
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+            statusDiv.textContent = `Processed page ${i} of ${pdf.numPages}...`;
           }
 
-          const allPages = await Promise.all(textPromises);
-          let fullText = allPages.map(p =>
-            p.items.map(item => item.str).join(' ')
-          ).join('\n');
+          console.log("Extracted Text Length:", fullText.length);
+          console.log("Text Extraction Time:", (performance.now() - startTime) / 1000, "seconds");
 
-          // Improved regex to handle name formats better
-          const regex = /([A-Za-z\s\-]+)\s+([A-Za-z\s\-]+)\s+([A-Za-z\s\-,]+)\s+(\d{10})/g;
+          // Try table-based parsing (for "kisan" PDF)
+          const tableRegex = /([A-Za-z\s\-]+)\s+([A-Za-z\s\-]+)\s+([A-Za-z\s\-,]+)\s+(\d{10})/g;
           let match;
-          const updates = {};
-
-          while ((match = regex.exec(fullText)) !== null) {
-            const contact = {
+          while ((match = tableRegex.exec(fullText)) !== null) {
+            newContacts.push({
               block: match[1].trim(),
               village: match[2].trim(),
-              name: formatName(match[3].trim()), // Format name properly
-              phone: match[4].trim()
-            };
-            allContacts.push(contact);
-            const id = db.ref('contacts').push().key;
-            updates[id] = contact;
+              name: formatName(match[3].trim()),
+              phones: [match[4].trim()],
+              address: `${match[2].trim()}, ${match[1].trim()}`,
+              email: null,
+              rawText: match[0]
+            });
           }
 
-          await db.ref('contacts').update(updates);
-          statusDiv.textContent = `Loaded ${allContacts.length} contacts.`;
+          if (newContacts.length > 0) {
+            console.log("Table-based contacts:", newContacts.length);
+          } else {
+            statusDiv.textContent = "Parsing semi-structured contacts...";
+            // Parse semi-structured format (like afsar.pdf)
+            const lines = fullText.split('\n').filter(line => line.trim() && !line.match(/^about\s*blank$|^11\/20\/24|^[0-9\/]+\s*$/));
+            const entries = [];
+            let currentEntry = [];
+
+            for (const line of lines) {
+              if (!line.match(/^(Phone|Address|Email)\s/) && !line.match(/^\d{10,12}|^\+\d+|[\w.-]+@[\w.-]+\.\w+/)) {
+                if (currentEntry.length) entries.push(currentEntry.join('\n'));
+                currentEntry = [line];
+              } else if (currentEntry.length) {
+                currentEntry.push(line);
+              }
+            }
+            if (currentEntry.length) entries.push(currentEntry.join('\n'));
+
+            console.log("Entries found:", entries.length);
+
+            const phoneRegex = /(?:\+[\d-]+\s*\d+|\d{10,12}|[\d-]{10,14})(?:\s*\.\s*(?:Mobile|Other|Phone|WhatsApp|Main))?/g;
+            const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
+            const addressRegex = /([A-Za-z\s,]+(?:,\s*[A-Za-z\s]+)*\s*(?:India|Indsa))(?:\s*\.\s*(?:Work|Home))?/g;
+
+            const phones = [...new Set(fullText.match(phoneRegex) || [])].map(p => p.trim());
+            const emails = [...new Set(fullText.match(emailRegex) || [])];
+            const addresses = [...new Set(fullText.match(addressRegex) || [])].map(a => a.trim());
+
+            console.log("Phones:", phones.length);
+            console.log("Emails:", emails.length);
+            console.log("Addresses:", addresses.length);
+
+            newContacts.push(...entries.map((entry, index) => {
+              const entryPhones = phones.filter(p => entry.includes(p));
+              const entryEmail = emails.find(e => entry.includes(e)) || null;
+              const entryAddress = addresses.find(a => entry.includes(a)) || null;
+              const name = formatName(entry.split('\n')[0].trim()) || `Unknown ${index + 1}`;
+
+              return {
+                name,
+                phones: entryPhones.length ? entryPhones : ['No phone'],
+                address: entryAddress || 'No address',
+                email: entryEmail || 'No email',
+                rawText: entry
+              };
+            }));
+
+            console.log("Parsed contacts:", newContacts.length);
+          }
+
+          if (newContacts.length === 0) {
+            statusDiv.textContent = "⚠️ No contacts found in the PDF.";
+            return;
+          }
+
+          // Append new contacts to allContacts
+          allContacts = [...allContacts, ...newContacts];
+
+          // Save to Firebase
+          statusDiv.textContent = "Saving contacts...";
+          await batchFirebaseWrite(newContacts);
+
+          statusDiv.textContent = `Loaded ${newContacts.length} new contacts (Total: ${allContacts.length}).`;
           currentPage = 1;
           renderContacts();
+
+          console.log("Total Processing Time:", (performance.now() - startTime) / 1000, "seconds");
         } catch (err) {
-          console.error("PDF processing error:", err);
-          statusDiv.textContent = "❌ Error reading PDF. Please try another file.";
+          console.error("PDF processing error:", err.message, err.stack);
+          statusDiv.textContent = `❌ Error processing PDF: ${err.message}`;
         }
+      };
+      reader.onerror = () => {
+        console.error("File reading error");
+        statusDiv.textContent = "❌ Error reading file.";
       };
       reader.readAsArrayBuffer(file);
     } catch (err) {
-      console.error("File reading error:", err);
-      statusDiv.textContent = "❌ Error reading file. Please try again.";
+      console.error("File input error:", err);
+      statusDiv.textContent = "❌ File input error.";
     }
   });
 
   // Load contacts from Firebase
   function loadFromFirebase() {
-    statusDiv.textContent = "Loading contacts...";
+    statusDiv.textContent = "Loading contacts from database...";
     db.ref('contacts').once('value').then(snapshot => {
       const data = snapshot.val() || {};
       allContacts = Object.values(data).map(contact => ({
-        ...contact,
-        name: formatName(contact.name) // Ensure names are formatted when loading from Firebase
+        name: formatName(contact.name || 'Unknown'),
+        phones: Array.isArray(contact.phones) ? contact.phones : contact.phone ? [contact.phone] : ['No phone'],
+        address: contact.address || (contact.village && contact.block ? `${contact.village}, ${contact.block}` : 'No address'),
+        email: contact.email || 'No email',
+        village: contact.village || '',
+        block: contact.block || '',
+        rawText: contact.rawText || contact.name || 'No text'
       }));
+      console.log("Loaded from Firebase:", allContacts.length);
       currentPage = 1;
       renderContacts();
-      statusDiv.textContent = allContacts.length > 0 ? 
-        `Ready. ${allContacts.length} contacts loaded.` : 
+      statusDiv.textContent = allContacts.length > 0 ?
+        `Ready. ${allContacts.length} contacts loaded.` :
         "No contacts found. Upload a PDF to get started.";
     }).catch(err => {
       console.error("Firebase error:", err);
-      statusDiv.textContent = "Error loading contacts. Please refresh.";
+      statusDiv.textContent = "❌ Error loading contacts from database.";
     });
   }
 
