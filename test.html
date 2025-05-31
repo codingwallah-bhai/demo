@@ -1,595 +1,867 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <title>📇 Contact PDF Reader</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#1E429B">
-  <link rel="manifest" href="manifest.json">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
-  </script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <style>
-    :root {
-      --primary: #1E429B;
-      --secondary: #F3802D;
-      --bg: #f5f7fa;
-      --card-bg: #ffffff;
-      --text: #000000;
-      --text-light: #000000;
-      --highlight: #fff308;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Data Extractor | PDF डेटा एक्सट्रैक्टर</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: var(--bg);
-      margin: 0;
-      padding: 0;
-      color: var(--text);
-      line-height: 1.5;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .container {
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--primary);
-      margin: 16px 0 24px;
-      font-size: 1.5rem;
-    }
-
-    .input-group {
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      padding: 12px 0;
-      z-index: 10;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    input[type="file"], input[type="text"] {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px solid #e0e0e0;
-      margin: 8px 0;
-      font-size: 16px;
-      background: var(--card-bg);
-      transition: all 0.2s;
-    }
-
-    input[type="file"]:focus, input[type="text"]:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(30, 66, 155, 0.2);
-    }
-
-    #contacts {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      transition: all 0.2s ease;
-      border: 1px solid #eee;
-    }
-
-    .card:active {
-      transform: scale(0.98);
-    }
-
-    .card b {
-      color: var(--primary);
-      font-size: 17px;
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .card p {
-      margin: 6px 0;
-      color: var(--text-light);
-      font-size: 15px;
-    }
-
-    .card a {
-      color: var(--secondary);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .highlight {
-      background-color: var(--highlight);
-      padding: 0 2px;
-      border-radius: 3px;
-    }
-
-    #pagination {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 24px 0;
-      gap: 8px;
-    }
-
-    .page-btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .page-btn:active {
-      transform: scale(0.95);
-    }
-
-    .page-btn.active {
-      background: var(--secondary);
-    }
-
-    #status {
-      text-align: center;
-      margin: 16px 0;
-      color: var(--text-light);
-      font-size: 14px;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-light);
-      grid-column: 1 / -1;
-    }
-
-    .card p.raw-text {
-      max-height: 100px;
-      overflow-y: auto;
-      border-top: 1px solid #eee;
-      padding-top: 8px;
-      margin-top: 8px;
-      font-size: 13px;
-    }
-
-    @media screen and (max-width: 600px) {
-      .container {
-        padding: 12px;
-      }
-      
-      h1 {
-        font-size: 1.3rem;
-        margin: 12px 0 18px;
-      }
-      
-      #contacts {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      
-      .card {
-        padding: 16px;
-      }
-      
-      .page-btn {
-        padding: 8px 12px;
-        font-size: 14px;
-      }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card {
-      animation: fadeIn 0.3s ease-out forwards;
-      opacity: 0;
-    }
-  </style>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 1rem;
+        }
+        .container {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 1200px;
+            border: 1px solid #e5e7eb;
+        }
+        h1 {
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            font-size: 1.875rem;
+            text-align: center;
+        }
+        label {
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .search-input, .file-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            width: 100%;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-input:focus, .file-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        .file-input {
+            background-color: white;
+            cursor: pointer;
+        }
+        .status-message {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            display: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-loading {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+        .status-error {
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .status-success {
+            background-color: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .status-info {
+            background-color: #f0f9ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .table-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: auto;
+            margin-top: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #1f2937;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            color: #374151;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+        .pagination-controls {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background-color: white;
+            color: #374151;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .page-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .highlight {
+            background-color: #fef08a;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+        }
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+        .action-btn:hover {
+            background-color: #4338ca;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>PDF डेटा एक्सट्रैक्टर</h1>
 
-<div class="container">
-  <h1>📇 Contact PDF Reader</h1>
-  
-  <div class="input-group">
-    <input type="file" id="fileInput" accept="application/pdf" />
-    <input type="text" id="searchInput" placeholder="Search by name, phone, address, email..." />
-  </div>
-  
-  <div id="status">Loading contacts...</div>
-  <div id="contacts"></div>
-  <div id="pagination"></div>
-</div>
+        <div class="input-group">
+            <label for="pdfFile">PDF फाइल चुनें:</label>
+            <input type="file" id="pdfFile" accept=".pdf" class="file-input mt-1">
+            <button id="resetBtn" class="action-btn">रीसेट करें</button>
+        </div>
 
-<script>
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBeqaDJLifgdpBQPRL0OLtkovB-m4OM7kw",
-    authDomain: "cricker2.firebaseapp.com",
-    databaseURL: "https://cricker2-default-rtdb.firebaseio.com",
-    projectId: "cricker2",
-    storageBucket: "cricker2.appspot.com",
-    messagingSenderId: "757574903179",
-    appId: "1:757574903179:web:8cfa2a2e3ac157029f7b8e"
-  };
+        <div class="input-group">
+            <label for="searchInput">सभी PDF में डेटा खोजें:</label>
+            <input type="text" id="searchInput" class="search-input mt-1" placeholder="खोजें...">
+        </div>
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+        <div id="statusMessage" class="status-message" role="status" aria-live="polite"></div>
 
-  // DOM elements
-  const fileInput = document.getElementById('fileInput');
-  const searchInput = document.getElementById('searchInput');
-  const contactsDiv = document.getElementById('contacts');
-  const statusDiv = document.getElementById('status');
-  const paginationDiv = document.getElementById('pagination');
+        <div class="table-container">
+            <table id="dataTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="paginationControls" class="pagination-controls"></div>
+    </div>
 
-  // App state
-  let allContacts = [];
-  let currentPage = 1;
-  const contactsPerPage = 40;
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBeqaDJLifgdpBQPRL0OLTkovB-m4OM7kw",
+            authDomain: "cricker2.firebaseapp.com",
+            databaseURL: "https://cricker2-default-rtdb.firebaseio.com",
+            projectId: "cricker2",
+            storageBucket: "cricker2.appspot.com",
+            messagingSenderId: "757574903179",
+            appId: "1:757574903179:web:8cfa2a2e3ac157029f7b8e",
+            measurementId: "G-DZNF4BTH35"
+        };
 
-  // Highlight search matches
-  function highlightText(text, query) {
-    if (!query) return text;
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(regex, '<span class="highlight">$1</span>');
-  }
-
-  // Format name
-  function formatName(name) {
-    if (!name) return 'Unknown';
-    const trimmed = name.trim().replace(/\s+/g, ' ');
-    const parts = trimmed.split(/\s+/);
-    if (parts.length === 2 && parts[0].endsWith(',')) {
-      return `${parts[1]} ${parts[0].replace(',', '')}`;
-    }
-    return trimmed;
-  }
-
-  // Debounce search input
-  function debounce(func, delay = 300) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-  }
-
-  // Filter contacts
-  function getFilteredContacts() {
-    const q = searchInput.value.trim().toLowerCase();
-    if (!q || q.length < 2) return allContacts;
-
-    const isNumber = /^\d+$/.test(q.replace(/\s+/g, ''));
-    return allContacts.filter(c => {
-      const phones = Array.isArray(c.phones) ? c.phones : c.phone ? [c.phone] : [];
-      const name = formatName(c.name || '').toLowerCase();
-      const address = (c.address || c.village || '').toLowerCase();
-      const email = (c.email || '').toLowerCase();
-      const village = (c.village || '').toLowerCase();
-      const block = (c.block || '').toLowerCase();
-      const rawText = (c.rawText || '').toLowerCase();
-
-      if (isNumber) return phones.some(p => p.includes(q)) || rawText.includes(q);
-      return (
-        name.includes(q) ||
-        address.includes(q) ||
-        phones.some(p => p.includes(q)) ||
-        email.includes(q) ||
-        village.includes(q) ||
-        block.includes(q) ||
-        rawText.includes(q)
-      );
-    });
-  }
-
-  // Render contacts
-  function renderContacts() {
-    const filtered = getFilteredContacts();
-    const total = filtered.length;
-    const start = (currentPage - 1) * contactsPerPage;
-    const end = start + contactsPerPage;
-    const toShow = filtered.slice(start, end);
-    const query = searchInput.value.trim().toLowerCase();
-
-    contactsDiv.innerHTML = '';
-
-    if (toShow.length === 0) {
-      contactsDiv.innerHTML = '<div class="empty-state">No contacts found. Try a different search.</div>';
-    } else {
-      toShow.forEach((c, index) => {
-        const formattedName = formatName(c.name || 'Unknown');
-        const formattedAddress = c.address || (c.village && c.block ? `${c.village}, ${c.block}` : 'No address');
-        const phones = Array.isArray(c.phones) ? c.phones : c.phone ? [c.phone] : ['No phone'];
-        const formattedPhones = phones.join(', ');
-        const formattedEmail = c.email || 'No email';
-        const rawText = c.rawText || 'No additional text';
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <b>${query ? highlightText(formattedName, query) : formattedName}</b>
-          <p>🏠 ${query ? highlightText(formattedAddress, query) : formattedAddress}</p>
-          <p>📞 ${phones.map(p => `<a href="tel:${p}">${query && p.includes(query) ? highlightText(p, query) : p}</a>`).join(', ')}</p>
-          <p>📧 ${query ? highlightText(formattedEmail, query) : formattedEmail}</p>
-          <p class="raw-text">📄 Raw Text: ${query ? highlightText(rawText, query) : rawText}</p>
-        `;
-        card.style.animationDelay = `${index * 0.05}s`;
-        contactsDiv.appendChild(card);
-      });
-    }
-
-    renderPagination(total);
-  }
-
-  // Render pagination
-  function renderPagination(totalContacts) {
-    const totalPages = Math.ceil(totalContacts / contactsPerPage);
-    paginationDiv.innerHTML = '';
-
-    if (totalPages <= 1) return;
-
-    if (currentPage > 1) {
-      const prevBtn = document.createElement('button');
-      prevBtn.textContent = '←';
-      prevBtn.className = 'page-btn';
-      prevBtn.onclick = () => {
-        currentPage--;
-        renderContacts();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-      paginationDiv.appendChild(prevBtn);
-    }
-
-    const maxVisible = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    if (endPage - startPage + 1 < maxVisible) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = i;
-      btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
-      btn.onclick = () => {
-        currentPage = i;
-        renderContacts();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-      paginationDiv.appendChild(btn);
-    }
-
-    if (currentPage < totalPages) {
-      const nextBtn = document.createElement('button');
-      nextBtn.textContent = '→';
-      nextBtn.className = 'page-btn';
-      nextBtn.onclick = () => {
-        currentPage++;
-        renderContacts();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-      paginationDiv.appendChild(nextBtn);
-    }
-  }
-
-  // Batch Firebase writes
-  async function batchFirebaseWrite(contacts) {
-    const batchSize = 20;
-    const updates = {};
-    contacts.forEach(contact => {
-      const id = db.ref('contacts').push().key;
-      updates[id] = contact;
-    });
-
-    const keys = Object.keys(updates);
-    for (let i = 0; i < keys.length; i += batchSize) {
-      const batch = {};
-      keys.slice(i, i + batchSize).forEach(key => {
-        batch[key] = updates[key];
-      });
-      try {
-        await db.ref('contacts').update(batch);
-        statusDiv.textContent = `Saved ${Math.min(i + batchSize, keys.length)} of ${keys.length} contacts...`;
-      } catch (err) {
-        console.error("Firebase batch write error:", err);
-        statusDiv.textContent = `⚠️ Error saving contacts: ${err.message}`;
-      }
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-  }
-
-  // Handle search input
-  searchInput.addEventListener('input', debounce(() => {
-    currentPage = 1;
-    renderContacts();
-  }));
-
-  // Handle file upload
-  fileInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) {
-      statusDiv.textContent = "No file selected.";
-      return;
-    }
-
-    statusDiv.textContent = "Reading PDF...";
-    const newContacts = [];
-    contactsDiv.innerHTML = '';
-    paginationDiv.innerHTML = '';
-
-    try {
-      const reader = new FileReader();
-      reader.onload = async () => {
+        // Initialize Firebase
+        let firebaseApp;
+        let db;
         try {
-          const startTime = performance.now();
-          const typedArray = new Uint8Array(reader.result);
-          const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
-
-          statusDiv.textContent = `Reading ${pdf.numPages} pages...`;
-          let fullText = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            fullText += textContent.items.map(item => item.str).join(' ') + '\n';
-            statusDiv.textContent = `Processed page ${i} of ${pdf.numPages}...`;
-          }
-
-          console.log("Extracted Text Length:", fullText.length);
-          console.log("Text Extraction Time:", (performance.now() - startTime) / 1000, "seconds");
-
-          // Try table-based parsing (for "kisan" PDF)
-          const tableRegex = /([A-Za-z\s\-]+)\s+([A-Za-z\s\-]+)\s+([A-Za-z\s\-,]+)\s+(\d{10})/g;
-          let match;
-          while ((match = tableRegex.exec(fullText)) !== null) {
-            newContacts.push({
-              block: match[1].trim(),
-              village: match[2].trim(),
-              name: formatName(match[3].trim()),
-              phones: [match[4].trim()],
-              address: `${match[2].trim()}, ${match[1].trim()}`,
-              email: null,
-              rawText: match[0]
-            });
-          }
-
-          if (newContacts.length > 0) {
-            console.log("Table-based contacts:", newContacts.length);
-          } else {
-            statusDiv.textContent = "Parsing semi-structured contacts...";
-            // Parse semi-structured format (like afsar.pdf)
-            const lines = fullText.split('\n').filter(line => line.trim() && !line.match(/^about\s*blank$|^11\/20\/24|^[0-9\/]+\s*$/));
-            const entries = [];
-            let currentEntry = [];
-
-            for (const line of lines) {
-              if (!line.match(/^(Phone|Address|Email)\s/) && !line.match(/^\d{10,12}|^\+\d+|[\w.-]+@[\w.-]+\.\w+/)) {
-                if (currentEntry.length) entries.push(currentEntry.join('\n'));
-                currentEntry = [line];
-              } else if (currentEntry.length) {
-                currentEntry.push(line);
-              }
+            if (typeof firebase !== 'undefined' && firebase.app && !firebase.apps.length) {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                db = firebaseApp.database();
+                console.log("Firebase initialized.");
+            } else if (typeof firebase !== 'undefined' && firebase.app && firebase.apps.length) {
+                firebaseApp = firebase.app();
+                db = firebaseApp.database();
+                console.log("Firebase already initialized.");
+            } else {
+                throw new Error("Firebase SDK not loaded.");
             }
-            if (currentEntry.length) entries.push(currentEntry.join('\n'));
-
-            console.log("Entries found:", entries.length);
-
-            const phoneRegex = /(?:\+[\d-]+\s*\d+|\d{10,12}|[\d-]{10,14})(?:\s*\.\s*(?:Mobile|Other|Phone|WhatsApp|Main))?/g;
-            const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
-            const addressRegex = /([A-Za-z\s,]+(?:,\s*[A-Za-z\s]+)*\s*(?:India|Indsa))(?:\s*\.\s*(?:Work|Home))?/g;
-
-            const phones = [...new Set(fullText.match(phoneRegex) || [])].map(p => p.trim());
-            const emails = [...new Set(fullText.match(emailRegex) || [])];
-            const addresses = [...new Set(fullText.match(addressRegex) || [])].map(a => a.trim());
-
-            console.log("Phones:", phones.length);
-            console.log("Emails:", emails.length);
-            console.log("Addresses:", addresses.length);
-
-            newContacts.push(...entries.map((entry, index) => {
-              const entryPhones = phones.filter(p => entry.includes(p));
-              const entryEmail = emails.find(e => entry.includes(e)) || null;
-              const entryAddress = addresses.find(a => entry.includes(a)) || null;
-              const name = formatName(entry.split('\n')[0].trim()) || `Unknown ${index + 1}`;
-
-              return {
-                name,
-                phones: entryPhones.length ? entryPhones : ['No phone'],
-                address: entryAddress || 'No address',
-                email: entryEmail || 'No email',
-                rawText: entry
-              };
-            }));
-
-            console.log("Parsed contacts:", newContacts.length);
-          }
-
-          if (newContacts.length === 0) {
-            statusDiv.textContent = "⚠️ No contacts found in the PDF.";
-            return;
-          }
-
-          // Append new contacts to allContacts
-          allContacts = [...allContacts, ...newContacts];
-
-          // Save to Firebase
-          statusDiv.textContent = "Saving contacts...";
-          await batchFirebaseWrite(newContacts);
-
-          statusDiv.textContent = `Loaded ${newContacts.length} new contacts (Total: ${allContacts.length}).`;
-          currentPage = 1;
-          renderContacts();
-
-          console.log("Total Processing Time:", (performance.now() - startTime) / 1000, "seconds");
-        } catch (err) {
-          console.error("PDF processing error:", err.message, err.stack);
-          statusDiv.textContent = `❌ Error processing PDF: ${err.message}`;
+        } catch (error) {
+            console.error("Firebase init error:", error);
+            displayUserMessage("Firebase लोड करने में त्रुटि। डेटा सेव नहीं होगा।", 'error');
         }
-      };
-      reader.onerror = () => {
-        console.error("File reading error");
-        statusDiv.textContent = "❌ Error reading file.";
-      };
-      reader.readAsArrayBuffer(file);
-    } catch (err) {
-      console.error("File input error:", err);
-      statusDiv.textContent = "❌ File input error.";
-    }
-  });
 
-  // Load contacts from Firebase
-  function loadFromFirebase() {
-    statusDiv.textContent = "Loading contacts from database...";
-    db.ref('contacts').once('value').then(snapshot => {
-      const data = snapshot.val() || {};
-      allContacts = Object.values(data).map(contact => ({
-        name: formatName(contact.name || 'Unknown'),
-        phones: Array.isArray(contact.phones) ? contact.phones : contact.phone ? [contact.phone] : ['No phone'],
-        address: contact.address || (contact.village && contact.block ? `${contact.village}, ${contact.block}` : 'No address'),
-        email: contact.email || 'No email',
-        village: contact.village || '',
-        block: contact.block || '',
-        rawText: contact.rawText || contact.name || 'No text'
-      }));
-      console.log("Loaded from Firebase:", allContacts.length);
-      currentPage = 1;
-      renderContacts();
-      statusDiv.textContent = allContacts.length > 0 ?
-        `Ready. ${allContacts.length} contacts loaded.` :
-        "No contacts found. Upload a PDF to get started.";
-    }).catch(err => {
-      console.error("Firebase error:", err);
-      statusDiv.textContent = "❌ Error loading contacts from database.";
-    });
-  }
+        const pdfFileInput = document.getElementById('pdfFile');
+        const searchInput = document.getElementById('searchInput');
+        const dataTable = document.getElementById('dataTable');
+        const tableHead = dataTable.querySelector('thead');
+        const tableBody = dataTable.querySelector('tbody');
+        const statusMessage = document.getElementById('statusMessage');
+        const paginationControls = document.getElementById('paginationControls');
+        const resetBtn = document.getElementById('resetBtn');
 
-  // Initialize the app
-  loadFromFirebase();
-</script>
+        let allPdfData = [];
+        let currentHeaders = [];
+        let currentFilteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 20;
 
+        pdfFileInput.addEventListener('change', handleFileSelect);
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+        resetBtn.addEventListener('click', resetTableState);
+
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+        } else {
+            console.error("PDF.js not loaded.");
+            displayUserMessage("PDF.js लोड नहीं हुआ। इंटरनेट चेक करें।", 'error');
+        }
+
+        function displayUserMessage(message, type) {
+            if (!statusMessage) return;
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message';
+            if (type === 'loading') statusMessage.classList.add('status-loading');
+            else if (type === 'error') statusMessage.classList.add('status-error');
+            else if (type === 'success') statusMessage.classList.add('status-success');
+            else if (type === 'info') statusMessage.classList.add('status-info');
+            statusMessage.style.display = message ? 'block' : 'none';
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func(...args), wait);
+            };
+        }
+
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file || file.type !== 'application/pdf') {
+                displayUserMessage('PDF फाइल चुनें।', 'error');
+                return;
+            }
+
+            displayUserMessage('PDF प्रोसेस हो रहा है...', 'loading');
+
+            try {
+                const fileReader = new FileReader();
+                fileReader.onload = async function() {
+                    const typedarray = new Uint8Array(this.result);
+                    await parsePdfAndSetupTable(typedarray, file.name);
+                };
+                fileReader.readAsArrayBuffer(file);
+            } catch (error) {
+                console.error('File read error:', error);
+                displayUserMessage('फाइल पढ़ने में त्रुटि।', 'error');
+            }
+        }
+
+        async function parsePdfAndSetupTable(pdfData, fileName) {
+            const startTime = performance.now();
+            try {
+                if (!window.pdfjsLib) {
+                    displayUserMessage("PDF.js not loaded.", "error");
+                    return;
+                }
+                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                const numPages = pdf.numPages;
+                let allTextItems = [];
+
+                for (let i = 1; i <= numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    textContent.items.forEach(item => {
+                        item.page = i;
+                        item.originalY = item.transform[5];
+                        item.originalX = item.transform[4];
+                        allTextItems.push(item);
+                    });
+                }
+
+                allTextItems.sort((a, b) => {
+                    if (a.page !== b.page) return a.page - b.page;
+                    return a.originalY === b.originalY ? a.originalX - b.originalX : b.originalY - a.originalY;
+                });
+
+                const mergedTextItems = [];
+                let currentItem = null;
+                const MERGE_Y_TOLERANCE = 25;
+                const MERGE_X_TOLERANCE = 70;
+
+                for (const item of allTextItems) {
+                    const itemText = item.str.trim();
+                    if (!itemText) continue;
+
+                    if (!currentItem) {
+                        currentItem = {
+                            text: itemText,
+                            x: item.originalX,
+                            y: item.originalY,
+                            width: item.width,
+                            height: item.height,
+                            page: item.page
+                        };
+                    } else if (
+                        item.page === currentItem.page &&
+                        Math.abs(item.originalY - currentItem.y) <= MERGE_Y_TOLERANCE &&
+                        Math.abs(item.originalX - currentItem.x) <= MERGE_X_TOLERANCE
+                    ) {
+                        currentItem.text += ' ' + itemText;
+                        currentItem.width = Math.max(currentItem.width, item.width);
+                        currentItem.height += item.height;
+                    } else {
+                        mergedTextItems.push(currentItem);
+                        currentItem = {
+                            text: itemText,
+                            x: item.originalX,
+                            y: item.originalY,
+                            width: item.width,
+                            height: item.height,
+                            page: item.page
+                        };
+                    }
+                }
+                if (currentItem) {
+                    mergedTextItems.push(currentItem);
+                }
+
+                console.log(`Merged ${mergedTextItems.length} text items for ${fileName}`);
+
+                const lines = [];
+                let currentLineItems = [];
+                let lastY = -1;
+                const LINE_Y_TOLERANCE = 5;
+
+                for (const item of mergedTextItems) {
+                    if (lastY === -1 || Math.abs(item.y - lastY) < LINE_Y_TOLERANCE) {
+                        currentLineItems.push(item);
+                    } else {
+                        if (currentLineItems.length > 0) lines.push(currentLineItems);
+                        currentLineItems = [item];
+                    }
+                    lastY = item.y;
+                }
+                if (currentLineItems.length > 0) {
+                    lines.push(currentLineItems);
+                }
+
+                console.log(`Grouped into ${lines.length} lines for ${fileName}`);
+
+                const rawParsedData = inferTableColumns(lines);
+
+                console.log(`Parsed ${rawParsedData.length} rows for ${fileName}`);
+
+                if (rawParsedData.length > 0) {
+                    const { headers, data } = processRawDataForTable(rawParsedData);
+                    console.log(`Headers: ${headers.length}, Data rows: ${data.length} for ${fileName}`);
+                    const existingPdf = allPdfData.find(pdf => pdf.fileName === fileName);
+                    if (!existingPdf) {
+                        const pdfEntry = {
+                            fileName: fileName || `untitled_${Date.now()}.pdf`,
+                            headers: headers,
+                            data: data,
+                            timestamp: new Date().toISOString()
+                        };
+                        allPdfData.push(pdfEntry);
+                        if (db) await saveExtractedDataToFirebase(fileName, headers, data, pdfEntry);
+                    }
+                    await loadAllSavedDataFromFirebase();
+                    combineAllPdfData();
+                    currentFilteredData = allPdfData.flatMap(pdf => pdf.data);
+                    currentPage = 1;
+                    renderTablePage();
+                    const endTime = performance.now();
+                    console.log(`Processed ${fileName} in ${(endTime - startTime).toFixed(2)}ms`);
+                    displayUserMessage('PDF प्रोसेस हुआ। डेटा टेबल में जोड़ा गया।', 'success');
+                } else {
+                    displayUserMessage('PDF में कोई डेटा नहीं मिला।', 'error');
+                }
+            } catch (error) {
+                console.error('PDF parse error:', error);
+                displayUserMessage(`PDF पार्स करने में त्रुटि: ${error.message}`, 'error');
+            }
+        }
+
+        function inferTableColumns(linesOfItemObjects) {
+            if (linesOfItemObjects.length === 0) return [];
+
+            const itemStartXFrequencies = new Map();
+            let totalLinesWithItems = 0;
+            linesOfItemObjects.forEach(lineItems => {
+                if (lineItems.length > 0) {
+                    totalLinesWithItems++;
+                    const lineUniqueXStarts = new Set();
+                    lineItems.forEach(item => lineUniqueXStarts.add(Math.round(item.x)));
+                    lineUniqueXStarts.forEach(x => {
+                        itemStartXFrequencies.set(x, (itemStartXFrequencies.get(x) || 0) + 1);
+                    });
+                }
+            });
+
+            const frequentXStarts = [];
+            const minFrequency = Math.max(2, Math.floor(totalLinesWithItems * 0.3));
+
+            itemStartXFrequencies.forEach((count, x) => {
+                if (count >= minFrequency) {
+                    frequentXStarts.push(x);
+                }
+            });
+
+            if (frequentXStarts.length === 0 && totalLinesWithItems > 0) {
+                const allXStarts = new Set();
+                linesOfItemObjects.forEach(lineItems => {
+                    lineItems.forEach(item => allXStarts.add(Math.round(item.x)));
+                });
+                frequentXStarts.push(...Array.from(allXStarts));
+            }
+
+            if (frequentXStarts.length === 0 && linesOfItemObjects.some(line => line.length > 0)) {
+                const firstNonEmptyLine = linesOfItemObjects.find(line => line.length > 0);
+                if (firstNonEmptyLine) {
+                    frequentXStarts.push(Math.round(firstNonEmptyLine[0].x));
+                }
+            }
+
+            frequentXStarts.sort((a, b) => a - b);
+
+            const mergedColumnStarts = [];
+            const COLUMN_MERGE_TOLERANCE = 15;
+
+            if (frequentXStarts.length > 0) {
+                mergedColumnStarts.push(frequentXStarts[0]);
+                for (let i = 1; i < frequentXStarts.length; i++) {
+                    if (frequentXStarts[i] - mergedColumnStarts[mergedColumnStarts.length - 1] >= COLUMN_MERGE_TOLERANCE) {
+                        mergedColumnStarts.push(frequentXStarts[i]);
+                    }
+                }
+            }
+
+            const finalColumnStarts = [];
+            const MIN_COLUMN_WIDTH_THRESHOLD = 25;
+            const MAX_COLUMNS = 10;
+
+            if (mergedColumnStarts.length > 0) {
+                finalColumnStarts.push(mergedColumnStarts[0]);
+                for (let i = 1; i < mergedColumnStarts.length && finalColumnStarts.length < MAX_COLUMNS; i++) {
+                    if (mergedColumnStarts[i] - finalColumnStarts[finalColumnStarts.length - 1] >= MIN_COLUMN_WIDTH_THRESHOLD) {
+                        finalColumnStarts.push(mergedColumnStarts[i]);
+                    }
+                }
+            }
+
+            if (finalColumnStarts.length === 0 && linesOfItemObjects.length > 0) {
+                let minX = Infinity;
+                linesOfItemObjects.forEach(line => line.forEach(item => {
+                    if (item.x < minX) minX = item.x;
+                }));
+                if (minX !== Infinity) {
+                    finalColumnStarts.push(Math.round(minX));
+                } else {
+                    finalColumnStarts.push(0);
+                }
+            }
+
+            const structuredData = [];
+            linesOfItemObjects.forEach(lineItems => {
+                lineItems.sort((a, b) => a.x - b.x);
+                const row = Array(finalColumnStarts.length).fill('');
+
+                lineItems.forEach(item => {
+                    let assignedToColumn = -1;
+                    let maxOverlap = 0;
+
+                    for (let i = 0; i < finalColumnStarts.length; i++) {
+                        const colStart = finalColumnStarts[i];
+                        const colEnd = (i + 1 < finalColumnStarts.length) ? finalColumnStarts[i + 1] : colStart + 500;
+
+                        const itemStartX = item.x;
+                        const itemEndX = item.x + item.width;
+
+                        const overlapStart = Math.max(itemStartX, colStart);
+                        const overlapEnd = Math.min(itemEndX, colEnd);
+                        const currentOverlap = Math.max(0, overlapEnd - overlapStart);
+
+                        const significantOverlap = currentOverlap > Math.min(item.width * 0.2, 15);
+
+                        if (significantOverlap && currentOverlap > maxOverlap) {
+                            maxOverlap = currentOverlap;
+                            assignedToColumn = i;
+                        }
+                    }
+
+                    if (assignedToColumn !== -1) {
+                        row[assignedToColumn] = row[assignedToColumn]
+                            ? (row[assignedToColumn] + ' ' + item.text)
+                            : item.text;
+                    } else if (finalColumnStarts.length > 0 && item.text.trim()) {
+                        let closestColIndex = 0;
+                        let minDist = Infinity;
+                        for (let i = 0; i < finalColumnStarts.length; i++) {
+                            const distToColStart = Math.abs(item.x - finalColumnStarts[i]);
+                            const distToColEnd = (i + 1 < finalColumnStarts.length) ? Math.abs(item.x - finalColumnStarts[i + 1]) : Infinity;
+                            const dist = Math.min(distToColStart, distToColEnd);
+
+                            if (dist < minDist) {
+                                minDist = dist;
+                                closestColIndex = i;
+                            }
+                        }
+                        if (minDist < (MIN_COLUMN_WIDTH_THRESHOLD * 2)) {
+                            row[closestColIndex] = row[closestColIndex]
+                                ? (row[closestColIndex] + ' ' + item.text)
+                                : item.text;
+                        } else {
+                            row[finalColumnStarts.length - 1] = row[finalColumnStarts.length - 1]
+                                ? (row[finalColumnStarts.length - 1] + ' ' + item.text)
+                                : item.text;
+                        }
+                    } else if (finalColumnStarts.length === 0 && row.length > 0) {
+                        row[0] = row[0]
+                            ? (row[0] + ' ' + item.text)
+                            : item.text;
+                    }
+                });
+
+                const cleanedRow = row.map(cell => cell ? cell.replace(/ {2,}/g, ' ').trim() : '');
+                if (cleanedRow.some(cell => cell.trim() !== '')) {
+                    structuredData.push(cleanedRow);
+                }
+            });
+
+            return structuredData;
+        }
+
+        function processRawDataForTable(structuredStringData) {
+            if (structuredStringData.length === 0) {
+                return { headers: ["कोई डेटा नहीं"], data: [] };
+            }
+
+            let dataStartIndex = 0;
+            let finalHeaders = [];
+
+            for (let i = 0; i < structuredStringData.length; i++) {
+                const candidateLine = structuredStringData[i];
+                if (candidateLine.length > 0) {
+                    const hasSomeText = candidateLine.some(cell => {
+                        const trimmedCell = cell.trim();
+                        return isNaN(parseFloat(trimmedCell)) || trimmedCell === '' || !isFinite(trimmedCell);
+                    });
+
+                    if (hasSomeText || candidateLine.length === 1 && candidateLine[0].trim() !== '') {
+                        finalHeaders = candidateLine;
+                        dataStartIndex = i + 1;
+                        break;
+                    }
+                }
+            }
+
+            if (finalHeaders.length === 0 && structuredStringData.length > 0) {
+                const maxCols = Math.min(structuredStringData.reduce((max, row) => Math.max(max, row.length), 0), 10);
+                finalHeaders = Array.from({ length: maxCols > 0 ? maxCols : 1 }, (_, index) => `कॉलम ${index + 1}`);
+                dataStartIndex = 0;
+            } else if (finalHeaders.length === 0) {
+                finalHeaders = ["कोई डेटा नहीं"];
+                dataStartIndex = 0;
+            }
+
+            let data = structuredStringData.slice(dataStartIndex);
+            data = data.map(row => {
+                const newRow = [...row];
+                while (newRow.length < finalHeaders.length) {
+                    newRow.push('');
+                }
+                return newRow.slice(0, finalHeaders.length);
+            });
+
+            return { headers: finalHeaders, data };
+        }
+
+        function combineAllPdfData() {
+            if (allPdfData.length === 0) {
+                currentHeaders = ["कोई डेटा नहीं"];
+                return;
+            }
+
+            const maxColumns = Math.min(Math.max(...allPdfData.map(pdf => pdf.headers.length)), 10);
+            currentHeaders = Array.from({ length: maxColumns }, (_, i) => `कॉलम ${i + 1}`);
+        }
+
+        function highlightSearchTerm(text, term) {
+            if (!term || typeof text !== 'string') return text;
+            const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedTerm})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function renderTablePage() {
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            const trHead = document.createElement('tr');
+            currentHeaders.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                trHead.appendChild(th);
+            });
+            tableHead.appendChild(trHead);
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const pageData = currentFilteredData.slice(startIndex, endIndex);
+
+            const searchTerm = searchInput.value.trim();
+
+            if (pageData.length === 0 && currentFilteredData.length === 0 && allPdfData.length > 0 && searchTerm !== '') {
+                const noResultsRow = document.createElement('tr');
+                const noResultsCell = document.createElement('td');
+                noResultsCell.colSpan = currentHeaders.length;
+                noResultsCell.textContent = 'कोई परिणाम नहीं मिला।';
+                noResultsCell.style.textAlign = 'center';
+                noResultsCell.style.padding = '1rem';
+                noResultsCell.style.color = '#6b7280';
+                noResultsRow.appendChild(noResultsCell);
+                tableBody.appendChild(noResultsRow);
+            } else if (pageData.length === 0 && currentFilteredData.length === 0) {
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.colSpan = currentHeaders.length;
+                noDataCell.textContent = 'कोई डेटा नहीं। PDF अपलोड करें।';
+                noDataCell.style.textAlign = 'center';
+                noDataCell.style.padding = '1rem';
+                noDataCell.style.color = '#6b7280';
+                noDataRow.appendChild(noDataCell);
+                tableBody.appendChild(noDataRow);
+            } else {
+                pageData.forEach(rowData => {
+                    const tr = document.createElement('tr');
+                    for (let i = 0; i < currentHeaders.length; i++) {
+                        const td = document.createElement('td');
+                        const cellContent = String(rowData[i] || "");
+                        if (searchTerm) {
+                            td.innerHTML = highlightSearchTerm(cellContent, searchTerm);
+                        } else {
+                            td.textContent = cellContent;
+                        }
+                        tr.appendChild(td);
+                    }
+                    tableBody.appendChild(tr);
+                });
+            }
+            renderPaginationControls();
+        }
+
+        function renderPaginationControls() {
+            paginationControls.innerHTML = '';
+            const totalRows = currentFilteredData.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+            if (totalPages <= 1 && searchInput.value.trim() === '') return;
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'पिछला';
+            prevButton.classList.add('pagination-btn');
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTablePage();
+                }
+            });
+            paginationControls.appendChild(prevButton);
+
+            const pageInfo = document.createElement('span');
+            pageInfo.classList.add('page-info');
+            pageInfo.textContent = `पेज ${totalPages === 0 ? 0 : currentPage} / ${totalPages}`;
+            paginationControls.appendChild(pageInfo);
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'अगला';
+            nextButton.classList.add('pagination-btn');
+            nextButton.disabled = currentPage === totalPages || totalPages === 0;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTablePage();
+                }
+            });
+            paginationControls.appendChild(nextButton);
+        }
+
+        function resetTableState() {
+            allPdfData = [];
+            currentHeaders = [];
+            currentFilteredData = [];
+            currentPage = 1;
+            pdfFileInput.value = '';
+            searchInput.value = '';
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+            paginationControls.innerHTML = '';
+            displayUserMessage('', '');
+            loadAllSavedDataFromFirebase();
+        }
+
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim().replace(/\s+/g, ' ');
+            const dataToSearch = allPdfData.flatMap(pdf => pdf.data);
+
+            if (!dataToSearch.length) {
+                currentFilteredData = [];
+            } else if (!searchTerm) {
+                currentFilteredData = [...dataToSearch];
+            } else {
+                currentFilteredData = dataToSearch.filter(row => {
+                    const matches = Array.isArray(row) && row.some(cell => 
+                        cell && String(cell).toLowerCase().replace(/\s+/g, ' ').includes(searchTerm)
+                    );
+                    if (!matches) {
+                        console.log(`Search term "${searchTerm}" not found in row:`, row);
+                    }
+                    return matches;
+                });
+            }
+            currentPage = 1;
+            renderTablePage();
+        }
+
+        async function saveExtractedDataToFirebase(fileName, headers, data, pdfEntry) {
+            if (!db) {
+                displayUserMessage('Firebase डेटाबेस नहीं जुड़ा।', 'error');
+                return;
+            }
+            if (!Array.isArray(data) || data.length === 0 || !Array.isArray(headers) || headers.length === 0) {
+                displayUserMessage('सेव करने के लिए कोई डेटा नहीं।', 'info');
+                return;
+            }
+
+            displayUserMessage('Firebase में डेटा सेव हो रहा है...', 'loading');
+
+            const extractedPdfsRef = db.ref('extracted_pdfs');
+            try {
+                const newPdfRef = extractedPdfsRef.push();
+                await newPdfRef.set({
+                    metadata: {
+                        fileName: fileName || `untitled_${Date.now()}.pdf`,
+                        timestamp: pdfEntry.timestamp,
+                        headers: headers
+                    },
+                    rows: data
+                });
+                pdfEntry.key = newPdfRef.key;
+                displayUserMessage('Firebase में डेटा सेव हुआ!', 'success');
+            } catch (error) {
+                console.error("Firebase save error:", error);
+                displayUserMessage(`Firebase में त्रुटि: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadAllSavedDataFromFirebase() {
+            if (!db) {
+                console.warn('Firebase DB not ready.');
+                displayUserMessage("Firebase तैयार नहीं है।", 'error');
+                return;
+            }
+
+            displayUserMessage('Firebase से डेटा लोड हो रहा है...', 'loading');
+            const startTime = performance.now();
+
+            try {
+                const extractedPdfsRef = db.ref('extracted_pdfs');
+                const snapshot = await extractedPdfsRef.once('value');
+                const data = snapshot.val();
+
+                if (data) {
+                    allPdfData = Object.entries(data)
+                        .filter(([key, value]) => {
+                            if (!value.metadata || !value.metadata.fileName || !value.metadata.headers || !value.rows) {
+                                console.warn(`Skipping invalid Firebase entry with key ${key}: missing required fields`);
+                                return false;
+                            }
+                            return true;
+                        })
+                        .map(([key, value]) => ({
+                            key: key,
+                            fileName: value.metadata.fileName,
+                            headers: value.metadata.headers,
+                            data: value.rows,
+                            timestamp: value.metadata.timestamp || new Date().toISOString()
+                        }));
+
+                    const endTime = performance.now();
+                    console.log(`Loaded ${allPdfData.length} PDFs with total ${allPdfData.reduce((sum, pdf) => sum + pdf.data.length, 0)} rows in ${(endTime - startTime).toFixed(2)}ms`);
+                    displayUserMessage(`Firebase से ${allPdfData.length} PDF लोड हुए।`, 'success');
+                } else {
+                    allPdfData = [];
+                    displayUserMessage('Firebase में कोई डेटा नहीं।', 'info');
+                }
+
+                combineAllPdfData();
+                currentFilteredData = allPdfData.flatMap(pdf => pdf.data);
+                currentPage = 1;
+                renderTablePage();
+            } catch (error) {
+                console.error("Firebase load error:", error);
+                displayUserMessage(`Firebase से त्रुटि: ${error.message}`, 'error');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (db) {
+                    loadAllSavedDataFromFirebase();
+                } else {
+                    displayUserMessage("Firebase तैयार नहीं है।", 'info');
+                }
+            }, 500);
+        });
+    </script>
 </body>
 </html>
