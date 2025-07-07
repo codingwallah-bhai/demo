@@ -204,216 +204,184 @@
         <div id="paginationControls" class="pagination-controls"></div>
     </div>
 
- <script>
-    // Firebase Configuration - अपनी असली Firebase डिटेल्स यहाँ डालें
-   const firebaseConfig = {
-
-  apiKey: "AIzaSyBeqaDJLifgdpBQPRL0OLtkovB-m4OM7kw",
-
-  authDomain: "cricker2.firebaseapp.com",
-
-  databaseURL: "https://cricker2-default-rtdb.firebaseio.com",
-
-  projectId: "cricker2",
-
-  storageBucket: "cricker2.appspot.com",
-
-  messagingSenderId: "757574903179",
-
-  appId: "1:757574903179:web:8cfa2a2e3ac157029f7b8e",
-
-  measurementId: "G-DZNF4BTH35"
-
+// Firebase Configuration - अपनी असली Firebase डिटेल्स यहाँ डालें
+const firebaseConfig = {
+    apiKey: "AIzaSyBeqaDJLifgdpBQPRL0OLtkovB-m4OM7kw",
+    authDomain: "cricker2.firebaseapp.com",
+    databaseURL: "https://cricker2-default-rtdb.firebaseio.com",
+    projectId: "cricker2",
+    storageBucket: "cricker2.appspot.com",
+    messagingSenderId: "757574903179",
+    appId: "1:757574903179:web:8cfa2a2e3ac157029f7b8e",
+    measurementId: "G-DZNF4BTH35"
 };
 
-
-
-    // Firebase को शुरू करें
-    let firebaseApp;
-    let db;
-    try {
-        if (typeof firebase !== 'undefined' && firebase.app && !firebase.apps.length) {
-            firebaseApp = firebase.initializeApp(firebaseConfig);
-            db = firebaseApp.database();
-            console.log("Firebase सफलतापूर्वक शुरू हो गया है।");
-        } else if (typeof firebase !== 'undefined' && firebase.app && firebase.apps.length) {
-            firebaseApp = firebase.app();
-            db = firebaseApp.database();
-            console.log("Firebase पहले से ही शुरू है।");
-        } else {
-            throw new Error("Firebase SDK लोड नहीं हुआ। अपनी HTML स्क्रिप्ट टैग्स जांचें।");
-        }
-    } catch (error) {
-        console.error("Firebase शुरू करने में त्रुटि:", error);
-        displayUserMessage("Firebase लोड करने में त्रुटि। डेटा सेव/लोड नहीं होगा।", 'error');
-    }
-
-    // DOM एलिमेंट्स
-    const pdfFileInput = document.getElementById('pdfFile');
-    const searchInput = document.getElementById('searchInput');
-    const dataTable = document.getElementById('dataTable');
-    const tableHead = dataTable.querySelector('thead');
-    const tableBody = dataTable.querySelector('tbody');
-    const statusMessage = document.getElementById('statusMessage');
-    const paginationControls = document.getElementById('paginationControls');
-    const resetBtn = document.getElementById('resetBtn');
-
-    // ग्लोबल स्टेट वेरिएबल्स
-    let allPdfData = []; // हर PDF के लिए मेटाडेटा और (बाद में) पूरा डेटा स्टोर करता है: { key, fileName, headers, data: [...] }
-    let combinedFlatData = []; // सभी PDFs की सभी डेटा पंक्तियाँ, कुशल सर्चिंग के लिए एक सिंगल ऐरे में फ्लैट की हुई
-    let currentHeaders = []; // वर्तमान में प्रदर्शित टेबल के लिए हेडर (कंबाइंड डेटा से व्युत्पन्न)
-    let currentFilteredData = []; // वर्तमान में सर्च से मेल खाने वाला डेटा, पेजिंग के लिए उपयोग किया जाता है
-    let currentPage = 1;
-    const rowsPerPage = 20; // प्रति पेज प्रदर्शित करने के लिए पंक्तियों की संख्या
-
-    // इवेंट लिसनर्स
-    pdfFileInput.addEventListener('change', handleFileSelect);
-    searchInput.addEventListener('input', debounce(handleSearch, 300)); // बेहतर प्रदर्शन के लिए सर्च को डीबाउंस करें
-    resetBtn.addEventListener('click', resetTableState);
-
-    // PDF.js वर्कर सेटअप
-    if (window.pdfjsLib) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+// Firebase को शुरू करें
+let firebaseApp;
+let db;
+try {
+    if (typeof firebase !== 'undefined' && firebase.app && !firebase.apps.length) {
+        firebaseApp = firebase.initializeApp(firebaseConfig);
+        db = firebaseApp.database();
+        console.log("Firebase सफलतापूर्वक शुरू हो गया है।");
+    } else if (typeof firebase !== 'undefined' && firebase.app && firebase.apps.length) {
+        firebaseApp = firebase.app();
+        db = firebaseApp.database();
+        console.log("Firebase पहले से ही शुरू है।");
     } else {
-        console.error("PDF.js लाइब्रेरी लोड नहीं हुई। सुनिश्चित करें कि स्क्रिप्ट टैग सही है।");
-        displayUserMessage("PDF.js लोड नहीं हुआ। इंटरनेट कनेक्शन जांचें।", 'error');
+        throw new Error("Firebase SDK लोड नहीं हुआ। अपनी HTML स्क्रिप्ट टैग्स जांचें।");
+    }
+} catch (error) {
+    console.error("Firebase शुरू करने में त्रुटि:", error);
+    displayUserMessage("Firebase लोड करने में त्रुटि। डेटा सेव/लोड नहीं होगा।", 'error');
+}
+
+// DOM एलिमेंट्स
+const pdfFileInput = document.getElementById('pdfFile');
+const searchInput = document.getElementById('searchInput');
+const dataTable = document.getElementById('dataTable');
+const tableHead = dataTable.querySelector('thead');
+const tableBody = dataTable.querySelector('tbody');
+const statusMessage = document.getElementById('statusMessage');
+const paginationControls = document.getElementById('paginationControls');
+const resetBtn = document.getElementById('resetBtn');
+
+// ग्लोबल स्टेट वेरिएबल्स
+let allPdfData = [];
+let combinedFlatData = [];
+let currentHeaders = [];
+let currentFilteredData = [];
+let currentPage = 1;
+const rowsPerPage = 20;
+
+// इवेंट लिसनर्स
+pdfFileInput.addEventListener('change', handleFileSelect);
+searchInput.addEventListener('input', debounce(handleSearch, 300));
+resetBtn.addEventListener('click', resetTableState);
+
+// PDF.js वर्कर सेटअप
+if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+} else {
+    console.error("PDF.js लाइब्रेरी लोड नहीं हुई। सुनिश्चित करें कि स्क्रिप्ट टैग सही है।");
+    displayUserMessage("PDF.js लोड नहीं हुआ। इंटरनेट कनेक्शन जांचें।", 'error');
+}
+
+/**
+ * उपयोगकर्ता को संदेश प्रदर्शित करता है।
+ * @param {string} message - प्रदर्शित करने वाला संदेश।
+ * @param {'loading'|'error'|'success'|'info'|''} type - स्टाइलिंग के लिए संदेश का प्रकार।
+ */
+function displayUserMessage(message, type) {
+    if (!statusMessage) return;
+    statusMessage.textContent = message;
+    statusMessage.className = 'status-message';
+    if (type) statusMessage.classList.add(`status-${type}`);
+    statusMessage.style.display = message ? 'block' : 'none';
+}
+
+/**
+ * फ़ंक्शन कॉल को डीबाउंस करता है।
+ * @param {function} func - डीबाउंस करने के लिए फ़ंक्शन।
+ * @param {number} wait - मिलीसेकंड में देरी।
+ * @returns {function} डीबाउंस किया गया फ़ंक्शन।
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+/**
+ * PDF फ़ाइल के चयन को संभालता है।
+ * @param {Event} event - फ़ाइल इनपुट परिवर्तन इवेंट।
+ */
+async function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file || file.type !== 'application/pdf') {
+        displayUserMessage('कृपया एक PDF फाइल चुनें।', 'error');
+        return;
     }
 
-    /**
-     * उपयोगकर्ता को संदेश प्रदर्शित करता है।
-     * @param {string} message - प्रदर्शित करने वाला संदेश।
-     * @param {'loading'|'error'|'success'|'info'|''} type - स्टाइलिंग के लिए संदेश का प्रकार।
-     */
-    function displayUserMessage(message, type) {
-        if (!statusMessage) return;
-        statusMessage.textContent = message;
-        statusMessage.className = 'status-message'; // क्लासेस रीसेट करें
-        if (type) statusMessage.classList.add(`status-${type}`);
-        statusMessage.style.display = message ? 'block' : 'none';
-    }
+    displayUserMessage('PDF प्रोसेस हो रहा है...', 'loading');
 
-    /**
-     * फ़ंक्शन कॉल को डीबाउंस करता है।
-     * @param {function} func - डीबाउंस करने के लिए फ़ंक्शन।
-     * @param {number} wait - मिलीसेकंड में देरी।
-     * @returns {function} डीबाउंस किया गया फ़ंक्शन।
-     */
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
+    try {
+        const fileReader = new FileReader();
+        fileReader.onload = async function() {
+            const typedarray = new Uint8Array(this.result);
+            await parsePdfAndSetupTable(typedarray, file.name);
         };
+        fileReader.readAsArrayBuffer(file);
+    } catch (error) {
+        console.error('फाइल पढ़ने में त्रुटि:', error);
+        displayUserMessage('फाइल पढ़ने में त्रुटि।', 'error');
     }
+}
 
-    /**
-     * PDF फ़ाइल के चयन को संभालता है।
-     * @param {Event} event - फ़ाइल इनपुट परिवर्तन इवेंट।
-     */
-    async function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file || file.type !== 'application/pdf') {
-            displayUserMessage('कृपया एक PDF फाइल चुनें।', 'error');
+/**
+ * PDF को पार्स करता है, टेक्स्ट निकालता है, टेबल संरचना का अनुमान लगाता है, और ग्लोबल डेटा को अपडेट करता है।
+ * @param {Uint8Array} pdfData - PDF फ़ाइल डेटा।
+ * @param {string} fileName - PDF फ़ाइल का नाम।
+ */
+async function parsePdfAndSetupTable(pdfData, fileName) {
+    const startTime = performance.now();
+    try {
+        if (!window.pdfjsLib) {
+            displayUserMessage("PDF.js लाइब्रेरी लोड नहीं हुई है।", "error");
             return;
         }
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+        const numPages = pdf.numPages;
+        let allTextItems = [];
 
-        displayUserMessage('PDF प्रोसेस हो रहा है...', 'loading');
-
-        try {
-            const fileReader = new FileReader();
-            fileReader.onload = async function() {
-                const typedarray = new Uint8Array(this.result);
-                await parsePdfAndSetupTable(typedarray, file.name);
-            };
-            fileReader.readAsArrayBuffer(file);
-        } catch (error) {
-            console.error('फाइल पढ़ने में त्रुटि:', error);
-            displayUserMessage('फाइल पढ़ने में त्रुटि।', 'error');
-        }
-    }
-
-    /**
-     * एक PDF को पार्स करता है, टेक्स्ट निकालता है, टेबल संरचना का अनुमान लगाता है, और ग्लोबल डेटा को अपडेट करता है।
-     * @param {Uint8Array} pdfData - PDF फ़ाइल डेटा।
-     * @param {string} fileName - PDF फ़ाइल का नाम।
-     */
-    async function parsePdfAndSetupTable(pdfData, fileName) {
-        const startTime = performance.now();
-        try {
-            if (!window.pdfjsLib) {
-                displayUserMessage("PDF.js लाइब्रेरी लोड नहीं हुई है।", "error");
-                return;
-            }
-            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-            const numPages = pdf.numPages;
-            let allTextItems = [];
-
-            for (let i = 1; i <= numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                textContent.items.forEach(item => {
-                    item.page = i;
-                    item.originalY = item.transform[5];
-                    item.originalX = item.transform[4];
-                    allTextItems.push(item);
-                });
-            }
-
-            allTextItems.sort((a, b) => {
-                if (a.page !== b.page) return a.page - b.page;
-                // Y-axis for PDF is bottom-up, so higher Y means lower on the page visually
-                return a.originalY === b.originalY ? a.originalX - b.originalX : b.originalY - a.originalY;
+        for (let i = 1; i <= numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            textContent.items.forEach(item => {
+                item.page = i;
+                item.originalY = item.transform[5];
+                item.originalX = item.transform[4];
+                allTextItems.push(item);
             });
+        }
 
-            const mergedTextItems = [];
-            let currentItem = null;
-            const MERGE_Y_TOLERANCE = 25; // Tolerance for merging items vertically (same line)
-            const MERGE_X_TOLERANCE = 70; // Tolerance for merging items horizontally (within same column/word)
+        allTextItems.sort((a, b) => {
+            if (a.page !== b.page) return a.page - b.page;
+            return a.originalY === b.originalY ? a.originalX - b.originalX : b.originalY - a.originalY;
+        });
 
-            for (const item of allTextItems) {
-                const itemText = item.str.trim();
-                if (!itemText) continue;
+        const mergedTextItems = [];
+        let currentItem = null;
+        const MERGE_Y_TOLERANCE = 25;
+        const MERGE_X_TOLERANCE = 70;
 
-                if (!currentItem) {
-                    currentItem = {
-                        text: itemText,
-                        x: item.originalX,
-                        y: item.originalY,
-                        width: item.width,
-                        height: item.height,
-                        page: item.page
-                    };
-                } else if (
-                    item.page === currentItem.page &&
-                    Math.abs(item.originalY - currentItem.y) <= MERGE_Y_TOLERANCE &&
-                    Math.abs(item.originalX - currentItem.x) <= MERGE_X_TOLERANCE
-                ) {
-                    // Merge if on same line (Y-tolerance) and close enough horizontally
-                    currentItem.text += ' ' + itemText;
-                    currentItem.width = Math.max(currentItem.width, item.width);
-                    currentItem.height += item.height; // Accumulate height for bounding box
-                } else {
-                    mergedTextItems.push(currentItem);
-                    currentItem = {
-                        text: itemText,
-                        x: item.originalX,
-                        y: item.originalY,
-                        width: item.width,
-                        height: item.height,
-                        page: item.page
-                    };
-                }
+        for (const item of allTextItems) {
+            const itemText = item.str.trim();
+            if (!itemText) continue;
+
+            if (!currentItem) {
+                currentItem = {
+                    text: itemText,
+                    x: item.originalX,
+                    y: item.originalY,
+                    width: item.width,
+                    height: item.height,
+                    page: item.page
+                };
+            } else if (
+                item.page === currentItem.page SIGNAL तोड़ें
             }
             if (currentItem) {
                 mergedTextItems.push(currentItem);
             }
-
             console.log(`Merged ${mergedTextItems.length} टेक्स्ट आइटम ${fileName} के लिए।`);
 
             const lines = [];
             let currentLineItems = [];
             let lastY = -1;
-            const LINE_Y_TOLERANCE = 5; // Tolerance for grouping items into lines
+            const LINE_Y_TOLERANCE = 5;
 
             for (const item of mergedTextItems) {
                 if (lastY === -1 || Math.abs(item.y - lastY) < LINE_Y_TOLERANCE) {
@@ -441,32 +409,22 @@
                 const pdfEntry = {
                     fileName: fileName || `untitled_${Date.now()}.pdf`,
                     headers: headers,
-                    data: data, // Full data for this PDF
+                    data: data,
                     timestamp: new Date().toISOString()
                 };
 
-                // Check if this PDF (by fileName) is already in allPdfData to avoid duplicates
                 const existingPdfIndex = allPdfData.findIndex(pdf => pdf.fileName === fileName);
 
                 if (existingPdfIndex === -1) {
-                    // New PDF, push and save to Firebase
                     allPdfData.push(pdfEntry);
                     if (db) await saveExtractedDataToFirebase(fileName, headers, data, pdfEntry);
                 } else {
-                    // Update existing PDF entry in local state (re-upload scenario)
-                    // If you want to update Firebase on re-upload, you'd need the Firebase key here
-                    // For now, it just updates the local cache
                     allPdfData[existingPdfIndex].data = data;
                     allPdfData[existingPdfIndex].headers = headers;
                     allPdfData[existingPdfIndex].timestamp = pdfEntry.timestamp;
-                    // If you need to update Firebase for an existing key:
-                    // if (db && allPdfData[existingPdfIndex].key) {
-                    //     await updateExtractedDataInFirebase(allPdfData[existingPdfIndex].key, fileName, headers, data, pdfEntry.timestamp);
-                    // }
                     displayUserMessage('मौजूदा PDF को अपडेट किया गया।', 'info');
                 }
 
-                // Processing complete, now update combined data and render
                 updateCombinedAndFilteredData();
                 const endTime = performance.now();
                 console.log(`${fileName} ${(endTime - startTime).toFixed(2)}ms में प्रोसेस हुआ।`);
@@ -482,9 +440,8 @@
 
     /**
      * टेक्स्ट आइटम की लाइनों से टेबल कॉलम और पंक्तियों का अनुमान लगाता है।
-     * यह फ़ंक्शन PDF टेक्स्ट के लेआउट के आधार पर कॉलम सीमाओं का पता लगाने का प्रयास करता है।
-     * @param {Array<Array<Object>>} linesOfItemObjects - वस्तु सरणी की पंक्तियाँ, जहां प्रत्येक वस्तु में टेक्स्ट आइटम (स्ट्रिंग, x, y, width) होता है।
-     * @returns {Array<Array<string>>} - कॉलम में व्यवस्थित पंक्तियों का एक सरणी (तालिका डेटा का प्रतिनिधित्व)।
+     * @param {Array<Array<Object>>} linesOfItemObjects - वस्तु सरणी की पंक्तियाँ।
+     * @returns {Array<Array<string>>} - कॉलम में व्यवस्थित पंक्तियों का एक सरणी।
      */
     function inferTableColumns(linesOfItemObjects) {
         if (linesOfItemObjects.length === 0) return [];
@@ -503,7 +460,6 @@
         });
 
         const frequentXStarts = [];
-        // एक X स्थिति को 'बार-बार' मानने के लिए न्यूनतम आवृत्ति। कुल लाइनों का 30% या न्यूनतम 2।
         const minFrequency = Math.max(2, Math.floor(totalLinesWithItems * 0.3));
 
         itemStartXFrequencies.forEach((count, x) => {
@@ -512,7 +468,6 @@
             }
         });
 
-        // फॉलबैक: यदि कोई स्पष्ट बार-बार शुरू होने वाली X स्थिति नहीं मिलती है, तो सभी अद्वितीय X स्थितियों का उपयोग करें।
         if (frequentXStarts.length === 0 && totalLinesWithItems > 0) {
             const allXStarts = new Set();
             linesOfItemObjects.forEach(lineItems => {
@@ -521,7 +476,6 @@
             frequentXStarts.push(...Array.from(allXStarts));
         }
 
-        // यदि अभी भी कोई X स्टार्ट नहीं है (बहुत ही दुर्लभ), तो पहली नॉन-एम्प्टी लाइन के पहले आइटम का उपयोग करें।
         if (frequentXStarts.length === 0 && linesOfItemObjects.some(line => line.length > 0)) {
             const firstNonEmptyLine = linesOfItemObjects.find(line => line.length > 0);
             if (firstNonEmptyLine) {
@@ -531,9 +485,10 @@
 
         frequentXStarts.sort((a, b) => a - b);
 
-        // क्लोज कॉलम स्टार्ट्स को मर्ज करें
         const mergedColumnStarts = [];
-        const COLUMN_MERGE_TOLERANCE = 15; // यदि X स्टार्ट्स इस दूरी के भीतर हैं, तो उन्हें एक ही कॉलम मानें
+        // Modified: Reduced tolerance for better column separation
+        const COLUMN_MERGE_TOLERANCE = 10; // Was 15
+        const MIN_COLUMN_WIDTH_THRESHOLD = 20; // Was 25
 
         if (frequentXStarts.length > 0) {
             mergedColumnStarts.push(frequentXStarts[0]);
@@ -544,10 +499,8 @@
             }
         }
 
-        // न्यूनतम कॉलम चौड़ाई लागू करें और अधिकतम कॉलम संख्या सीमित करें
         const finalColumnStarts = [];
-        const MIN_COLUMN_WIDTH_THRESHOLD = 25; // एक वैध कॉलम के लिए न्यूनतम चौड़ाई
-        const MAX_COLUMNS = 10; // अधिकतम कॉलम जिन्हें हम पहचानने की उम्मीद करते हैं
+        const MAX_COLUMNS = 10;
 
         if (mergedColumnStarts.length > 0) {
             finalColumnStarts.push(mergedColumnStarts[0]);
@@ -558,7 +511,6 @@
             }
         }
 
-        // अंतिम फॉलबैक: यदि कोई कॉलम नहीं मिला, तो एक सिंगल कॉलम 0 पर मान लें
         if (finalColumnStarts.length === 0 && linesOfItemObjects.length > 0) {
             let minX = Infinity;
             linesOfItemObjects.forEach(line => line.forEach(item => {
@@ -567,35 +519,31 @@
             if (minX !== Infinity) {
                 finalColumnStarts.push(Math.round(minX));
             } else {
-                finalColumnStarts.push(0); // यदि कोई टेक्स्ट आइटम नहीं है, तो 0 पर शुरू करें
+                finalColumnStarts.push(0);
             }
         }
 
         const structuredData = [];
         linesOfItemObjects.forEach(lineItems => {
-            lineItems.sort((a, b) => a.x - b.x); // प्रत्येक पंक्ति के भीतर आइटम को X-स्थिति से सॉर्ट करें
-            const row = Array(finalColumnStarts.length).fill(''); // कॉलम की संख्या के आधार पर एक खाली पंक्ति बनाएं
+            lineItems.sort((a, b) => a.x - b.x);
+            const row = Array(finalColumnStarts.length).fill('');
 
             lineItems.forEach(item => {
                 let assignedToColumn = -1;
-                let maxOverlap = 0; // आइटम और कॉलम के बीच अधिकतम ओवरलैप ट्रैक करें
+                let maxOverlap = 0;
 
-                // आइटम को सही कॉलम में असाइन करने का प्रयास करें
                 for (let i = 0; i < finalColumnStarts.length; i++) {
                     const colStart = finalColumnStarts[i];
-                    // अगले कॉलम की शुरुआत या एक बड़ी डिफ़ॉल्ट चौड़ाई यदि यह अंतिम कॉलम है
                     const colEnd = (i + 1 < finalColumnStarts.length) ? finalColumnStarts[i + 1] : colStart + 500;
 
                     const itemStartX = item.x;
                     const itemEndX = item.x + item.width;
 
-                    // आइटम और कॉलम के बीच ओवरलैप की गणना करें
                     const overlapStart = Math.max(itemStartX, colStart);
                     const overlapEnd = Math.min(itemEndX, colEnd);
                     const currentOverlap = Math.max(0, overlapEnd - overlapStart);
 
-                    // यदि आइटम का एक महत्वपूर्ण हिस्सा कॉलम के भीतर है
-                    const significantOverlap = currentOverlap > Math.min(item.width * 0.2, 15); // आइटम चौड़ाई का 20% या 15px
+                    const significantOverlap = currentOverlap > Math.min(item.width * 0.2, 15);
 
                     if (significantOverlap && currentOverlap > maxOverlap) {
                         maxOverlap = currentOverlap;
@@ -604,60 +552,55 @@
                 }
 
                 if (assignedToColumn !== -1) {
-                    // यदि एक कॉलम असाइन किया गया है, तो टेक्स्ट जोड़ें
                     row[assignedToColumn] = row[assignedToColumn]
                         ? (row[assignedToColumn] + ' ' + item.text)
                         : item.text;
                 } else if (finalColumnStarts.length > 0 && item.text.trim()) {
-                    // यदि कोई स्पष्ट ओवरलैप नहीं है, तो सबसे पास के कॉलम में जोड़ें (छोटी दूरी के भीतर)
                     let closestColIndex = 0;
                     let minDist = Infinity;
                     for (let i = 0; i < finalColumnStarts.length; i++) {
                         const distToColStart = Math.abs(item.x - finalColumnStarts[i]);
-                        // अंत की दूरी की गणना करें यदि यह एक परिमित कॉलम है
                         const distToColEnd = (i + 1 < finalColumnStarts.length) ? Math.abs(item.x - finalColumnStarts[i + 1]) : Infinity;
-                        const dist = Math.min(distToColStart, distToColEnd); // सबसे पास की सीमा की दूरी
+                        const dist = Math.min(distToColStart, distToColEnd);
 
                         if (dist < minDist) {
                             minDist = dist;
                             closestColIndex = i;
                         }
                     }
-                    // यदि निकटतम कॉलम पर्याप्त रूप से निकट है, तो असाइन करें
-                    if (minDist < (MIN_COLUMN_WIDTH_THRESHOLD * 2)) { // निकटता की उदार सहिष्णुता
+                    if (minDist < (MIN_COLUMN_WIDTH_THRESHOLD * 2)) {
                         row[closestColIndex] = row[closestColIndex]
                             ? (row[closestColIndex] + ' ' + item.text)
                             : item.text;
                     } else {
-                        // यदि बहुत दूर है, तो इसे अंतिम कॉलम में जोड़ें (मिसफिट के लिए)
                         row[finalColumnStarts.length - 1] = row[finalColumnStarts.length - 1]
                             ? (row[finalColumnStarts.length - 1] + ' ' + item.text)
                             : item.text;
                     }
                 } else if (finalColumnStarts.length === 0 && row.length > 0) {
-                    // केवल एक कॉलम होने पर, पहले कॉलम में सब कुछ जोड़ दें
                     row[0] = row[0]
                         ? (row[0] + ' ' + item.text)
                         : item.text;
                 }
             });
 
-            // प्रत्येक सेल से अतिरिक्त स्थान साफ करें
             const cleanedRow = row.map(cell => cell ? cell.replace(/ {2,}/g, ' ').trim() : '');
-            // सुनिश्चित करें कि पंक्ति में कुछ टेक्स्ट है ताकि पूरी तरह से खाली पंक्तियों को जोड़ा न जा सके
             if (cleanedRow.some(cell => cell.trim() !== '')) {
                 structuredData.push(cleanedRow);
             }
         });
+
+        // Modified: Log parsed data for debugging
+        console.log('Parsed Structured Data:', structuredData.slice(0, 5)); // Log first 5 rows
+        console.log('Column Starts:', finalColumnStarts);
 
         return structuredData;
     }
 
     /**
      * कच्चे पार्स किए गए डेटा से हेडर और डेटा पंक्तियों को संसाधित करता है।
-     * यह हेडर लाइन का अनुमान लगाने का प्रयास करता है।
      * @param {Array<Array<string>>} structuredStringData - संरचित पंक्तियों का एक सरणी।
-     * @returns {{headers: Array<string>, data: Array<Array<string>>}} - हेडर और डेटा पंक्तियों वाली एक वस्तु।
+     * @returns {{headers: Array<string>, data: Array<Array<string>>}} - हेडर और डेटा पंक्तियाँ।
      */
     function processRawDataForTable(structuredStringData) {
         if (structuredStringData.length === 0) {
@@ -667,33 +610,27 @@
         let dataStartIndex = 0;
         let finalHeaders = [];
 
-        // हेडर लाइन का अनुमान लगाने का प्रयास करें: पहली पंक्ति जिसमें ज़्यादातर गैर-संख्यात्मक या खाली सेल हों।
         for (let i = 0; i < structuredStringData.length; i++) {
             const candidateLine = structuredStringData[i];
             if (candidateLine.length > 0) {
                 const hasSomeText = candidateLine.some(cell => {
                     const trimmedCell = cell.trim();
-                    // यदि एक पंक्ति में ज़्यादातर गैर-संख्यात्मक या खाली सेल हैं, तो यह एक हेडर हो सकता है।
                     return isNaN(parseFloat(trimmedCell)) || trimmedCell === '' || !isFinite(trimmedCell);
                 });
 
-                // यदि एक पंक्ति में गैर-संख्यात्मक/खाली सेल (संभावित रूप से टेक्स्ट हेडर) हैं
-                // या यदि यह एक सिंगल गैर-खाली सेल है, तो इसे एक हेडर मानें।
                 if (hasSomeText || (candidateLine.length === 1 && candidateLine[0].trim() !== '')) {
                     finalHeaders = candidateLine;
-                    dataStartIndex = i + 1; // इस पंक्ति के बाद डेटा शुरू होता है
+                    dataStartIndex = i + 1;
                     break;
                 }
             }
         }
 
-        // फॉलबैक: यदि कोई स्पष्ट हेडर लाइन नहीं मिलती है, तो जेनेरिक हेडर उत्पन्न करें
         if (finalHeaders.length === 0 && structuredStringData.length > 0) {
             const maxCols = Math.min(structuredStringData.reduce((max, row) => Math.max(max, row.length), 0), 10);
             finalHeaders = Array.from({ length: maxCols > 0 ? maxCols : 1 }, (_, index) => `कॉलम ${index + 1}`);
-            dataStartIndex = 0; // सभी पंक्तियाँ डेटा हैं
+            dataStartIndex = 0;
         } else if (finalHeaders.length === 0) {
-            // कोई डेटा ही नहीं
             finalHeaders = ["कोई डेटा नहीं"];
             dataStartIndex = 0;
         }
@@ -701,20 +638,20 @@
         let data = structuredStringData.slice(dataStartIndex);
         data = data.map(row => {
             const newRow = [...row];
-            // पंक्तियों को हेडर की लंबाई से मेल खाने के लिए पैड करें
             while (newRow.length < finalHeaders.length) {
                 newRow.push('');
             }
-            // यदि पंक्ति हेडर से लंबी है तो ट्रिम करें
             return newRow.slice(0, finalHeaders.length);
         });
+
+        // Modified: Filter out rows with empty name or number columns (assuming name is column 0, number is column 1)
+        data = data.filter(row => row[0]?.trim() && row[1]?.trim());
 
         return { headers: finalHeaders, data };
     }
 
     /**
      * सभी PDF डेटा को एक फ्लैट ऐरे में अपडेट करता है और टेबल को री-रेंडर करता है।
-     * यह फ़ंक्शन Firebase से डेटा लोड होने या नया PDF प्रोसेस होने के बाद कॉल किया जाता है।
      */
     function updateCombinedAndFilteredData() {
         if (allPdfData.length === 0) {
@@ -722,29 +659,23 @@
             combinedFlatData = [];
             currentFilteredData = [];
         } else {
-            // कंबाइंड हेडर के लिए सभी PDFs में अधिकतम कॉलम निर्धारित करें (अधिकतम 10)
             const maxColumns = Math.min(Math.max(...allPdfData.map(pdf => pdf.headers.length)), 10);
-            // जेनेरिक हेडर बनाएं जो सभी PDFs के लिए काम करें
             currentHeaders = Array.from({ length: maxColumns }, (_, i) => `कॉलम ${i + 1}`);
 
-            // सभी डेटा को एक बार फ्लैट करें
             combinedFlatData = allPdfData.flatMap(pdf => {
-                // सुनिश्चित करें कि PDF की प्रत्येक पंक्ति maxColumns लंबाई से मेल खाती है
                 return pdf.data.map(row => {
                     const newRow = [...row];
                     while (newRow.length < maxColumns) {
-                        newRow.push(''); // पैडिंग
+                        newRow.push('');
                     }
-                    return newRow.slice(0, maxColumns); // ट्रिमिंग
+                    return newRow.slice(0, maxColumns);
                 });
             });
-            // वर्तमान सर्च फ़िल्टर लागू करें
-            handleSearch(); // यह currentFilteredData को अपडेट करेगा और री-रेंडर करेगा
+            handleSearch();
         }
-        currentPage = 1; // डेटा अपडेट होने पर पेज को पहले पर रीसेट करें
+        currentPage = 1;
         renderTablePage();
     }
-
 
     /**
      * सर्च टर्म को टेक्स्ट में हाइलाइट करता है।
@@ -754,8 +685,8 @@
      */
     function highlightSearchTerm(text, term) {
         if (!term || typeof text !== 'string') return text;
-        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // रेगुलर एक्सप्रेशन के लिए टर्म को एस्केप करें
-        const regex = new RegExp(`(${escapedTerm})`, 'gi'); // केस-संवेदनशील नहीं, वैश्विक सर्च
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedTerm})`, 'gi');
         return text.replace(regex, '<span class="highlight">$1</span>');
     }
 
@@ -766,7 +697,6 @@
         tableHead.innerHTML = '';
         tableBody.innerHTML = '';
 
-        // टेबल हेडर रेंडर करें
         const trHead = document.createElement('tr');
         currentHeaders.forEach(headerText => {
             const th = document.createElement('th');
@@ -775,16 +705,13 @@
         });
         tableHead.appendChild(trHead);
 
-        // वर्तमान पेज के लिए डेटा निकालें
         const startIndex = (currentPage - 1) * rowsPerPage;
         const endIndex = startIndex + rowsPerPage;
         const pageData = currentFilteredData.slice(startIndex, endIndex);
 
-        const searchTerm = searchInput.value.toLowerCase().trim().replace(/\s+/g, ' '); // ऑप्टिमाइज़्ड: एक बार गणना करें
+        const searchTerm = searchInput.value.toLowerCase().trim().replace(/\s+/g, ' ');
 
-        // डेटा या सर्च परिणामों के आधार पर संदेश या डेटा पंक्तियाँ प्रदर्शित करें
         if (pageData.length === 0 && currentFilteredData.length === 0 && combinedFlatData.length > 0 && searchTerm !== '') {
-            // सर्च के लिए कोई परिणाम नहीं
             const noResultsRow = document.createElement('tr');
             const noResultsCell = document.createElement('td');
             noResultsCell.colSpan = currentHeaders.length;
@@ -795,7 +722,6 @@
             noResultsRow.appendChild(noResultsCell);
             tableBody.appendChild(noResultsRow);
         } else if (pageData.length === 0 && combinedFlatData.length === 0) {
-            // कोई डेटा उपलब्ध नहीं है (शुरुआती स्थिति)
             const noDataRow = document.createElement('tr');
             const noDataCell = document.createElement('td');
             noDataCell.colSpan = currentHeaders.length;
@@ -806,12 +732,11 @@
             noDataRow.appendChild(noDataCell);
             tableBody.appendChild(noDataRow);
         } else {
-            // डेटा पंक्तियाँ रेंडर करें
             pageData.forEach(rowData => {
                 const tr = document.createElement('tr');
                 for (let i = 0; i < currentHeaders.length; i++) {
                     const td = document.createElement('td');
-                    const cellContent = String(rowData[i] || ""); // सुनिश्चित करें कि यह स्ट्रिंग है
+                    const cellContent = String(rowData[i] || "");
                     if (searchTerm) {
                         td.innerHTML = highlightSearchTerm(cellContent, searchTerm);
                     } else {
@@ -826,14 +751,14 @@
     }
 
     /**
-     * पेजिंग नियंत्रणों को रेंडर करता है (पिछला, अगला बटन और पेज जानकारी)।
+     * पेजिंग नियंत्रणों को रेंडर करता है।
      */
     function renderPaginationControls() {
         paginationControls.innerHTML = '';
         const totalRows = currentFilteredData.length;
         const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-        if (totalPages <= 1 && searchInput.value.trim() === '') return; // केवल एक पेज होने पर पेजिंग छिपाएं, जब तक सर्च एक्टिव न हो
+        if (totalPages <= 1 && searchInput.value.trim() === '') return;
 
         const prevButton = document.createElement('button');
         prevButton.textContent = 'पिछला';
@@ -870,51 +795,49 @@
      */
     function resetTableState() {
         allPdfData = [];
-        combinedFlatData = []; // इसे भी रीसेट करें
+        combinedFlatData = [];
         currentHeaders = [];
         currentFilteredData = [];
         currentPage = 1;
-        pdfFileInput.value = ''; // फाइल इनपुट को साफ करें
-        searchInput.value = ''; // सर्च इनपुट को साफ करें
+        pdfFileInput.value = '';
+        searchInput.value = '';
         tableHead.innerHTML = '';
         tableBody.innerHTML = '';
         paginationControls.innerHTML = '';
-        displayUserMessage('', ''); // संदेश साफ करें
-        loadAllSavedDataFromFirebase(); // Firebase से नया डेटा रीलोड करें
+        displayUserMessage('', '');
+        loadAllSavedDataFromFirebase();
     }
 
     /**
      * सर्च इनपुट के आधार पर डेटा को फ़िल्टर करता है।
-     * यह dounced है, इसलिए यह केवल इनपुट बंद होने के बाद चलता है।
      */
     function handleSearch() {
-        // सर्च टर्म को केवल एक बार प्रोसेस करें
         const searchTerm = searchInput.value.toLowerCase().trim().replace(/\s+/g, ' ');
-
         if (!combinedFlatData.length) {
-            currentFilteredData = []; // यदि कोई कंबाइंड डेटा नहीं है, तो कोई फ़िल्टर परिणाम नहीं
+            currentFilteredData = [];
         } else if (!searchTerm) {
-            currentFilteredData = [...combinedFlatData]; // यदि कोई सर्च टर्म नहीं है, तो सभी कंबाइंड डेटा दिखाएं
+            // Modified: Only include rows with non-empty name and number (assuming columns 0 and 1)
+            currentFilteredData = combinedFlatData.filter(row => row[0]?.trim() && row[1]?.trim());
         } else {
-            // पहले से तैयार combinedFlatData पर फ़िल्टर करें
             currentFilteredData = combinedFlatData.filter(row => {
                 const matches = Array.isArray(row) && row.some(cell =>
                     cell && String(cell).toLowerCase().replace(/\s+/g, ' ').includes(searchTerm)
                 );
-                return matches;
+                // Modified: Ensure both name and number columns are non-empty
+                return matches && row[0]?.trim() && row[1]?.trim();
             });
         }
-        currentPage = 1; // सर्च परिणाम बदलने पर पेज को पहले पर रीसेट करें
-        renderTablePage(); // फ़िल्टर किए गए डेटा के साथ टेबल को रेंडर करें
+        console.log('Filtered Data:', currentFilteredData.slice(0, 5)); // Modified: Log first 5 filtered rows
+        currentPage = 1;
+        renderTablePage();
     }
 
     /**
-     * एक्सट्रेक्ट किए गए डेटा को Firebase में सेव करता है।
-     * डेटा को दो अलग-अलग नोड्स में विभाजित किया गया है: `metadata` और `rows`।
+     * Firebase में डेटा सेव करता है।
      * @param {string} fileName - PDF फ़ाइल का नाम।
-     * @param {Array<string>} headers - निकाले गए कॉलम हेडर।
-     * @param {Array<Array<string>>} data - निकाली गई डेटा पंक्तियाँ।
-     * @param {Object} pdfEntry - स्थानीय PDF एंट्री वस्तु जिसमें टाइमस्टैम्प शामिल है।
+     * @param {Array<string>} headers - कॉलम हेडर।
+     * @param {Array<Array<string>>} data - डेटा पंक्तियाँ।
+     * @param {Object} pdfEntry - PDF एंट्री।
      */
     async function saveExtractedDataToFirebase(fileName, headers, data, pdfEntry) {
         if (!db) {
@@ -929,28 +852,24 @@
         displayUserMessage('Firebase में डेटा सेव हो रहा है...', 'loading');
 
         try {
-            // चरण 1: एक अद्वितीय कुंजी प्राप्त करने के लिए मेटाडेटा को पुश करें
             const metadataRef = db.ref('extracted_pdfs_metadata').push();
-            const firebaseKey = metadataRef.key; // Firebase द्वारा जनरेट की गई अद्वितीय कुंजी प्राप्त करें
+            const firebaseKey = metadataRef.key;
 
             await metadataRef.set({
                 fileName: fileName || `untitled_${Date.now()}.pdf`,
                 timestamp: pdfEntry.timestamp,
                 headers: headers,
-                totalRows: data.length // त्वरित संदर्भ के लिए कुल पंक्तियों की संख्या जोड़ें
+                totalRows: data.length
             });
 
-            // चरण 2: पंक्तियों को उसी कुंजी का उपयोग करके एक अलग नोड के तहत सहेजें
             const rowsRef = db.ref(`extracted_pdfs_rows/${firebaseKey}`);
-            // Firebase बड़े ऐरे को सीधे पसंद नहीं करता है। न्यूमेरिक कीज़ के साथ ऑब्जेक्ट में कनवर्ट करें।
             const rowsObject = {};
             data.forEach((row, index) => {
-                rowsObject[index] = row; // उदाहरण: { "0": ["value1", "value2"], "1": [...] }
+                rowsObject[index] = row;
             });
 
-            await rowsRef.set(rowsObject); // ऑब्जेक्ट के रूप में सहेजें ताकि बड़े ऐरे को बेहतर ढंग से संभाला जा सके
-
-            pdfEntry.key = firebaseKey; // स्थानीय pdfEntry के साथ Firebase कुंजी स्टोर करें
+            await rowsRef.set(rowsObject);
+            pdfEntry.key = firebaseKey;
             displayUserMessage('Firebase में डेटा सेव हुआ!', 'success');
         } catch (error) {
             console.error("Firebase सेव करने में त्रुटि:", error);
@@ -960,7 +879,6 @@
 
     /**
      * Firebase से सभी सहेजे गए डेटा को लोड करता है।
-     * यह पहले मेटाडेटा को लोड करता है, फिर समानांतर में पंक्तियों को लोड करता है।
      */
     async function loadAllSavedDataFromFirebase() {
         if (!db) {
@@ -973,7 +891,6 @@
         const startTime = performance.now();
 
         try {
-            // चरण 1: सभी PDF मेटाडेटा लोड करें (यह तेज़ होना चाहिए)
             const metadataRef = db.ref('extracted_pdfs_metadata');
             const metadataSnapshot = await metadataRef.once('value');
             const metadata = metadataSnapshot.val();
@@ -990,52 +907,44 @@
                         fileName: value.fileName,
                         headers: value.headers,
                         timestamp: value.timestamp || new Date().toISOString(),
-                        data: [] // शुरुआत में, डेटा खाली है। हम इसे बाद में भरेंगे।
+                        data: []
                     });
                 });
                 console.log(`Firebase से ${allPdfData.length} PDF मेटाडेटा एंट्री ${(performance.now() - startTime).toFixed(2)}ms में लोड हुईं।`);
                 displayUserMessage(`Firebase से ${allPdfData.length} PDF का मेटाडेटा लोड हुआ। अब डेटा पंक्तियाँ लोड हो रही हैं...`, 'loading');
 
-                // चरण 2: प्रत्येक PDF के लिए वास्तविक पंक्तियों को समानांतर में लोड करें
                 const rowLoadPromises = allPdfData.map(async (pdfEntry) => {
                     try {
                         const rowsRef = db.ref(`extracted_pdfs_rows/${pdfEntry.key}`);
                         const rowsSnapshot = await rowsRef.once('value');
                         const rowsData = rowsSnapshot.val();
                         if (rowsData) {
-                            // ऑब्जेक्ट को वापस ऐरे में कनवर्ट करें (Firebase ने इसे ऑब्जेक्ट के रूप में सहेजा था)
                             pdfEntry.data = Object.values(rowsData);
                         }
                     } catch (rowError) {
                         console.error(`PDF ${pdfEntry.key} के लिए पंक्तियाँ लोड करने में त्रुटि:`, rowError);
-                        // यदि पंक्तियाँ लोड नहीं हो पाती हैं, तो आप चाहें तो एंट्री को हटा सकते हैं या उसे विफल के रूप में चिह्नित कर सकते हैं
-                        pdfEntry.data = []; // त्रुटि होने पर डेटा को खाली सेट करें
+                        pdfEntry.data = [];
                     }
                 });
 
-                await Promise.all(rowLoadPromises); // सभी पंक्ति डेटा के लोड होने तक प्रतीक्षा करें
+                await Promise.all(rowLoadPromises);
 
                 const endTime = performance.now();
                 console.log(`सभी PDF डेटा ${(endTime - startTime).toFixed(2)}ms में लोड हो गया।`);
                 displayUserMessage(`Firebase से सारा डेटा लोड हुआ!`, 'success');
-
             } else {
                 allPdfData = [];
                 displayUserMessage('Firebase में कोई डेटा नहीं।', 'info');
             }
 
-            // केंद्रीकृत अपडेट फ़ंक्शन - यह combinedFlatData, currentFilteredData, currentPage सेट करता है और रेंडर करता है
             updateCombinedAndFilteredData();
-
         } catch (error) {
             console.error("Firebase लोड करने में त्रुटि:", error);
             displayUserMessage(`Firebase से डेटा लोड करने में त्रुटि: ${error.message}`, 'error');
         }
     }
 
-    // विंडो लोड होने पर Firebase से डेटा लोड करना शुरू करें
     window.addEventListener('load', () => {
-        // Firebase के पूरी तरह से शुरू होने के लिए एक छोटा विलंब (वैकल्पिक, लेकिन कुछ मामलों में सहायक)
         setTimeout(() => {
             if (db) {
                 loadAllSavedDataFromFirebase();
@@ -1045,5 +954,8 @@
         }, 500);
     });
 </script>
+
 </body>
 </html>
+
+
