@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realtime Cricket Scoring App</title>
+    <title>Cricket Scoring App</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
@@ -70,8 +70,8 @@
 <!-- Main App Container -->
 <div id="app" class="min-h-screen pt-4 pb-4 md:p-8">
     <header class="text-center mb-4 md:mb-8">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800">Realtime Cricket Scoring App 🏏</h1>
-        <p id="app-status" class="text-xs md:text-sm text-gray-500 mt-1">Firebase Status: Loading...</p>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800">Cricket Scoring App 🏏</h1>
+        <!-- Removed Firebase Status Bar -->
     </header>
 
     <!-- Content Area -->
@@ -252,8 +252,10 @@
                 userId = user ? user.uid : 'viewer'; 
                 
                 // Set UI status and visibility
+                // Removed firebase status bar per user request
+                // document.getElementById('app-status').textContent = user ? `Firebase: Connected | User: ${user.email || 'Viewer'}` : 'Firebase: Connected | User: Viewer (Login for Admin)';
+                
                 const isAuthenticated = user && !user.isAnonymous;
-                document.getElementById('app-status').textContent = user ? `Firebase: Connected | User: ${user.email || 'Viewer'}` : 'Firebase: Connected | User: Viewer (Login for Admin)';
                 document.getElementById('auth-status').textContent = isAuthenticated ? 'Logout' : 'Login';
 
                 // Toggle Admin/Setup tabs visibility
@@ -592,17 +594,15 @@
         // 3. Check for Match Win (Innings 2 only)
         if (checkForMatchWin(battingTeam)) return;
 
-        // 4. Handle Strike Rotation (Correction: Rotation only on runs off the bat or byes/LB, BUT NOT WD/NB where only the extra run is scored)
+        // 4. Handle Strike Rotation (Correction: Rotation only on runs off the bat (extraType === null))
         
         const isOddRun = runsToTeam % 2 !== 0 && runsToTeam > 0;
         
-        // Roration logic simplified: Rotate if runs are odd, EXCEPT on Wide (WD)
+        // Rotation only happens on odd runs scored off the bat (extraType === null)
         if (isOddRun) {
-            if (extraType === null || extraType === 'BY' || extraType === 'LB' || extraType === 'NB') {
-                 // Runs off the bat (null), or runs from NB/BY/LB always cause crossing if odd
+            if (extraType === null) {
                  rotateStrike();
             }
-            // WD does not cause rotation, even if runs are scored on it. (Already confirmed in previous request)
         }
         
         // 5. Check for Over completion
@@ -632,38 +632,18 @@
         const lastBall = matchState.current.ballHistory.pop();
         const battingTeam = getCurrentBattingTeam();
         const bowlingTeam = getCurrentBowlingTeam();
-        const opposingTeamKey = getOpposingTeamKey(matchState.current.battingTeamKey);
         
-        // 1. Determine Striker/Bowler stats based on the ball that was just played
-        let strikerIndex = lastBall.extraType === 'WD' ? matchState.current.strikerIndex : (lastBall.extraType === 'NB' ? matchState.current.strikerIndex : matchState.current.strikerIndex);
-        let bowlerIndex = matchState.current.bowlerIndex;
+        // 1. Reverse Total Score
+        battingTeam.totalScore -= lastBall.runs;
 
-        // Note: For undo, we must track which player received the runs/balls. 
-        // We'll rely on the simple model that striker always scored runs unless extra.
-
-        // 2. Reverse Strike Rotation (MUST BE DONE BEFORE STAT REVERSAL)
+        // 2. Determine and Reverse Strike Rotation
         const totalRunsOffBall = lastBall.runs;
         const isOddRun = totalRunsOffBall % 2 !== 0 && totalRunsOffBall > 0;
 
-        if (matchState.current.overBalls === 0) {
-            // Case: We just completed an over (Over was declared completed, but score update didn't run yet if scoring buttons were quick)
-            // Or more likely: We are undoing the first ball of a new over, which means the previous ball was the 6th ball.
-            // If the last ball of the *previous* over resulted in an odd number of runs, the strike was rotated, so we must rotate it back.
-            // This is complex and best handled manually via admin buttons for now, or recalculating state.
-            
-            // Revert the rotation that happened at the start of declareOverCompleted (only if ballAdded was true)
-            // Simplified: We assume rotation happens *after* the ball is processed, so we reverse it if it should have happened.
-            
-            // If over was completed, strike would have rotated twice (once for odd runs, once for over completion) or once (for even runs/wicket).
-            // Since `declareOverCompleted` rotates strike *before* prompting new bowler, if current balls is 0, we reverse *one* rotation.
-            // Let's rely on the simpler non-over-completed logic for now and rely on manual correction for over changes.
-        }
-        
-        // Simple rotation reversal (Reverse rotation if it was an odd run that caused it)
-        if (isOddRun) {
-            if (lastBall.extraType === null || lastBall.extraType === 'BY' || lastBall.extraType === 'LB' || lastBall.extraType === 'NB') {
-                 rotateStrike();
-            }
+        // Determine if rotation happened based on the *play* type that was just undone.
+        if (isOddRun && lastBall.extraType === null) {
+            // Only runs off the bat cause rotation, so we reverse it.
+             rotateStrike();
         }
         
         // 3. Reverse Over/Ball count & Bowler stats for ball
@@ -684,20 +664,32 @@
             }
         }
         
-        // 4. Reverse Total Score
-        battingTeam.totalScore -= lastBall.runs;
+        // 4. Reverse Batsman/Bowler runs/extras (Simplification: Reversing stats based on the ball type)
+        
+        // Runs off the bat (runsToBatsman)
+        let runsToBatsmanReversed = 0;
+        if (lastBall.extraType === null || lastBall.extraType === 'NB') {
+             // Runs to batsman calculated for non-extras or NB (where the main run count is from the bat)
+             runsToBatsmanReversed = lastBall.runs - (lastBall.extraType ? 1 : 0);
+        }
+        
+        // Reverse batsman stats
+        const currentStriker = getCurrentStriker();
+        currentStriker.runs1 -= runsToBatsmanReversed;
+        if (!lastBall.extraType || lastBall.extraType === 'NB') {
+             currentStriker.balls1 -= 1;
+             if (runsToBatsmanReversed === 4) currentStriker.fours1 -= 1;
+             if (runsToBatsmanReversed === 6) currentStriker.sixes1 -= 1;
+        }
 
-        // 5. Reverse Batsman/Bowler runs/extras
+        // Reverse bowler extras
         if (lastBall.extraType === 'WD' || lastBall.extraType === 'NB') {
             if (bowler) {
                 bowler.extras1 = (bowler.extras1 || 0) - 1;
             }
         }
         
-        // Note: Reversing batsman runs (runsToBatsman) and fours/sixes accurately requires checking if the strike rotated on the previous ball, 
-        // which is overly complex for this simple state model. Rely on score/wicket reversal for now.
-        
-        // 6. Reverse Wicket/Out status (Re-introduce the out player)
+        // 5. Reverse Wicket/Out status (Re-introduce the out player)
         if (lastBall.wicket) {
             battingTeam.wickets -= 1;
             if (bowler && lastBall.wicketType !== 'Runout' && lastBall.wicketType !== 'Retired Hurt') {
@@ -709,9 +701,9 @@
             if (playerOut) {
                 playerOut.out1 = null;
                 playerOut.isOut = false;
-                playerOut.isBatting = true; // Player returns to batting position
+                playerOut.isBatting = true; 
                 
-                // You MUST manually re-assign striker/non-striker positions if this undo affects them.
+                // Note: Manual correction for striker/non-striker index is still recommended after complex undo operations.
             }
         }
 
