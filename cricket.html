@@ -238,7 +238,7 @@
     const setupFirebase = async () => {
         try {
             if (Object.keys(firebaseConfig).length === 0) {
-                document.getElementById('app-status').textContent = 'Firebase Config Missing. Score data cannot be saved.';
+                // document.getElementById('app-status').textContent = 'Firebase Config Missing. Score data cannot be saved.'; // Removed
                 return;
             }
             app = initializeApp(firebaseConfig);
@@ -252,8 +252,6 @@
                 userId = user ? user.uid : 'viewer'; 
                 
                 // Set UI status and visibility
-                // Removed firebase status bar per user request
-                // document.getElementById('app-status').textContent = user ? `Firebase: Connected | User: ${user.email || 'Viewer'}` : 'Firebase: Connected | User: Viewer (Login for Admin)';
                 
                 const isAuthenticated = user && !user.isAnonymous;
                 document.getElementById('auth-status').textContent = isAuthenticated ? 'Logout' : 'Login';
@@ -439,18 +437,19 @@
         handleWicket(selectedWicketType, playerOutIndex, fielderIndex ? fielderName : null, runsOnWicket);
     };
 
-    // --- Bowler Modal Logic ---
+    // --- Bowler Modal Logic (Fixed to show all non-batsmen) ---
 
     const showBowlerModal = () => {
         const modal = document.getElementById('bowler-modal');
         const select = document.getElementById('new-bowler-select');
-        const teamKey = matchState.current.bowlingTeamKey;
-        const bowlingTeam = matchState[teamKey];
+        const battingTeam = getCurrentBattingTeam();
+        const bowlingTeam = getCurrentBowlingTeam();
         
         let optionsHtml = '';
         bowlingTeam.players.forEach((player, index) => {
-            // Filter out current batsmen
-            const isCurrentBatsman = (index === matchState.current.strikerIndex || index === matchState.current.nonStrikerIndex);
+            // Include all players from the bowling team
+            // We check against the batting team's current players' names to avoid selecting a batsman
+            const isCurrentBatsman = battingTeam.players.some(p => p.isBatting && p.name === player.name);
             
             if (!isCurrentBatsman) {
                 optionsHtml += `<option value="${index}">${player.name}</option>`;
@@ -531,9 +530,12 @@
         
         if (!matchState.current.ballHistory) { matchState.current.ballHistory = []; }
 
-        // Wide balls and No Balls do not count as a legal ball against the over count
-        let ballAdded = !isExtra || extraType === 'NB'; 
-        
+        // Wide balls do not count as a legal ball against the over count
+        let ballAdded = !isExtra; // True for normal runs. Only NB reverses this to true later.
+        if (extraType === 'NB') {
+             ballAdded = true;
+        }
+
         const battingTeam = getCurrentBattingTeam();
         const striker = getCurrentStriker();
         const bowler = getCurrentBowler();
@@ -546,6 +548,9 @@
             strikerName: striker.name,
             bowlerName: bowler.name,
             inning: matchState.currentInnings,
+            // Capture current strike indexes for robust undo
+            strikerIndex: matchState.current.strikerIndex,
+            nonStrikerIndex: matchState.current.nonStrikerIndex,
         };
 
         // 1. Update Score & Stats
@@ -594,11 +599,11 @@
         // 3. Check for Match Win (Innings 2 only)
         if (checkForMatchWin(battingTeam)) return;
 
-        // 4. Handle Strike Rotation (Correction: Rotation only on runs off the bat (extraType === null))
-        
+        // 4. Handle Strike Rotation
+        // Rotation only happens on odd runs scored off the bat (extraType === null)
         const isOddRun = runsToTeam % 2 !== 0 && runsToTeam > 0;
         
-        // Rotation only happens on odd runs scored off the bat (extraType === null)
+        // CORRECTION: Rotation should only happen on runs off the bat (extraType === null) if odd.
         if (isOddRun) {
             if (extraType === null) {
                  rotateStrike();
@@ -636,17 +641,7 @@
         // 1. Reverse Total Score
         battingTeam.totalScore -= lastBall.runs;
 
-        // 2. Determine and Reverse Strike Rotation
-        const totalRunsOffBall = lastBall.runs;
-        const isOddRun = totalRunsOffBall % 2 !== 0 && totalRunsOffBall > 0;
-
-        // Determine if rotation happened based on the *play* type that was just undone.
-        if (isOddRun && lastBall.extraType === null) {
-            // Only runs off the bat cause rotation, so we reverse it.
-             rotateStrike();
-        }
-        
-        // 3. Reverse Over/Ball count & Bowler stats for ball
+        // 2. Reverse Over/Ball count & Bowler stats for ball
         if (lastBall.ballAdded) {
             // Reverse the over/ball count
             if (matchState.current.overBalls === 0 && Math.floor(battingTeam.overs) > 0) {
@@ -659,12 +654,13 @@
             }
             
             // Update Bowler's individual ball count
+            const bowler = bowlingTeam.players[matchState.current.bowlerIndex];
             if (bowler) {
                 bowler.balls1 = (bowler.balls1 || 0) - 1;
             }
         }
         
-        // 4. Reverse Batsman/Bowler runs/extras (Simplification: Reversing stats based on the ball type)
+        // 3. Reverse Batsman/Bowler runs/extras 
         
         // Runs off the bat (runsToBatsman)
         let runsToBatsmanReversed = 0;
@@ -673,23 +669,31 @@
              runsToBatsmanReversed = lastBall.runs - (lastBall.extraType ? 1 : 0);
         }
         
-        // Reverse batsman stats
-        const currentStriker = getCurrentStriker();
-        currentStriker.runs1 -= runsToBatsmanReversed;
-        if (!lastBall.extraType || lastBall.extraType === 'NB') {
-             currentStriker.balls1 -= 1;
-             if (runsToBatsmanReversed === 4) currentStriker.fours1 -= 1;
-             if (runsToBatsmanReversed === 6) currentStriker.sixes1 -= 1;
-        }
+        // Determine who was the striker for this ball (needed for undo)
+        let playerToUndoIndex = lastBall.strikerIndex;
+        let playerToUndo = battingTeam.players[playerToUndoIndex];
 
+        if (playerToUndo) {
+            // Reverse batsman runs
+            playerToUndo.runs1 -= runsToBatsmanReversed;
+            
+            // Reverse batsman balls/4s/6s
+            if (!lastBall.extraType || lastBall.extraType === 'NB') {
+                 playerToUndo.balls1 -= 1;
+                 if (runsToBatsmanReversed === 4) playerToUndo.fours1 -= 1;
+                 if (runsToBatsmanReversed === 6) playerToUndo.sixes1 -= 1;
+            }
+        }
+        
         // Reverse bowler extras
+        const bowler = bowlingTeam.players[matchState.current.bowlerIndex]; // Use current bowler index
         if (lastBall.extraType === 'WD' || lastBall.extraType === 'NB') {
             if (bowler) {
                 bowler.extras1 = (bowler.extras1 || 0) - 1;
             }
         }
         
-        // 5. Reverse Wicket/Out status (Re-introduce the out player)
+        // 4. Reverse Wicket/Out status 
         if (lastBall.wicket) {
             battingTeam.wickets -= 1;
             if (bowler && lastBall.wicketType !== 'Runout' && lastBall.wicketType !== 'Retired Hurt') {
@@ -702,13 +706,28 @@
                 playerOut.out1 = null;
                 playerOut.isOut = false;
                 playerOut.isBatting = true; 
-                
-                // Note: Manual correction for striker/non-striker index is still recommended after complex undo operations.
             }
+            
+            // For complex undo (like wickets), we reset the striker/non-striker to the state *before* the wicket fell,
+            // using the indexes stored in the ball history.
+            matchState.current.strikerIndex = lastBall.strikerIndex;
+            matchState.current.nonStrikerIndex = lastBall.nonStrikerIndex;
         }
 
-        showMessageModal("Undo Successful", "Last action reversed. Please check player runs/balls and strike positions manually.");
+        // 5. Reverse Strike Rotation
+        // Check if rotation happened based on the *play* type that was just undone.
+        const totalRunsOffBall = lastBall.runs;
+        const isOddRun = totalRunsOffBall % 2 !== 0 && totalRunsOffBall > 0;
+        
+        // CORRECTION: Only reverse if rotation happened (i.e., odd runs AND was off the bat, extraType===null)
+        if (isOddRun && lastBall.extraType === null && !lastBall.wicket) {
+            // Rotation only happens on odd runs off the bat, so we reverse it.
+             rotateStrike();
+        }
+
+        // Force UI update
         updateMatchState(); 
+        showMessageModal("Undo Successful", "Last action reversed. Please check player strike positions manually for complex scenarios.");
     };
 
 
@@ -773,6 +792,8 @@
             runs: runsBeforeWicket, extraType: null, ballAdded: ballAdded, wicket: true,
             wicketType: type, playerOutName: playerOut.name, fielderName: fielderName,
             bowlerName: bowler.name, inning: matchState.currentInnings,
+            strikerIndex: matchState.current.strikerIndex, // Store index before potential rotation
+            nonStrikerIndex: matchState.current.nonStrikerIndex,
         };
         matchState.current.ballHistory.push(ballEvent);
 
@@ -964,6 +985,7 @@
             console.error("RTDB DB not initialized.");
             return;
         }
+        // Optimisation: Use onValue to fetch data, which handles small updates quickly.
         const scoreRef = getScoreStateRef(matchId);
         
         unsubscribeMatch = onValue(scoreRef, (snapshot) => {
@@ -984,6 +1006,8 @@
                     teamB: { ...defaultMatchState.teamB, ...(data.teamB || {}) }
                 };
 
+                // Optimisation: Only re-render the necessary parts based on the active tab, 
+                // but since renderDefaultTabContent handles this switch, we rely on it.
                 renderDefaultTabContent();
                 console.log("Match State Updated from DB:", matchState);
             } else {
@@ -1041,6 +1065,7 @@
         }
         const listRef = getMatchListRef();
         
+        // Optimisation: Use onValue for real-time updates to the list
         unsubscribeMatchList = onValue(listRef, (snapshot) => {
             matchList = [];
             if (snapshot.exists()) {
@@ -1051,7 +1076,10 @@
             }
             // Sort by createdAt descending (newest at the top)
             matchList.sort((a, b) => b.createdAt - a.createdAt);
-            renderMatchList();
+            // Optimisation: Re-render only the match list, not the whole tab content
+            if (currentTab === 'viewer') {
+                 renderMatchList();
+            }
         }, (error) => {
             console.error("Match List Listener Error:", error);
              matchList = [];
@@ -1583,16 +1611,16 @@
             let bowlingTeamName = matchState[bowlingTeamKey]?.name || teamName;
             
             let playersData = inningsData.teamPlayers || matchState[battingTeamKey]?.players;
-            let opposingPlayersData = matchState[bowlingTeamKey]?.players;
             
-            // For bowling stats, we need the opposition players' data from that innings
-            const oppositionKey = getOpposingTeamKey(battingTeamKey);
-            let bowlingPlayersForThisInnings = matchState.innings1 && matchState.innings1.teamPlayers && oppositionKey === matchState.current.bowlingTeamKey ? matchState.innings1.teamPlayers : matchState[oppositionKey]?.players;
-
-            if (isCurrent) {
-                playersData = getCurrentBattingTeam()?.players;
-                bowlingPlayersForThisInnings = getCurrentBowlingTeam()?.players;
+            // For bowling stats, use the opposition's player data saved in matchState for that innings, or the current live bowling team data
+            let bowlingPlayersForThisInnings = matchState[bowlingTeamKey]?.players;
+            if (inningsNumber === 1 && matchState.innings1?.teamPlayers) {
+                // If it's Innings 1 data, the bowling team is the one that is currently batting in Innings 2 state (if match is finished)
+                // We assume the non-batting team is the bowling team for that innings' data storage.
+                const fieldingTeamKey = getOpposingTeamKey(battingTeamKey);
+                bowlingPlayersForThisInnings = matchState[fieldingTeamKey]?.players;
             }
+
 
             return `
                 <div class="mb-10 p-4 border rounded-xl shadow-lg bg-white">
