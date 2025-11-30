@@ -653,6 +653,8 @@
                  // Undoing a ball that completed an over: Revert over count and set balls to 5
                  battingTeam.overs = Math.floor(battingTeam.overs) - 1;
                  matchState.current.overBalls = 5;
+                 // Note: If an over was completed, we need to reverse the automatic strike rotation that happened at the end of declareOverCompleted
+                 rotateStrike();
             } else if (matchState.current.overBalls > 0) {
                  matchState.current.overBalls -= 1;
                  battingTeam.overs -= 0.1;
@@ -678,6 +680,7 @@
             playerToUndo.runs1 -= runsToBatsmanReversed;
             
             // Reverse batsman balls/4s/6s
+            // Note: We use the old strike index stored in lastBall because the strike might have rotated on this ball!
             if (!lastBall.extraType || lastBall.extraType === 'NB') {
                  playerToUndo.balls1 -= 1;
                  if (runsToBatsmanReversed === 4) playerToUndo.fours1 -= 1;
@@ -706,29 +709,21 @@
                 playerOut.isOut = false;
                 playerOut.isBatting = true; 
             }
-            
-            // CORRECTION: Restore the striker/non-striker indexes to the state *before* the ball was played
-            matchState.current.strikerIndex = lastBall.strikerIndex;
-            matchState.current.nonStrikerIndex = lastBall.nonStrikerIndex;
-            
-            // Mark the incoming batsman (who was set after the wicket) as not batting
-            let incomingPlayerIndex = (lastBall.strikerIndex === matchState.current.strikerIndex) ? lastBall.strikerIndex : lastBall.nonStrikerIndex;
-            if (incomingPlayerIndex !== -1 && battingTeam.players[incomingPlayerIndex]) {
-                 battingTeam.players[incomingPlayerIndex].isBatting = false;
-            }
-
         }
-
-        // 5. Reverse Strike Rotation
-        // Check if rotation happened based on the *play* type that was just undone.
-        const totalRunsOffBall = lastBall.runs;
+        
+        // 5. Restore Strike Position (This is the crucial fix for strike reversal)
+        
+        // First, check if a normal run rotation happened on this ball (only on odd runs off the bat, no wicket)
         const isOddRun = totalRunsOffBall % 2 !== 0 && totalRunsOffBall > 0;
         
-        // CORRECTION: Only reverse if rotation happened (i.e., odd runs AND was off the bat, extraType===null)
         if (isOddRun && lastBall.extraType === null && !lastBall.wicket) {
-            // Rotation only happens on odd runs off the bat, so we reverse it.
+            // If rotation occurred, reverse it.
              rotateStrike();
         }
+
+        // Now, restore the indices to the state *before* this ball/wicket
+        matchState.current.strikerIndex = lastBall.strikerIndex;
+        matchState.current.nonStrikerIndex = lastBall.nonStrikerIndex;
 
         // Force UI update
         await updateMatchState(); // Use await to ensure DB update finishes before showing message
