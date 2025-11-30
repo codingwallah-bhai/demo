@@ -79,7 +79,7 @@
         <!-- Content will be rendered here by JS -->
         <div class="flex justify-center items-center h-[50vh] text-gray-500">
             <i class="fas fa-spinner fa-spin text-2xl mr-2"></i>
-            <span class="text-lg">Please wait...</span>
+            <span class="text-lg">कृपया थांबा...</span>
         </div>
     </main>
 </div>
@@ -88,24 +88,24 @@
 <div id="bottom-nav" class="bottom-nav-bar">
     <button onclick="switchTab('viewer')" class="nav-item active" id="nav-viewer">
         <i class="fas fa-eye"></i>
-        <span>Viewer</span>
+        <span>दर्शक (Viewer)</span>
     </button>
     <button onclick="switchTab('stats')" class="nav-item" id="nav-stats">
         <i class="fas fa-chart-bar"></i>
-        <span>Stats</span>
+        <span>आकडेवारी (Stats)</span>
     </button>
     <!-- Setup and Admin are hidden for non-logged in users -->
     <button onclick="switchTab('setup')" class="nav-item hidden" id="nav-setup">
         <i class="fas fa-cogs"></i>
-        <span>Setup</span>
+        <span>सेटअप (Setup)</span>
     </button>
     <button onclick="switchTab('admin')" class="nav-item hidden" id="nav-admin">
         <i class="fas fa-user-shield"></i>
-        <span>Admin</span>
+        <span>अ‍ॅडमिन (Admin)</span>
     </button>
     <button onclick="switchTab('login')" class="nav-item" id="nav-login">
         <i class="fas fa-sign-in-alt"></i>
-        <span id="auth-status">Login</span>
+        <span id="auth-status">लॉगिन (Login)</span>
     </button>
 </div>
 
@@ -162,9 +162,9 @@
 <!-- Message Modal -->
 <div id="message-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4">
     <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm">
-        <h3 id="message-title" class="text-xl font-bold mb-4 text-gray-800">Notification </h3>
+        <h3 id="message-title" class="text-xl font-bold mb-4 text-gray-800">सूचना (Notification) </h3>
         <p id="message-content" class="text-gray-700 mb-6"></p>
-        <button onclick="window.hideMessageModal()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition">OK</button>
+        <button onclick="window.hideMessageModal()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition">ठीक आहे (OK)</button>
     </div>
 </div>
 
@@ -642,6 +642,11 @@
         battingTeam.totalScore -= lastBall.runs;
 
         // 2. Reverse Over/Ball count & Bowler stats for ball
+        
+        // Find the players who were active for this ball (using stored index)
+        let playerToUndo = battingTeam.players[lastBall.strikerIndex];
+        const bowler = bowlingTeam.players[matchState.current.bowlerIndex];
+
         if (lastBall.ballAdded) {
             // Reverse the over/ball count
             if (matchState.current.overBalls === 0 && Math.floor(battingTeam.overs) > 0) {
@@ -654,7 +659,6 @@
             }
             
             // Update Bowler's individual ball count
-            const bowler = bowlingTeam.players[matchState.current.bowlerIndex];
             if (bowler) {
                 bowler.balls1 = (bowler.balls1 || 0) - 1;
             }
@@ -669,10 +673,6 @@
              runsToBatsmanReversed = lastBall.runs - (lastBall.extraType ? 1 : 0);
         }
         
-        // Determine who was the striker for this ball (needed for undo)
-        let playerToUndoIndex = lastBall.strikerIndex;
-        let playerToUndo = battingTeam.players[playerToUndoIndex];
-
         if (playerToUndo) {
             // Reverse batsman runs
             playerToUndo.runs1 -= runsToBatsmanReversed;
@@ -686,7 +686,6 @@
         }
         
         // Reverse bowler extras
-        const bowler = bowlingTeam.players[matchState.current.bowlerIndex]; // Use current bowler index
         if (lastBall.extraType === 'WD' || lastBall.extraType === 'NB') {
             if (bowler) {
                 bowler.extras1 = (bowler.extras1 || 0) - 1;
@@ -708,10 +707,16 @@
                 playerOut.isBatting = true; 
             }
             
-            // For complex undo (like wickets), we reset the striker/non-striker to the state *before* the wicket fell,
-            // using the indexes stored in the ball history.
+            // CORRECTION: Restore the striker/non-striker indexes to the state *before* the ball was played
             matchState.current.strikerIndex = lastBall.strikerIndex;
             matchState.current.nonStrikerIndex = lastBall.nonStrikerIndex;
+            
+            // Mark the incoming batsman (who was set after the wicket) as not batting
+            let incomingPlayerIndex = (lastBall.strikerIndex === matchState.current.strikerIndex) ? lastBall.strikerIndex : lastBall.nonStrikerIndex;
+            if (incomingPlayerIndex !== -1 && battingTeam.players[incomingPlayerIndex]) {
+                 battingTeam.players[incomingPlayerIndex].isBatting = false;
+            }
+
         }
 
         // 5. Reverse Strike Rotation
@@ -726,8 +731,8 @@
         }
 
         // Force UI update
-        updateMatchState(); 
-        showMessageModal("Undo Successful", "Last action reversed. Please check player strike positions manually for complex scenarios.");
+        await updateMatchState(); // Use await to ensure DB update finishes before showing message
+        showMessageModal("Undo Successful", "मागील क्रिया यशस्वीरित्या रिव्हर्स झाली आहे. स्ट्राइक स्थिती तपासा.");
     };
 
 
@@ -740,6 +745,10 @@
         const playerOut = battingTeam.players[playerOutIndex];
         const bowler = getCurrentBowler();
         const isStrikerOut = playerOutIndex === matchState.current.strikerIndex;
+
+        // Save current striker/non-striker indices BEFORE any changes for robust UNDO
+        const oldStrikerIndex = matchState.current.strikerIndex;
+        const oldNonStrikerIndex = matchState.current.nonStrikerIndex;
 
         // 1. Update Stats & Score (runs before wicket)
         battingTeam.totalScore += runsBeforeWicket;
@@ -768,9 +777,9 @@
         
         // 4. Set the outgoing player's slot to the incoming player's index
         if (nextBatsmanIndex !== -1) {
-            if (playerOutIndex === matchState.current.strikerIndex) {
+            if (playerOutIndex === oldStrikerIndex) {
                 matchState.current.strikerIndex = nextBatsmanIndex;
-            } else if (playerOutIndex === matchState.current.nonStrikerIndex) {
+            } else if (playerOutIndex === oldNonStrikerIndex) {
                 matchState.current.nonStrikerIndex = nextBatsmanIndex;
             }
             battingTeam.players[nextBatsmanIndex].isBatting = true;
@@ -792,8 +801,8 @@
             runs: runsBeforeWicket, extraType: null, ballAdded: ballAdded, wicket: true,
             wicketType: type, playerOutName: playerOut.name, fielderName: fielderName,
             bowlerName: bowler.name, inning: matchState.currentInnings,
-            strikerIndex: matchState.current.strikerIndex, // Store index before potential rotation
-            nonStrikerIndex: matchState.current.nonStrikerIndex,
+            strikerIndex: oldStrikerIndex, // Store index BEFORE potential rotation/wicket fall
+            nonStrikerIndex: oldNonStrikerIndex,
         };
         matchState.current.ballHistory.push(ballEvent);
 
