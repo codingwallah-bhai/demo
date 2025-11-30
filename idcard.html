@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Interact.js for Drag & Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <style>
         /* --- Preview Scale Logic --- */
         .preview-container {
@@ -17,72 +19,71 @@
             align-items: center;
             width: 100%;
             padding: 20px;
-            background-color: #f3f4f6; /* slate-100 */
+            background-color: #f3f4f6;
             border-radius: 0.5rem;
-            overflow: hidden; /* Fix for floating artifacts */
-            min-height: 280px;
+            overflow: hidden;
+            min-height: 450px;
+            position: relative;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
-        @media (max-width: 640px) {
-            .preview-card-scale { transform: scale(0.85); transform-origin: center; }
+        /* --- Draggable Styles --- */
+        .draggable {
+            cursor: move;
+            user-select: none;
+            position: relative; 
+            display: inline-block; /* Crucial for wrapper sizing */
+            transition: box-shadow 0.2s;
+            touch-action: none;
+        }
+        
+        /* Highlight border when hovering or dragging */
+        .draggable:hover, .draggable.is-dragging {
+            outline: 2px dashed #6366f1; /* Indigo outline */
+            background-color: rgba(99, 102, 241, 0.1);
+            z-index: 50; /* Bring to front while dragging */
+        }
+        
+        .draggable.is-dragging {
+            opacity: 0.8;
+            cursor: grabbing;
         }
 
-        /* --- PRINT SETTINGS (A4 Optimized) --- */
+        /* --- PRINT SETTINGS --- */
         @media print {
-            @page {
-                size: A4;
-                margin: 5mm; /* Narrow margins for max space */
-            }
+            @page { size: A4; margin: 5mm; }
+            body { background: white; margin: 0; padding: 0; }
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; top: 0; left: 0; width: 100%; padding: 5mm; }
             
-            body {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-
-            body * {
-                visibility: hidden; /* Hide UI */
-            }
-
-            /* Show Print Container */
-            #print-area, #print-area * {
-                visibility: visible;
-            }
-
-            #print-area {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                padding: 5mm;
-            }
-
-            /* Grid Layouts for A4 */
             .print-grid {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 5mm; /* Space between cards for cutting */
+                gap: 5mm;
                 justify-content: flex-start;
                 align-content: flex-start;
             }
 
-            /* Card Sizing Fixes */
             .card-wrapper {
                 box-shadow: none !important;
-                border: 1px solid #ddd !important; /* Cut line */
+                border: 1px solid #ddd !important;
                 print-color-adjust: exact !important;
                 -webkit-print-color-adjust: exact !important;
                 break-inside: avoid;
                 page-break-inside: avoid;
                 margin: 0;
-                position: relative !important; /* Force relative positioning */
-                
-                /* EXACT PHYSICAL DIMENSIONS */
+                position: relative !important;
                 width: 85.6mm !important;
                 height: 54mm !important;
+                /* Reset transforms for print */
+                transform: none !important; 
             }
+            
+            /* Print mein outline nahi dikhna chahiye */
+            .draggable { outline: none !important; background: transparent !important; }
 
-            /* Student/Vertical Card Override */
             .card-wrapper.portrait {
                 width: 54mm !important;
                 height: 85.6mm !important;
@@ -101,6 +102,17 @@
         .batch-item-wrapper:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Custom Shapes */
+        .clip-student-curve { clip-path: ellipse(130% 100% at 50% 0%); }
+        .clip-event-v { clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%); }
+        
+        /* Circle Photo Fix */
+        .photo-circle {
+            border-radius: 50%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -126,7 +138,7 @@
     <main class="flex-1 w-full max-w-[1400px] mx-auto p-4 flex flex-col md:flex-row gap-6">
         
         <!-- LEFT: Editor Panel -->
-        <div class="w-full md:w-[350px] shrink-0 flex flex-col gap-4 no-print h-[calc(100vh-100px)] overflow-y-auto">
+        <div class="w-full md:w-[380px] shrink-0 flex flex-col gap-4 no-print h-[calc(100vh-100px)] overflow-y-auto pr-1">
             
             <!-- 1. Design Selector -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
@@ -138,50 +150,73 @@
                 </div>
             </div>
 
-            <!-- 2. Data Entry -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex-1">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">2. Enter Details</h3>
-                
+            <!-- 2. Organization Details -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">2. Organization Details</h3>
                 <div class="space-y-3">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Full Name</label>
-                        <input type="text" id="inputName" placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Company / School Name</label>
+                        <input type="text" id="orgName" placeholder="Organization Name" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none" oninput="updateLivePreview()">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase" id="labelRole">Role / Class</label>
-                        <input type="text" id="inputRole" placeholder="e.g. Senior Developer" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase">ID No.</label>
-                            <input type="text" id="inputId" placeholder="EMP-001" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase">Location</label>
-                            <input type="text" id="inputLocation" placeholder="Mumbai" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Photo Upload -->
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Photo</label>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Logo Upload</label>
                         <div class="flex gap-2 items-center">
                             <label class="flex-1 cursor-pointer bg-gray-50 border border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 rounded px-3 py-2 flex items-center justify-center gap-2 transition-all">
-                                <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
-                                <i data-lucide="upload" class="w-4 h-4 text-gray-400"></i>
-                                <span class="text-xs text-gray-600 font-medium">Upload</span>
+                                <input type="file" id="logoInput" class="hidden" accept="image/*" onchange="handleLogoUpload(event)">
+                                <i data-lucide="image" class="w-4 h-4 text-gray-400"></i>
+                                <span class="text-xs text-gray-600 font-medium">Upload Logo</span>
                             </label>
-                            <button onclick="clearImage()" class="p-2 text-gray-400 hover:text-red-500 border border-gray-200 rounded hover:bg-red-50" title="Remove Photo">
+                            <button onclick="clearLogo()" class="p-2 text-gray-400 hover:text-red-500 border border-gray-200 rounded hover:bg-red-50" title="Remove Logo">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
-
-                    <!-- Add Button -->
-                    <button onclick="addCardToBatch()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold shadow-md active:scale-95 flex items-center justify-center gap-2 transition-all">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Add to Print Queue
-                    </button>
                 </div>
+            </div>
+
+            <!-- 3. Dynamic Data Entry -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex-1">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex justify-between">
+                    <span>3. User Details</span>
+                    <span class="text-[10px] text-indigo-500 cursor-pointer hover:underline" onclick="resetForm()">Reset</span>
+                </h3>
+                
+                <div id="dynamic-form-container" class="space-y-3">
+                    <!-- Inputs injected by JS -->
+                </div>
+
+                <!-- Photo Upload -->
+                <div class="mt-4">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">User Photo</label>
+                    <div class="flex gap-2 items-center mt-1">
+                        <label class="flex-1 cursor-pointer bg-gray-50 border border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 rounded px-3 py-2 flex items-center justify-center gap-2 transition-all">
+                            <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+                            <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
+                            <span class="text-xs text-gray-600 font-medium">Upload Photo</span>
+                        </label>
+                        <button onclick="clearImage()" class="p-2 text-gray-400 hover:text-red-500 border border-gray-200 rounded hover:bg-red-50" title="Remove Photo">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Customization Controls -->
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Live Customization</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" id="colorPicker" class="h-8 w-8 rounded cursor-pointer border-0 p-0" value="#000000" onchange="applyColor(this.value)" title="Change Text Color">
+                        <span class="text-xs text-gray-500">Select element in preview to color</span>
+                    </div>
+                    <p class="text-[10px] text-indigo-500 mt-2 bg-indigo-50 p-2 rounded">
+                        <i data-lucide="move" class="w-3 h-3 inline"></i> 
+                        <b>Drag & Drop:</b> Move Photo, Logo, QR, and Text anywhere on the card.
+                    </p>
+                </div>
+
+                <!-- Add Button -->
+                <button onclick="addCardToBatch()" class="w-full mt-5 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold shadow-md active:scale-95 flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Add to Print Queue
+                </button>
             </div>
         </div>
 
@@ -192,7 +227,7 @@
             <div class="w-full flex flex-col items-center">
                 <div class="mb-2 flex justify-between w-full max-w-md items-center px-2">
                     <span class="text-xs font-bold text-gray-400 uppercase">Live Preview</span>
-                    <span class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Auto-updates as you type</span>
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium animate-pulse">Drag elements to adjust layout</span>
                 </div>
                 
                 <div id="live-preview-container" class="preview-container border border-gray-200 shadow-sm">
@@ -214,9 +249,8 @@
 
                 <!-- Grid of added cards -->
                 <div id="batch-grid" class="flex flex-wrap gap-4 justify-center md:justify-start">
-                    <!-- Added cards will appear here -->
                     <div class="w-full py-10 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-                        No cards added yet. Fill details and click "Add to Print Queue".
+                        Queue is empty. Fill details and click "Add to Print Queue".
                     </div>
                 </div>
             </div>
@@ -232,104 +266,139 @@
     <!-- --- TEMPLATE SOURCES (Hidden) --- -->
     <div style="display:none;">
 
-        <!-- 1. CORPORATE TEMPLATE (Landscape) -->
+        <!-- 1. CORPORATE TEMPLATE -->
         <div id="tpl-corporate" class="card-wrapper relative w-[337px] h-[212px] bg-white rounded-lg overflow-hidden flex flex-col text-gray-800 border border-gray-200">
             <div class="absolute inset-0 z-0">
-                <div class="h-full w-[40%] bg-blue-700 absolute right-0 top-0 skew-x-[-20deg] origin-bottom translate-x-12"></div>
+                <div class="h-full w-[40%] bg-blue-800 absolute right-0 top-0 skew-x-[-20deg] origin-bottom translate-x-12"></div>
                 <div class="h-2 w-full bg-blue-600 absolute top-0 left-0"></div>
             </div>
             <div class="z-10 relative h-full flex flex-col p-4">
                 <div class="flex justify-between items-start">
-                    <div class="text-blue-700"><i data-lucide="shield-check" class="w-8 h-8"></i></div>
+                    <!-- Logo Area -->
+                    <div class="w-12 h-12 flex items-center justify-center draggable" data-field="logo">
+                        <img class="data-logo w-full h-full object-contain" src="" alt="Logo" style="display:none">
+                        <i data-lucide="building-2" class="w-8 h-8 text-blue-800 default-logo"></i>
+                    </div>
                     <div class="text-right text-white">
-                        <h3 class="font-bold text-sm tracking-wider uppercase opacity-90">ID CARD</h3>
+                        <h3 class="data-company font-bold text-sm tracking-wider uppercase opacity-90 draggable" data-field="company">COMPANY LTD</h3>
                     </div>
                 </div>
                 <div class="mt-2 flex items-center gap-4">
-                    <div class="w-[85px] h-[85px] rounded-full bg-white p-1 shadow-md shrink-0 z-20">
-                        <img class="data-photo w-full h-full rounded-full object-cover bg-gray-100" src="" alt="Profile">
+                    <div class="w-[85px] h-[85px] rounded-full bg-white p-1 shadow-md shrink-0 z-20 draggable" data-field="photo">
+                        <img class="data-photo w-full h-full rounded-full object-cover bg-gray-100 photo-circle" src="" alt="Profile">
                     </div>
-                    <div class="z-20 pt-2">
-                        <h2 class="data-name font-bold text-lg leading-tight text-gray-900 line-clamp-2">Name Here</h2>
-                        <p class="data-role text-blue-700 font-bold text-[10px] uppercase mt-0.5 tracking-wide line-clamp-1">Role Here</p>
+                    <div class="z-20 pt-2 flex flex-col gap-1 w-full">
+                        <h2 class="data-f1 font-bold text-lg leading-tight text-gray-900 line-clamp-2 draggable" data-field="f1">Name Here</h2>
+                        <p class="data-f2 text-blue-700 font-bold text-[10px] uppercase tracking-wide line-clamp-1 draggable" data-field="f2">Role Here</p>
                     </div>
                 </div>
                 <div class="mt-auto flex justify-between items-end pt-2 z-20">
-                    <div class="text-[10px] text-gray-500 font-mono leading-tight">
-                        <p>ID: <span class="data-id font-bold text-gray-800">000</span></p>
-                        <p>LOC: <span class="data-loc font-bold text-gray-800">City</span></p>
+                    <div class="text-[10px] text-gray-500 font-mono leading-tight draggable" data-field="details">
+                        <p>ID: <span class="data-f3 font-bold text-gray-800">000</span></p>
+                        <p>LOC: <span class="data-f4 font-bold text-gray-800">City</span></p>
                     </div>
-                    <img class="data-qr w-10 h-10 mix-blend-multiply" src="" alt="QR">
+                    <div class="draggable" data-field="qr">
+                        <img class="data-qr w-10 h-10 mix-blend-multiply" src="" alt="QR">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. STUDENT TEMPLATE (Portrait - FIXED) -->
-        <div id="tpl-student" class="card-wrapper relative portrait w-[212px] h-[337px] bg-white rounded-lg overflow-hidden flex flex-col border-t-8 border-orange-500">
-            <!-- Header Arc -->
-            <div class="absolute top-0 left-0 w-full h-[80px] bg-orange-500 rounded-b-[50%] scale-x-125 z-0"></div>
+        <!-- 2. STUDENT TEMPLATE -->
+        <div id="tpl-student" class="card-wrapper relative portrait w-[212px] h-[337px] bg-white rounded-lg overflow-hidden flex flex-col border border-gray-300">
+            <!-- Header -->
+            <div class="relative bg-orange-600 h-[100px] w-full text-center pt-3 text-white clip-student-curve z-10">
+                <div class="w-8 h-8 bg-white rounded-full mx-auto mb-1 flex items-center justify-center overflow-hidden draggable" data-field="logo">
+                     <img class="data-logo w-full h-full object-contain" src="" alt="Logo" style="display:none">
+                     <i data-lucide="graduation-cap" class="w-5 h-5 text-orange-600 default-logo"></i>
+                </div>
+                <h3 class="data-company font-bold text-[10px] leading-tight uppercase px-2 draggable" data-field="company">Janapath Higher<br>Sec. School</h3>
+                <p class="text-[8px] opacity-80 mt-0.5 draggable" data-field="subtitle">Estd. 2023</p>
+            </div>
             
-            <div class="z-10 flex flex-col items-center mt-4 w-full h-full p-3">
+            <div class="z-20 flex flex-col items-center -mt-10 w-full h-full p-2 relative">
                 <!-- Photo -->
-                <div class="w-[90px] h-[90px] rounded-full border-4 border-white shadow-md overflow-hidden bg-white z-10 mb-2">
-                    <img class="data-photo w-full h-full object-cover" src="" alt="Student">
+                <div class="draggable" data-field="photo">
+                    <div class="w-[80px] h-[80px] rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-100 z-20">
+                        <img class="data-photo w-full h-full object-cover photo-circle" src="" alt="Student">
+                    </div>
                 </div>
                 
-                <!-- Info -->
-                <div class="text-center w-full z-10">
-                    <h2 class="data-name font-bold text-lg text-gray-900 leading-tight mb-1 line-clamp-2">Student Name</h2>
-                    <span class="data-role inline-block bg-orange-50 text-orange-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-orange-100">Class XII</span>
+                <!-- Name -->
+                <div class="text-center w-full mt-2">
+                    <h2 class="data-f1 font-extrabold text-lg text-orange-600 leading-tight uppercase line-clamp-1 draggable" data-field="f1">Student Name</h2>
                 </div>
 
                 <!-- Details Grid -->
-                <div class="w-full mt-6 space-y-2 flex-1">
-                    <div class="flex items-center gap-2 border-b border-gray-100 pb-1">
-                        <div class="w-6 text-center"><i data-lucide="hash" class="w-3 h-3 text-orange-400 mx-auto"></i></div>
-                        <div class="text-xs">
-                            <span class="text-[9px] text-gray-400 block uppercase">Roll No</span>
-                            <span class="data-id font-bold text-gray-700">STD-001</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 border-b border-gray-100 pb-1">
-                        <div class="w-6 text-center"><i data-lucide="map-pin" class="w-3 h-3 text-orange-400 mx-auto"></i></div>
-                        <div class="text-xs">
-                            <span class="text-[9px] text-gray-400 block uppercase">Address</span>
-                            <span class="data-loc font-bold text-gray-700 line-clamp-1">New Delhi</span>
-                        </div>
-                    </div>
+                <div class="w-full mt-3 px-2 text-[10px] text-gray-800 space-y-1.5 flex-1 font-medium draggable" data-field="details">
+                    <div class="flex"><span class="w-20 font-bold text-gray-900">Class</span><span class="text-gray-600">: <span class="data-f2">X</span></span></div>
+                    <div class="flex"><span class="w-20 font-bold text-gray-900">Roll No</span><span class="text-gray-600">: <span class="data-f3">01</span></span></div>
+                    <div class="flex"><span class="w-20 font-bold text-gray-900">Father</span><span class="text-gray-600">: <span class="data-f4 line-clamp-1">Name</span></span></div>
+                    <div class="flex"><span class="w-20 font-bold text-gray-900">Contact</span><span class="text-gray-600">: <span class="data-f5">98000</span></span></div>
+                    <div class="flex"><span class="w-20 font-bold text-gray-900">B. Group</span><span class="text-gray-600">: <span class="data-f6 font-bold text-red-600">B+ve</span></span></div>
                 </div>
 
-                <!-- Footer -->
-                <div class="mt-auto mb-2 text-center w-full">
-                    <img class="data-qr w-12 h-12 mx-auto mix-blend-darken" src="" alt="QR">
-                    <p class="text-[8px] text-gray-400 mt-1 uppercase tracking-widest">School Identity Card</p>
+                <!-- QR CODE (Replaced Barcode) -->
+                <div class="w-full px-4 mb-2 flex flex-col items-center draggable" data-field="qr">
+                     <img class="data-qr w-14 h-14 mix-blend-multiply border border-gray-200 p-1 bg-white" src="" alt="QR">
+                </div>
+                
+                <div class="flex justify-end mt-1 w-full draggable" data-field="signature">
+                     <div class="text-[8px] text-gray-400 border-t border-gray-300 px-2 pt-0.5">Principal Signature</div>
+                </div>
+
+                <!-- Footer Strip -->
+                <div class="w-[calc(100%+2px)] h-6 bg-orange-600 -mb-2 flex items-center justify-center text-white text-[8px]">
+                    If found please return to school office.
                 </div>
             </div>
         </div>
 
-        <!-- 3. EVENT TEMPLATE (Landscape) -->
-        <div id="tpl-event" class="card-wrapper relative w-[337px] h-[212px] bg-neutral-900 text-white rounded-lg overflow-hidden flex border border-gray-800">
-            <div class="w-[30px] bg-green-500 h-full flex flex-col items-center justify-center relative z-10">
-                 <span class="text-black font-black -rotate-90 text-[10px] tracking-[0.3em] whitespace-nowrap uppercase">PASS</span>
-            </div>
-            <div class="flex-1 p-4 flex flex-col relative z-10">
-                <div class="flex justify-between items-start gap-2">
-                    <div class="flex-1">
-                        <h4 class="text-green-400 font-mono text-[9px] tracking-widest mb-1">EVENT 2025</h4>
-                        <h2 class="data-name text-xl font-bold text-white leading-none line-clamp-2">Name Here</h2>
-                        <p class="data-role text-gray-400 text-[9px] uppercase font-bold mt-1 tracking-wide">Visitor</p>
-                    </div>
-                    <div class="w-[50px] h-[50px] bg-gray-800 rounded border border-gray-700 overflow-hidden shrink-0">
-                        <img class="data-photo w-full h-full object-cover" src="" alt="User">
+        <!-- 3. EVENT TEMPLATE -->
+        <div id="tpl-event" class="card-wrapper relative portrait w-[212px] h-[337px] bg-white rounded-lg overflow-hidden flex flex-col border border-black">
+            <!-- Header -->
+            <div class="absolute top-0 left-0 w-full h-[140px] bg-red-600 clip-event-v z-0"></div>
+            
+            <div class="z-10 w-full h-full flex flex-col items-center relative p-3">
+                <!-- Logo Area -->
+                <div class="w-full flex justify-center items-center gap-2 mt-2 mb-4 text-white draggable" data-field="header">
+                     <div class="w-10 h-10 bg-blue-800 p-1 rounded border border-white flex items-center justify-center overflow-hidden">
+                         <img class="data-logo w-full h-full object-contain" src="" alt="Logo" style="display:none">
+                         <i data-lucide="zap" class="w-4 h-4 text-yellow-400 default-logo"></i>
+                     </div>
+                     <div class="leading-none text-center">
+                         <h2 class="data-company font-bold text-xl tracking-tighter" data-field="company">TUFAN</h2>
+                         <p class="text-[8px] tracking-widest font-light">TENT & EVENT</p>
+                     </div>
+                </div>
+
+                <!-- Photo -->
+                <div class="draggable" data-field="photo">
+                    <div class="w-[100px] h-[100px] rounded-full border-[3px] border-white shadow-sm overflow-hidden bg-gray-200 z-20 mt-1">
+                        <img class="data-photo w-full h-full object-cover photo-circle" src="" alt="Staff">
                     </div>
                 </div>
-                <div class="mt-auto flex items-end justify-between border-t border-gray-800 pt-2">
-                    <div class="text-[9px] text-gray-500 font-mono">
-                        #<span class="data-id text-gray-300">000</span>
-                    </div>
-                    <div class="bg-white p-0.5 rounded-sm">
-                        <img class="data-qr w-9 h-9" src="" alt="QR">
-                    </div>
+
+                <!-- Main Info -->
+                <div class="text-center w-full mt-3">
+                    <h2 class="data-f1 font-normal text-2xl text-black uppercase leading-none tracking-tight draggable" data-field="f1">Name</h2>
+                    <p class="data-f2 text-gray-500 text-sm mt-1 capitalize draggable" data-field="f2">Role</p>
+                </div>
+
+                <!-- ID Block -->
+                <div class="text-center w-full mt-3 space-y-0.5 draggable" data-field="details">
+                    <p class="text-sm font-medium text-black">ID: <span class="data-f3">0000</span></p>
+                    <p class="text-sm font-medium text-black">PHONE: <span class="data-f4">0000000000</span></p>
+                </div>
+
+                <!-- QR Code Large -->
+                <div class="mt-auto mb-4 draggable" data-field="qr">
+                    <img class="data-qr w-20 h-20 mix-blend-multiply border border-gray-200 p-1" src="" alt="QR">
+                </div>
+
+                <!-- Footer Text -->
+                <div class="absolute bottom-1 w-full text-center text-[7px] text-gray-800 px-2 leading-tight">
+                    Authorized Personnel Only
                 </div>
             </div>
         </div>
@@ -340,257 +409,277 @@
     <script>
         // State
         let currentTemplate = 'corporate';
-        let batchList = []; // Array to store card data objects
-        let currentImage = null; // Temp holder for uploaded image data URL
+        let batchList = [];
+        let currentImage = null;
+        let currentLogo = null;
+        
+        // Custom Styles Store (key: fieldId, value: {x, y, color})
+        let customStyles = {}; 
 
-        // Config
-        const CONFIG = {
-            corporate: { name: 'Rahul Sharma', role: 'Senior Developer', id: 'EMP-001', loc: 'Mumbai', labelRole: 'Designation' },
-            student: { name: 'Aarav Singh', role: 'Class X-A', id: 'R-204', loc: 'Delhi', labelRole: 'Class / Section' },
-            event: { name: 'Priya Patel', role: 'Speaker', id: 'VIP-09', loc: 'Main Hall', labelRole: 'Access Type' }
+        // --- CONFIGURATION ---
+        const TEMPLATE_CONFIG = {
+            corporate: {
+                fields: [
+                    { id: 'f1', label: 'Full Name', placeholder: 'Rahul Sharma' },
+                    { id: 'f2', label: 'Designation', placeholder: 'Senior Developer' },
+                    { id: 'f3', label: 'Employee ID', placeholder: 'EMP-001' },
+                    { id: 'f4', label: 'Location', placeholder: 'Mumbai' }
+                ],
+                company: 'TECHNO SOLUTIONS'
+            },
+            student: {
+                fields: [
+                    { id: 'f1', label: 'Student Name', placeholder: 'Ram Shrestha' },
+                    { id: 'f2', label: 'Class', placeholder: 'X' },
+                    { id: 'f3', label: 'Roll No', placeholder: '24' },
+                    { id: 'f4', label: 'Father\'s Name', placeholder: 'Hari Shrestha' },
+                    { id: 'f5', label: 'Contact No', placeholder: '9800-000-000' },
+                    { id: 'f6', label: 'Blood Group', placeholder: 'B+ve' }
+                ],
+                company: 'SCHOOL ID'
+            },
+            event: {
+                fields: [
+                    { id: 'f1', label: 'Full Name', placeholder: 'Bittu' },
+                    { id: 'f2', label: 'Role', placeholder: 'Engineer' },
+                    { id: 'f3', label: 'ID Number', placeholder: 'TH-2025-1' },
+                    { id: 'f4', label: 'Phone Number', placeholder: '6200293103' }
+                ],
+                company: 'TUFAN EVENT'
+            }
         };
 
-        const SEEDS = { corporate: 'Rahul', student: 'Aarav', event: 'Priya' };
+        const SEEDS = { corporate: 'Rahul', student: 'Ram', event: 'Bittu' };
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            
-            // Set up live listeners
-            ['inputName', 'inputRole', 'inputId', 'inputLocation'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updateLivePreview);
-            });
-
-            // Default
             setTemplate('corporate');
+            setupDragAndDrop();
         });
 
-        // --- CORE FUNCTIONS ---
+        // --- DYNAMIC FORM GENERATION ---
+
+        function renderFormFields(templateKey) {
+            const container = document.getElementById('dynamic-form-container');
+            container.innerHTML = '';
+            
+            const config = TEMPLATE_CONFIG[templateKey];
+            document.getElementById('orgName').value = config.company;
+
+            config.fields.forEach(field => {
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = `
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">${field.label}</label>
+                    <input type="text" 
+                           id="input-${field.id}" 
+                           data-key="${field.id}"
+                           placeholder="${field.placeholder}" 
+                           class="dynamic-input w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                           oninput="updateLivePreview()">
+                `;
+                container.appendChild(wrapper);
+            });
+        }
 
         function setTemplate(tpl) {
             currentTemplate = tpl;
+            customStyles = {}; // Reset customs on template switch
             
-            // Update UI State
             document.querySelectorAll('.template-btn').forEach(b => {
-                b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
-                b.classList.add('bg-white', 'text-gray-600', 'border-gray-300');
+                b.className = "template-btn py-2 text-xs font-semibold rounded border bg-white text-gray-600 border-gray-300 hover:bg-gray-50 transition-all";
             });
             const btn = document.getElementById(`btn-${tpl}`);
-            btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-300');
-            btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+            btn.className = "template-btn py-2 text-xs font-semibold rounded border bg-indigo-600 text-white border-indigo-600 shadow-sm transition-all";
 
-            // Update Input Labels/Placeholders
-            const defaults = CONFIG[tpl];
-            document.getElementById('labelRole').innerText = defaults.labelRole;
-            
-            // If inputs are empty, show placeholders, don't force values so user can type
-            document.getElementById('inputName').placeholder = defaults.name;
-            document.getElementById('inputRole').placeholder = defaults.role;
-            document.getElementById('inputId').placeholder = defaults.id;
-
+            renderFormFields(tpl);
             updateLivePreview();
         }
 
-        function updateLivePreview() {
-            // 1. Get current form data
-            const data = getFormData();
+        function getFormData() {
+            const inputs = document.querySelectorAll('.dynamic-input');
+            const data = {
+                template: currentTemplate,
+                photo: currentImage,
+                logo: currentLogo,
+                company: document.getElementById('orgName').value,
+                styles: { ...customStyles } // Clone styles
+            };
             
-            // 2. Clone Template
+            inputs.forEach(input => {
+                const key = input.getAttribute('data-key');
+                data[key] = input.value || input.placeholder;
+            });
+            data.qrValue = data.f3 || data.f1 || '000'; 
+            return data;
+        }
+
+        function updateLivePreview() {
+            const data = getFormData();
             const tplId = `tpl-${currentTemplate}`;
             const source = document.getElementById(tplId);
-            const previewContainer = document.getElementById('live-preview-container');
+            const container = document.getElementById('live-preview-container');
             
-            previewContainer.innerHTML = ''; // Clear
+            container.innerHTML = '';
+            
             const clone = source.cloneNode(true);
             clone.id = 'active-preview';
-            clone.classList.add('preview-card-scale'); // Apply scale for mobile
-
-            // 3. Populate Data
+            clone.classList.add('preview-card-scale'); 
+            
             populateCard(clone, data);
-
-            previewContainer.appendChild(clone);
+            container.appendChild(clone);
             lucide.createIcons();
         }
 
-        function getFormData() {
-            return {
-                template: currentTemplate,
-                name: document.getElementById('inputName').value || document.getElementById('inputName').placeholder,
-                role: document.getElementById('inputRole').value || document.getElementById('inputRole').placeholder,
-                id: document.getElementById('inputId').value || document.getElementById('inputId').placeholder,
-                loc: document.getElementById('inputLocation').value || document.getElementById('inputLocation').placeholder,
-                photo: currentImage
-            };
-        }
-
         function populateCard(node, data) {
-            // Helper
-            const txt = (sel, val) => {
-                const el = node.querySelector(sel);
-                if(el) el.innerText = val;
-            };
-            
-            txt('.data-name', data.name);
-            txt('.data-role', data.role);
-            txt('.data-id', data.id);
-            txt('.data-loc', data.loc);
+            // Text Fields
+            for (const [key, value] of Object.entries(data)) {
+                if(key.startsWith('f') || key === 'company') {
+                    const el = node.querySelector(`.data-${key}`);
+                    if(el) el.innerText = value;
+                }
+            }
 
-            // QR
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(data.id)}`;
-            const qrEl = node.querySelector('.data-qr');
-            if(qrEl) qrEl.src = qrUrl;
+            // Organization Logo
+            const logoImg = node.querySelector('.data-logo');
+            const defaultLogo = node.querySelector('.default-logo');
+            if(logoImg && defaultLogo) {
+                if(data.logo) {
+                    logoImg.src = data.logo;
+                    logoImg.style.display = 'block';
+                    defaultLogo.style.display = 'none';
+                } else {
+                    logoImg.style.display = 'none';
+                    defaultLogo.style.display = 'block';
+                }
+            }
 
-            // Photo
+            // User Photo
             const photoEl = node.querySelector('.data-photo');
             if(photoEl) {
-                if(data.photo) {
-                    photoEl.src = data.photo;
-                } else {
-                    // Default Avatar
-                    const seed = SEEDS[data.template] || 'User';
-                    photoEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
+                if(data.photo) photoEl.src = data.photo;
+                else photoEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${SEEDS[data.template]}`;
+            }
+
+            // QR
+            const qrEl = node.querySelector('.data-qr');
+            if(qrEl) {
+                qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(data.qrValue)}`;
+            }
+
+            // Apply Custom Styles (Position/Color)
+            if(data.styles) {
+                Object.keys(data.styles).forEach(fieldId => {
+                    // Try to find element by data-field first
+                    let el = node.querySelector(`[data-field="${fieldId}"]`);
+                    
+                    if(el) {
+                        const style = data.styles[fieldId];
+                        // Using translate for smooth positioning
+                        el.style.transform = `translate(${style.x}px, ${style.y}px)`;
+                        if(style.color) el.style.color = style.color;
+                    }
+                });
+            }
+        }
+
+        // --- CUSTOMIZATION LOGIC ---
+
+        function setupDragAndDrop() {
+            interact('.draggable')
+                .draggable({
+                    inertia: true,
+                    modifiers: [
+                        interact.modifiers.restrictRect({
+                            restriction: 'parent',
+                            endOnly: false // Allow moving slightly out of bounds if needed, but keeping strict 'parent' is safer for layout
+                        })
+                    ],
+                    autoScroll: true,
+                    listeners: {
+                        move: dragMoveListener,
+                        end: (event) => {
+                            const target = event.target;
+                            // Find the closest draggable wrapper
+                            const fieldId = target.getAttribute('data-field');
+                            
+                            if(fieldId) {
+                                // Save final position
+                                if(!customStyles[fieldId]) customStyles[fieldId] = {x:0, y:0};
+                                
+                                // Parse current transform
+                                const x = (parseFloat(target.getAttribute('data-x')) || 0);
+                                const y = (parseFloat(target.getAttribute('data-y')) || 0);
+                                
+                                customStyles[fieldId].x = x;
+                                customStyles[fieldId].y = y;
+                            }
+                        }
+                    }
+                })
+                .on('tap', function (event) {
+                    // Selection logic for color picking
+                    // Clear previous selection
+                    document.querySelectorAll('.draggable').forEach(el => el.style.outline = 'none');
+                    
+                    // Highlight current
+                    const target = event.currentTarget; // use currentTarget to get the .draggable element
+                    target.style.outline = '2px dashed red';
+                    window.selectedElementField = target.getAttribute('data-field');
+                });
+        }
+
+        function dragMoveListener (event) {
+            var target = event.target;
+            // keep the dragged position in the data-x/data-y attributes
+            var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+            // translate the element
+            target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+            // update the posiion attributes
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
+            
+            target.classList.add('is-dragging');
+        }
+
+        function applyColor(color) {
+            if(window.selectedElementField) {
+                // Update Style Object
+                if(!customStyles[window.selectedElementField]) customStyles[window.selectedElementField] = {x:0, y:0};
+                customStyles[window.selectedElementField].color = color;
+                
+                // Update Live Preview directly
+                const el = document.querySelector(`#active-preview [data-field="${window.selectedElementField}"]`);
+                if(el) {
+                    el.style.color = color;
+                    // Also update any child text nodes if strictly needed, but inheritance usually works
                 }
-            }
-        }
-
-        // --- BATCH MANAGEMENT ---
-
-        function addCardToBatch() {
-            // Capture current state strictly
-            const data = {
-                template: currentTemplate,
-                name: document.getElementById('inputName').value.trim() || CONFIG[currentTemplate].name,
-                role: document.getElementById('inputRole').value.trim() || CONFIG[currentTemplate].role,
-                id: document.getElementById('inputId').value.trim() || CONFIG[currentTemplate].id,
-                loc: document.getElementById('inputLocation').value.trim() || CONFIG[currentTemplate].loc,
-                photo: currentImage
-            };
-
-            batchList.push(data);
-            renderBatchGrid();
-            renderPrintArea(); // Sync hidden print area
-            
-            // Visual feedback
-            const btn = document.querySelector('button[onclick="addCardToBatch()"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Added!`;
-            btn.classList.add('bg-green-800');
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove('bg-green-800');
-                lucide.createIcons();
-            }, 1000);
-        }
-
-        function renderBatchGrid() {
-            const grid = document.getElementById('batch-grid');
-            const countLabel = document.getElementById('queue-count');
-            const printBtn = document.getElementById('print-btn-text');
-            
-            countLabel.innerText = `${batchList.length} Cards`;
-            printBtn.innerText = `Print Batch (${batchList.length})`;
-
-            if(batchList.length === 0) {
-                grid.innerHTML = `<div class="w-full py-10 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">No cards added yet. Fill details and click "Add to Print Queue".</div>`;
-                return;
-            }
-
-            grid.innerHTML = '';
-
-            // Render mini previews in the list with FIX for Overlapping
-            batchList.forEach((data, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = "batch-item-wrapper group relative";
-                
-                // Set Fixed Size for wrapper based on card orientation
-                const isPortrait = data.template === 'student';
-                // Scale 0.6 of 337x212 = 202x127 (approx)
-                // Scale 0.6 of 212x337 = 127x202 (approx)
-                
-                if (isPortrait) {
-                    wrapper.style.width = '128px';
-                    wrapper.style.height = '203px';
-                } else {
-                    wrapper.style.width = '203px';
-                    wrapper.style.height = '128px';
-                }
-
-                // Get Template Node
-                const tplId = `tpl-${data.template}`;
-                const source = document.getElementById(tplId);
-                const clone = source.cloneNode(true);
-                
-                // Clear ID to prevent duplication issues
-                clone.id = '';
-                
-                // Scale down logic
-                clone.style.transform = "scale(0.6)"; 
-                clone.style.transformOrigin = "top left";
-                // No negative margins needed now because wrapper constrains flow
-                
-                populateCard(clone, data);
-                
-                // Delete Button Overlay
-                const delBtn = document.createElement('button');
-                delBtn.className = "absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-50";
-                delBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
-                delBtn.onclick = () => removeCard(index);
-
-                wrapper.appendChild(clone);
-                wrapper.appendChild(delBtn);
-                grid.appendChild(wrapper);
-            });
-        }
-
-        function removeCard(index) {
-            batchList.splice(index, 1);
-            renderBatchGrid();
-            renderPrintArea();
-        }
-
-        function clearBatch() {
-            if(confirm('Clear all cards from the print queue?')) {
-                batchList = [];
-                renderBatchGrid();
-                renderPrintArea();
-            }
-        }
-
-        // --- PRINT AREA SYNC ---
-
-        function renderPrintArea() {
-            const container = document.getElementById('print-content');
-            container.innerHTML = '';
-            
-            // Check orientation needs
-            let hasPortrait = false;
-            let hasLandscape = false;
-
-            batchList.forEach(data => {
-                if(data.template === 'student') hasPortrait = true;
-                else hasLandscape = true;
-
-                const tplId = `tpl-${data.template}`;
-                const source = document.getElementById(tplId);
-                const clone = source.cloneNode(true);
-                clone.id = ''; // Remove ID
-                populateCard(clone, data);
-                container.appendChild(clone);
-            });
-
-            // Update Orientation Label in UI
-            const orientLabel = document.getElementById('orientation-label');
-            
-            if(hasPortrait && !hasLandscape) {
-                orientLabel.innerText = "Portrait (Best for Vertical Cards)";
-            } else if (!hasPortrait && hasLandscape) {
-                orientLabel.innerText = "Landscape (Best for Horizontal Cards)";
             } else {
-                orientLabel.innerText = "Mixed (Check Print Preview)";
+                alert("Please click/tap on an element in the Live Preview first.");
             }
         }
 
-        // --- UTILS ---
+        // --- BATCH & IMAGES ---
+
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                currentLogo = evt.target.result;
+                updateLivePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearLogo() {
+            currentLogo = null;
+            document.getElementById('logoInput').value = '';
+            updateLivePreview();
+        }
 
         function handleImageUpload(e) {
             const file = e.target.files[0];
@@ -609,6 +698,99 @@
             updateLivePreview();
         }
 
+        function addCardToBatch() {
+            const data = getFormData();
+            batchList.push(data);
+            renderBatchGrid();
+            renderPrintArea();
+            
+            const btn = document.querySelector('button[onclick="addCardToBatch()"]');
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Added!`;
+            btn.classList.add('bg-green-800');
+            setTimeout(() => {
+                btn.innerHTML = original;
+                btn.classList.remove('bg-green-800');
+                lucide.createIcons();
+            }, 1000);
+        }
+
+        function renderBatchGrid() {
+            const grid = document.getElementById('batch-grid');
+            const countLabel = document.getElementById('queue-count');
+            const printBtn = document.getElementById('print-btn-text');
+            
+            countLabel.innerText = `${batchList.length} Cards`;
+            printBtn.innerText = `Print Batch (${batchList.length})`;
+
+            if(batchList.length === 0) {
+                grid.innerHTML = `<div class="w-full py-10 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">Queue is empty.</div>`;
+                return;
+            }
+
+            grid.innerHTML = '';
+            batchList.forEach((data, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "batch-item-wrapper group relative bg-white";
+                
+                const isPortrait = data.template !== 'corporate';
+                if (isPortrait) {
+                    wrapper.style.width = '128px';
+                    wrapper.style.height = '203px';
+                } else {
+                    wrapper.style.width = '203px';
+                    wrapper.style.height = '128px';
+                }
+
+                const source = document.getElementById(`tpl-${data.template}`);
+                const clone = source.cloneNode(true);
+                clone.id = '';
+                clone.style.transform = "scale(0.6)";
+                clone.style.transformOrigin = "top left";
+                
+                populateCard(clone, data);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = "absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-50";
+                delBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+                delBtn.onclick = () => {
+                    batchList.splice(index, 1);
+                    renderBatchGrid();
+                    renderPrintArea();
+                };
+
+                wrapper.appendChild(clone);
+                wrapper.appendChild(delBtn);
+                grid.appendChild(wrapper);
+            });
+        }
+
+        function renderPrintArea() {
+            const container = document.getElementById('print-content');
+            container.innerHTML = '';
+            batchList.forEach(data => {
+                const source = document.getElementById(`tpl-${data.template}`);
+                const clone = source.cloneNode(true);
+                clone.id = '';
+                populateCard(clone, data);
+                container.appendChild(clone);
+            });
+        }
+
+        function clearBatch() {
+            if(confirm('Clear queue?')) {
+                batchList = [];
+                renderBatchGrid();
+                renderPrintArea();
+            }
+        }
+        
+        function resetForm() {
+            document.querySelectorAll('.dynamic-input').forEach(input => input.value = '');
+            clearImage();
+            customStyles = {};
+            updateLivePreview();
+        }
     </script>
 </body>
 </html>
