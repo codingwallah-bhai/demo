@@ -529,12 +529,12 @@
         
         if (!matchState.current.ballHistory) { matchState.current.ballHistory = []; }
 
-        // Wide balls do not count as a ball
+        // Wide balls and No Balls do not count as a legal ball against the over count
         let ballAdded = !isExtra || extraType === 'NB'; 
-        // Wide balls do not rotate strike
-        let isWide = extraType === 'WD';
-
-
+        
+        // Define when strike rotates
+        let shouldRotateStrike = false;
+        
         const battingTeam = getCurrentBattingTeam();
         const striker = getCurrentStriker();
         const bowler = getCurrentBowler();
@@ -550,47 +550,67 @@
         };
 
         // 1. Update Score & Stats
-        let totalRunsOffBall = runs;
-
+        let runsToBatsman = 0;
+        let runsToTeam = 0;
+        
         if (isExtra) {
-            battingTeam.totalScore += 1; // 1 run added for extra
-            totalRunsOffBall += 1; 
-            ballEvent.runs += 1; 
+            runsToTeam += 1; // Extra run for wide/no-ball
+            
+            if (extraType === 'BY' || extraType === 'LB') {
+                 // Runs are only to the team total
+                 runsToTeam += runs; 
+                 // Strike rotates if runs are odd, but this is handled below based on total runs off ball
+            } else if (extraType === 'WD' || extraType === 'NB') {
+                 // Runs are only to the team total
+                 runsToTeam += runs; 
+                 // Bowler stats update for extra runs
+                 bowler.extras1 = (bowler.extras1 || 0) + 1;
 
-            if (extraType === 'WD' || extraType === 'NB') {
-                bowler.extras1 = (bowler.extras1 || 0) + 1;
+                 // Only runs added by the batsman (runs > 0) count for rotation on a No Ball, 
+                 // but since the current logic sums all runs into `runs` for extras, we rely on parity.
             }
-            battingTeam.totalScore += runs; 
-            totalRunsOffBall += runs;
-
+            
+            runsToTeam += runs;
+            
         } else {
-             battingTeam.totalScore += runs;
-        }
-
-        if (!isExtra || extraType === 'NB') {
-            striker.runs1 += runs;
-            striker.balls1 += 1;
-            if (runs === 4) striker.fours1 += 1;
-            if (runs === 6) striker.sixes1 += 1;
+            runsToBatsman = runs;
+            runsToTeam = runs;
         }
         
+        // Update totals
+        battingTeam.totalScore += runsToTeam;
+        
+        // Update striker stats (only for legal deliveries or no-balls where runs were scored off the bat)
+        if (!isExtra || extraType === 'NB') {
+            striker.runs1 += runsToBatsman;
+            striker.balls1 += 1; // Ball count increments on the batsman for a legal ball or no-ball
+            if (runsToBatsman === 4) striker.fours1 += 1;
+            if (runsToBatsman === 6) striker.sixes1 += 1;
+        }
+        
+        // Update over ball count and bowler stats for legal balls
         if (ballAdded) {
             bowler.balls1 = (bowler.balls1 || 0) + 1;
             matchState.current.overBalls += 1;
-            battingTeam.overs += 0.1; // Only for displaying X.Y format
+            battingTeam.overs += 0.1; // For displaying X.Y format
         }
         
         // 2. Add to History
+        ballEvent.runs = runsToTeam;
         matchState.current.ballHistory.push(ballEvent);
         
         // 3. Check for Match Win (Innings 2 only)
         if (checkForMatchWin(battingTeam)) return;
 
         // 4. Handle Strike Rotation
-        // Strike rotates only if total runs off the bat *or* from byes/leg-byes (runs in totalRunsOffBall) are odd, AND it's NOT a wide (WD).
+        // Strike rotates at end of over (handled in declareOverCompleted)
+        // Strike rotates if run amount is odd (1, 3, 5, etc.) and it's NOT a wide ball.
+        // For No-ball/By/Leg-By, runs are still counted as runs on the ball, so parity check is needed.
+        const totalRunsOffBall = runsToTeam;
         const isOddRun = totalRunsOffBall % 2 !== 0 && totalRunsOffBall > 0;
         
-        if (isOddRun && !isWide) {
+        // Wide (WD) does not cause rotation, even if runs are scored on it.
+        if (isOddRun && extraType !== 'WD') {
             rotateStrike();
         }
         
@@ -733,6 +753,8 @@
             wickets: battingTeam.wickets,
             overs: Math.floor(battingTeam.overs) + '.' + matchState.current.overBalls,
             ballHistory: matchState.current.ballHistory,
+            // Capture player stats at the end of Innings 1
+            teamPlayers: JSON.parse(JSON.stringify(battingTeam.players)), 
         };
         showMessageModal("Innings Break", `${battingTeam.name} scored ${matchState.innings1.score}/${matchState.innings1.wickets} in ${matchState.innings1.overs} overs. Break time!`);
         
@@ -811,6 +833,14 @@
                 // Tie
                 resultText = `Match Tied!`;
             }
+             // Capture Innings 2 state
+             matchState.innings2 = {
+                score: battingTeam.totalScore,
+                wickets: battingTeam.wickets,
+                overs: Math.floor(battingTeam.overs) + '.' + matchState.current.overBalls,
+                ballHistory: matchState.current.ballHistory,
+                teamPlayers: JSON.parse(JSON.stringify(battingTeam.players)), 
+             };
         } else {
              // Should not happen if Innings 2 rules are followed, but as fallback
              resultText = `${nonBattingTeam.name} (Bowling Team) has set a target of ${target} runs.`;
@@ -911,9 +941,12 @@
             matchList = [];
             if (snapshot.exists()) {
                 snapshot.forEach(childSnapshot => {
-                    matchList.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    // Include creation timestamp for sorting
+                    matchList.push({ id: childSnapshot.key, createdAt: childSnapshot.val().createdAt || 0, ...childSnapshot.val() });
                 });
             }
+            // Sort by createdAt descending (newest at the top)
+            matchList.sort((a, b) => b.createdAt - a.createdAt);
             renderMatchList();
         }, (error) => {
             console.error("Match List Listener Error:", error);
@@ -947,6 +980,8 @@
                 overs: matchState.toss.overs,
                 venue: matchState.toss.venue,
                 toss: `${matchState.toss.winner} elected to ${matchState.toss.elected === 'BAT' ? 'Bat' : 'Bowl'}`,
+                updatedAt: Date.now(),
+                createdAt: matchState.createdAt || Date.now(), // Ensure createdAt is set only once
             });
 
         } catch (error) {
@@ -969,6 +1004,7 @@
         
         matchState.teamA.players = generateDefaultPlayers('Team A');
         matchState.teamB.players = generateDefaultPlayers('Team B');
+        matchState.createdAt = Date.now(); // Set creation timestamp
         
         updateTossDropdowns();
         switchTab('setup');
@@ -1089,6 +1125,7 @@
         matchState.current.strikerIndex = -1; 
         matchState.current.nonStrikerIndex = -1; 
         matchState.current.bowlerIndex = -1; // Force bowler selection
+        matchState.createdAt = matchState.createdAt || Date.now(); // Ensure createdAt is set
 
         matchState[battingTeamKey].isBatting = true;
         matchState[bowlingTeamKey].isBatting = false;
@@ -1162,15 +1199,23 @@
             }
         }
         
+        // Stylish Empty State for Match Viewer
+        const defaultViewerHtml = `
+            <div class="text-center p-10 bg-gray-50 rounded-xl shadow-inner border border-gray-200">
+                <i class="fas fa-bullhorn text-4xl text-teal-600 mb-4"></i>
+                <p class="text-xl font-bold text-gray-700">No Match Selected</p>
+                <p class="text-sm text-gray-500 mt-2">Please select a live match from the list below to view the score card.</p>
+            </div>`;
+            
         const scoreboardHtml = activeMatchId && matchState.status !== 'SETUP'
             ? renderScoreboard(matchState)
-            : `<div class="text-center p-10 text-gray-500"><p class="text-xl font-bold">No Match Loaded.</p><p>Please select a live match from the list below.</p></div>`;
+            : defaultViewerHtml;
 
 
         return `
             <div class="space-y-6">
                 ${scoreboardHtml}
-                <div id="match-list-container" class="mt-8 p-2 bg-white rounded-xl">
+                <div id="match-list-container" class="mt-8 p-4 bg-white rounded-xl shadow-lg border border-gray-100">
                     <p class="text-center text-sm text-gray-500">Loading matches...</p>
                 </div>
             </div>
@@ -1253,31 +1298,34 @@
             container.innerHTML = filterButtons + `<p class="text-sm text-gray-400 text-center mt-4">No ${currentMatchFilter} matches found.</p>`;
             return;
         }
+        
+        // Sorting is already handled in setupMatchListListener (newest on top)
 
-        const matchCards = filteredMatches.map(match => `
-            <div class="p-3 mb-3 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition duration-150 cursor-pointer" onclick="loadMatch('${match.id}')">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="font-extrabold text-gray-900">${match.teamA} vs ${match.teamB}</p>
-                        <p class="text-xs font-semibold text-teal-600">${match.status}</p>
+        const matchCards = filteredMatches.map(match => {
+            const statusClass = match.status === 'LIVE' ? 'text-green-600 font-bold' : 
+                                match.status === 'FINISHED' ? 'text-red-600' : 'text-blue-600';
+
+            return `
+                <div class="p-4 mb-3 bg-white border-b border-gray-200 rounded-lg shadow-md hover:shadow-xl transition duration-300 cursor-pointer ${activeMatchId === match.id ? 'ring-2 ring-teal-500' : ''}" onclick="loadMatch('${match.id}')">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-lg font-extrabold text-gray-900">${match.teamA} vs ${match.teamB}</p>
+                            <p class="text-xs font-semibold ${statusClass}">${match.status} ${activeMatchId === match.id ? '(ACTIVE)' : ''}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-md font-bold text-gray-700">${match.score || '0/0 (0.0 Ov)'}</p>
+                            <p class="text-xs text-gray-500">${match.overs || 20} Overs</p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-gray-700">${match.score || '0/0 (0.0 Ov)'}</p>
-                        <p class="text-xs text-gray-500">${match.overs || 20} Overs</p>
+                    <div class="text-xs text-gray-500 mt-2 pt-1 border-t border-gray-100">
+                        <p>Venue: ${match.venue || 'N/A'}</p>
+                        <p>Toss: ${match.toss || 'N/A'}</p>
                     </div>
                 </div>
-                <div class="text-xs text-gray-500 mt-2 border-t pt-1">
-                    <p>Venue: ${match.venue || 'N/A'}</p>
-                    <p>Toss: ${match.toss || 'N/A'}</p>
-                    ${activeMatchId === match.id ? '<p class="text-red-500 font-bold">CURRENTLY LIVE</p>' : ''}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         container.innerHTML = filterButtons + matchCards;
-        if (!activeMatchId) {
-             document.querySelector(`.nav-item[onclick*="'viewer'"]`).classList.add('active');
-        }
     };
 
     const renderScoreboard = (state) => {
@@ -1360,22 +1408,29 @@
 
         const battingTeam = getCurrentBattingTeam();
         const bowlingTeam = getCurrentBowlingTeam();
+        
+        // Determine which innings stats to display
+        const isLive = matchState.status === 'LIVE' || matchState.status === 'INNINGS_BREAK';
+        const displayInnings1 = matchState.innings1;
+        const displayInnings2 = matchState.innings2 || (isLive && matchState.currentInnings === 2);
 
-        if (!battingTeam || !battingTeam.players || battingTeam.players.length === 0) {
-            return `<p class="text-center p-10 text-gray-500">Stats are not available yet. Match is in setup or loading.</p>`;
-        }
 
-        const renderBatsmanStats = (team) => {
-            return team.players.map(p => {
-                const isOut = p.isOut;
+        // Helper to render Batsman table (can take innings-specific player array or live array)
+        const renderBatsmanStats = (playersArray) => {
+            if (!playersArray || playersArray.length === 0) return '<tr><td colspan="7" class="px-4 py-2 text-center text-gray-400">No batting data available.</td></tr>';
+            
+            return playersArray.map(p => {
+                const isBattingNow = isLive && (p.index === matchState.current.strikerIndex || p.index === matchState.current.nonStrikerIndex);
+                const isOut = p.out1;
                 const sr = p.balls1 > 0 ? ((p.runs1 / p.balls1) * 100).toFixed(2) : '0.00';
                 
-                if (p.runs1 === 0 && p.balls1 === 0 && !p.isOut && !p.isBatting) return ''; 
+                // Filter out players who neither batted nor are batting (only for live view)
+                if (!isLive && p.runs1 === 0 && p.balls1 === 0 && !p.isOut) return ''; 
 
                 return `
-                    <tr class="hover:bg-gray-50 transition ${p.isBatting ? 'bg-yellow-50 font-semibold' : ''}">
+                    <tr class="hover:bg-gray-50 transition ${isBattingNow ? 'bg-yellow-100 font-semibold text-yellow-800' : ''}">
                         <td class="px-4 py-2 font-medium">${p.name}</td>
-                        <td class="px-4 py-2 text-xs text-gray-500">${p.out1 || (isOut ? 'Out' : 'Not Out')}</td>
+                        <td class="px-4 py-2 text-xs text-gray-500">${p.out1 || (isOut ? 'Out' : (isBattingNow ? 'Not Out' : 'Did Not Bat'))}</td>
                         <td class="px-4 py-2 text-right font-bold">${p.runs1}</td>
                         <td class="px-4 py-2 text-right">${p.balls1}</td>
                         <td class="px-4 py-2 text-right">${p.fours1 || 0}</td>
@@ -1385,9 +1440,12 @@
                 `;
             }).join('');
         };
-
-        const renderBowlerStats = (team) => {
-            return team.players.map(p => {
+        
+        // Helper to render Bowler table (can take innings-specific player array or live array)
+        const renderBowlerStats = (playersArray, currentBowlerIndex) => {
+            if (!playersArray || playersArray.length === 0) return '<tr><td colspan="6" class="px-4 py-2 text-center text-gray-400">No bowling data available.</td></tr>';
+            
+            return playersArray.map(p => {
                 const totalBalls = p.balls1 || 0;
                 if (totalBalls === 0 && (p.wickets1 || 0) === 0) return ''; 
                 
@@ -1396,7 +1454,7 @@
                 const economy = totalBalls > 0 ? (runsConceded / (totalBalls / 6)).toFixed(2) : '0.00';
                 
                 return `
-                    <tr class="hover:bg-gray-50 transition ${matchState.current.bowlerIndex === p.index ? 'bg-indigo-50 font-semibold' : ''}">
+                    <tr class="hover:bg-gray-50 transition ${isLive && currentBowlerIndex === p.index ? 'bg-indigo-50 font-semibold' : ''}">
                         <td class="px-4 py-2 font-medium">${p.name}</td>
                         <td class="px-4 py-2 text-right">${overs}</td>
                         <td class="px-4 py-2 text-right font-bold text-red-600">${p.wickets1 || 0}</td>
@@ -1407,56 +1465,105 @@
                 `;
             }).join('');
         };
-
-        return `
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Detailed Scorecard (Innings ${matchState.currentInnings})</h2>
+        
+        const renderInningsTable = (inningsData, teamName, inningsNumber, isCurrent) => {
+            if (!inningsData) return '';
             
-            <!-- Batting Card -->
-            <div class="mb-8">
-                <h3 class="text-xl font-semibold text-teal-700 border-b-2 pb-2 mb-4">${battingTeam.name} Batting (${battingTeam.totalScore}/${battingTeam.wickets})</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 rounded-lg shadow-md">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batsman</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">R</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">B</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">4s</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">6s</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">SR</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            ${renderBatsmanStats(battingTeam)}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            // Determine who was batting and bowling this innings
+            let battingTeamKey = (inningsNumber === 1 && matchState.toss.elected === 'BAT') || (inningsNumber === 2 && matchState.toss.elected === 'BOWL') ? 'teamA' : 
+                                 (inningsNumber === 1 && matchState.toss.elected === 'BOWL') || (inningsNumber === 2 && matchState.toss.elected === 'BAT') ? 'teamB' : null;
 
-            <!-- Bowling Card -->
-            <div>
-                <h3 class="text-xl font-semibold text-teal-700 border-b-2 pb-2 mb-4">${bowlingTeam.name} Bowling</h3>
-                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 rounded-lg shadow-md">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bowler</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">O</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">W</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">R</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Extras</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Eco</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            ${renderBowlerStats(bowlingTeam)}
-                        </tbody>
-                    </table>
+            let bowlingTeamKey = battingTeamKey === 'teamA' ? 'teamB' : 'teamA';
+
+            let battingTeamName = matchState[battingTeamKey]?.name || teamName;
+            let bowlingTeamName = matchState[bowlingTeamKey]?.name || teamName;
+            
+            let playersData = inningsData.teamPlayers || matchState[battingTeamKey]?.players;
+            let opposingPlayersData = matchState[bowlingTeamKey]?.players;
+            
+            if (isCurrent) {
+                playersData = getCurrentBattingTeam()?.players;
+                opposingPlayersData = getCurrentBowlingTeam()?.players;
+            }
+
+            return `
+                <div class="mb-10 p-4 border rounded-xl shadow-lg bg-white">
+                    <h3 class="text-xl font-extrabold text-indigo-700 mb-4">Innings ${inningsNumber}: ${battingTeamName} (${inningsData.score}/${inningsData.wickets})</h3>
+                    <p class="text-sm text-gray-500 mb-4">Overs: ${inningsData.overs || (isCurrent ? (Math.floor(matchState.current.overBalls / 6) + '.' + (matchState.current.overBalls % 6)) : 'N/A')}</p>
+
+                    <h4 class="font-bold text-lg text-teal-700 mt-6 mb-3">Batting Card (${battingTeamName})</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batsman</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">R</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">B</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">4s</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">6s</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">SR</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${renderBatsmanStats(playersData)}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="font-bold text-lg text-teal-700 mt-6 mb-3">Bowling Card (${bowlingTeamName})</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bowler</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">O</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">W</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">R</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Extras</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Eco</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${renderBowlerStats(opposingPlayersData, isCurrent ? matchState.current.bowlerIndex : -1)}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            `;
+        };
+        
+        let statsHtml = `
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Detailed Scorecard & Match Stats</h2>
+            <p class="text-sm text-gray-500 mb-4">Match: ${matchState.teamA.name} vs ${matchState.teamB.name} | Status: ${matchState.status}</p>
         `;
+        
+        // Render Innings 1
+        statsHtml += renderInningsTable(
+            matchState.innings1 || (isLive && matchState.currentInnings === 1 ? { score: battingTeam.totalScore, wickets: battingTeam.wickets } : null),
+            matchState.teamA.name,
+            1,
+            isLive && matchState.currentInnings === 1
+        );
+        
+        // Render Innings 2 (or Current Live)
+        if (displayInnings2) {
+             statsHtml += renderInningsTable(
+                matchState.innings2 || (isLive && matchState.currentInnings === 2 ? { score: battingTeam.totalScore, wickets: battingTeam.wickets } : null),
+                matchState.teamB.name,
+                2,
+                isLive && matchState.currentInnings === 2
+            );
+        }
+
+
+        if (!displayInnings1 && !displayInnings2) {
+            statsHtml += `<p class="text-center p-10 text-gray-500 bg-yellow-50 rounded-lg">Stats are not available yet. Match setup is incomplete or loading.</p>`;
+        }
+        
+        return statsHtml;
     };
+
 
     const renderSetupTab = () => {
         if (!auth.currentUser || auth.currentUser.isAnonymous) return `<div class="p-8 text-center text-red-500 bg-red-50 rounded-lg"><p class="text-xl font-semibold">Admin Login Required</p><p>Please log in to set up a match.</p></div>`;
