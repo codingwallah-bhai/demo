@@ -12,40 +12,61 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Mobile & Print Optimizations */
+        /* A4 Width & Min-Height Logic for Multi-page support */
+        .resume-sheet {
+            width: 210mm;
+            min-height: 297mm; /* Allows growing */
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden; /* Contains floats/margins */
+        }
+
+        /* Prevent awkward breaks inside elements */
+        .break-inside-avoid {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        /* Print Optimizations */
         @media print {
             @page { margin: 0; size: auto; }
             body { margin: 0; padding: 0; background: white; }
-            nav, .print\:hidden, #editor-section, #tab-buttons, #toast-container { display: none !important; }
+            
+            /* Hide UI elements */
+            nav, .print\:hidden, #editor-section, #tab-buttons, #toast-container, #preview-info-text { display: none !important; }
+            
+            /* Fullscreen Preview for Print */
             #preview-section { 
                 display: block !important; 
                 width: 100% !important; 
-                position: absolute !important; 
-                top: 0 !important; 
-                left: 0 !important; 
+                position: static !important;
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                padding: 0 !important;
             }
-            .max-w-7xl { max-width: none !important; padding: 0 !important; margin: 0 !important; }
-            #resume-preview-container { 
-                padding: 0 !important; 
-                width: 100% !important; 
-                height: 100% !important; 
-                box-shadow: none !important; 
+            
+            .resume-sheet {
+                width: 100% !important;
+                box-shadow: none !important;
                 margin: 0 !important;
+                min-height: auto !important; /* Let print logic handle pages */
             }
+
+            .max-w-7xl { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+            
+            /* Ensure colors print accurately */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
-        
-        .a4-ratio { aspect-ratio: 1 / 1.4142; }
 
-        /* Smooth scroll & Mobile height fix */
-        .custom-scroll {
-            -webkit-overflow-scrolling: touch;
-        }
+        /* Scrollbars */
+        .custom-scroll { -webkit-overflow-scrolling: touch; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        /* Hide scrollbar for layout selector but keep functionality */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -62,17 +83,16 @@
                     <i data-lucide="layout" class="h-6 w-6 text-blue-600"></i>
                     <span class="font-bold text-lg text-gray-900 hidden sm:block">ResumeBuilder</span>
                     
-                    <!-- Auto Save Status Indicator -->
+                    <!-- Auto Save Status -->
                     <div class="flex items-center gap-1 ml-2 px-2 py-1 bg-gray-50 rounded text-xs font-medium text-gray-500 border border-gray-200" id="cloud-status">
                         <i data-lucide="cloud" class="h-3 w-3"></i>
                         <span id="save-text">Ready</span>
                     </div>
                 </div>
                 
-                <!-- Controls (Scrollable on mobile) -->
+                <!-- Controls -->
                 <div class="flex items-center gap-2 overflow-x-auto no-scrollbar ml-2 pl-2">
                     
-                    <!-- Layout Selector -->
                     <select onchange="window.handleLayoutChange(this.value)" id="layout-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 min-w-[90px]">
                         <option value="modern">Modern</option>
                         <option value="classic">Classic</option>
@@ -80,12 +100,8 @@
                         <option value="professional">Pro</option>
                     </select>
 
-                    <!-- Color Pickers -->
-                    <div class="flex gap-1 flex-shrink-0" id="color-picker-container">
-                        <!-- Colors injected by JS -->
-                    </div>
+                    <div class="flex gap-1 flex-shrink-0" id="color-picker-container"></div>
 
-                    <!-- Download Button -->
                     <button onclick="window.print()" class="flex-shrink-0 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
                         <i data-lucide="download" class="h-4 w-4"></i>
                         <span class="hidden sm:inline ml-1">PDF</span>
@@ -103,7 +119,7 @@
         </div>
     </div>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="flex-1 overflow-hidden relative max-w-7xl mx-auto w-full">
         <div class="h-full flex flex-col md:flex-row gap-0 md:gap-8 px-0 md:px-4 py-0 md:py-6">
             
@@ -113,10 +129,9 @@
                 <!-- Personal Info -->
                 <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6">
                     <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                        <i data-lucide="user" class="h-5 w-5 text-gray-500"></i> Personal
+                        <i data-lucide="user" class="h-5 w-5 text-gray-500"></i> Header & Personal
                     </h2>
                     
-                    <!-- Image Upload -->
                     <div class="mb-4">
                         <label class="block text-xs font-medium text-gray-700 mb-1">Profile Photo</label>
                         <div class="flex items-center gap-3">
@@ -127,8 +142,36 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-3" id="personal-form">
-                        <!-- Inputs injected -->
+                    <div class="grid grid-cols-1 gap-3" id="personal-form"></div>
+
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase mb-3">Personal Details (Optional)</h3>
+                        <div class="grid grid-cols-2 gap-3" id="personal-extra-form"></div>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="file-text" class="h-5 w-5 text-gray-500"></i> Professional Summary
+                    </h2>
+                    <textarea id="summary-input" rows="4" placeholder="Short intro + skills + experience..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border" oninput="window.updatePersonal('summary', this.value)"></textarea>
+                </div>
+
+                <!-- Skills -->
+                <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="palette" class="h-5 w-5 text-gray-500"></i> Skills (ATS)
+                    </h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Technical Skills</label>
+                            <textarea id="tech-skills-input" rows="2" placeholder="MS Office, Typing, Tally..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border" oninput="window.updateSkills('technical', this.value)"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Soft Skills</label>
+                            <textarea id="soft-skills-input" rows="2" placeholder="Teamwork, Communication..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border" oninput="window.updateSkills('soft', this.value)"></textarea>
+                        </div>
                     </div>
                 </div>
 
@@ -136,13 +179,26 @@
                 <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-lg font-medium text-gray-900 flex items-center gap-2">
-                            <i data-lucide="briefcase" class="h-5 w-5 text-gray-500"></i> Experience
+                            <i data-lucide="briefcase" class="h-5 w-5 text-gray-500"></i> Work Experience
                         </h2>
                         <button onclick="window.addExperience()" class="inline-flex items-center p-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">
                             <i data-lucide="plus" class="h-4 w-4"></i>
                         </button>
                     </div>
                     <div id="experience-list" class="space-y-4"></div>
+                </div>
+
+                <!-- Projects -->
+                <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-medium text-gray-900 flex items-center gap-2">
+                            <i data-lucide="folder-git-2" class="h-5 w-5 text-gray-500"></i> Projects
+                        </h2>
+                        <button onclick="window.addProject()" class="inline-flex items-center p-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                    <div id="projects-list" class="space-y-4"></div>
                 </div>
 
                 <!-- Education -->
@@ -158,25 +214,46 @@
                     <div id="education-list" class="space-y-4"></div>
                 </div>
 
-                <!-- Skills -->
+                <!-- Certifications -->
                 <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6">
-                    <h2 class="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
-                        <i data-lucide="palette" class="h-5 w-5 text-gray-500"></i> Skills
-                    </h2>
-                    <textarea id="skills-input" rows="3" placeholder="Comma separated skills..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border" oninput="window.handleSkillsChange(this.value)"></textarea>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-medium text-gray-900 flex items-center gap-2">
+                            <i data-lucide="award" class="h-5 w-5 text-gray-500"></i> Certifications
+                        </h2>
+                        <button onclick="window.addCertification()" class="inline-flex items-center p-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                    <div id="certification-list" class="space-y-4"></div>
                 </div>
-                
-                <!-- Spacer for mobile scrolling -->
+
+                <!-- Languages & Declaration -->
+                <div class="bg-white shadow-sm md:shadow rounded-lg p-4 md:p-6 space-y-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
+                            <i data-lucide="languages" class="h-5 w-5 text-gray-500"></i> Languages
+                        </h2>
+                        <input type="text" id="languages-input" placeholder="Hindi, English..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border" oninput="window.updateMisc('languages', this.value)">
+                    </div>
+                    
+                    <div class="pt-2 border-t border-gray-100">
+                        <h2 class="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
+                            <i data-lucide="scroll-text" class="h-5 w-5 text-gray-500"></i> Declaration
+                        </h2>
+                        <textarea id="declaration-input" rows="2" placeholder="I hereby declare..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border" oninput="window.updateMisc('declaration', this.value)"></textarea>
+                    </div>
+                </div>
                 <div class="h-10 md:hidden"></div>
             </div>
 
             <!-- PREVIEW SECTION -->
             <div id="preview-section" class="hidden md:block w-full md:w-7/12 lg:w-8/12 h-full overflow-y-auto custom-scroll bg-gray-200/50 p-4 md:p-0">
                 <div class="sticky top-0 min-h-full flex flex-col items-center justify-start pt-4 pb-12">
-                    <div id="resume-preview-container" class="shadow-lg print:shadow-none bg-white w-full max-w-[210mm] a4-ratio relative transition-all duration-300 origin-top transform md:scale-[0.85] lg:scale-100">
+                    <!-- The Resume Sheet - No Fixed Height anymore -->
+                    <div id="resume-preview-container" class="resume-sheet transition-all duration-300 origin-top transform md:scale-[0.85] lg:scale-100">
                         <!-- Resume Content -->
                     </div>
-                    <p class="mt-4 text-xs text-gray-500 print:hidden">Auto-saving enabled. Changes sync instantly.</p>
+                    <p id="preview-info-text" class="mt-4 text-xs text-gray-500 print:hidden">Auto-saving enabled. Content flows to next page automatically.</p>
                 </div>
             </div>
 
@@ -195,7 +272,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { initializeAuth, getAuth, signInAnonymously, onAuthStateChanged, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         // Config
         const firebaseConfig = {
@@ -209,20 +286,18 @@
             measurementId: "G-3DHH8ZCNXV"
         };
 
-        // Init
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const auth = getAuth(app);
+        
+        let auth;
+        try { auth = initializeAuth(app, { persistence: inMemoryPersistence }); } catch (e) { auth = getAuth(app); }
 
         let currentUser = null;
         let saveTimeout = null;
-        let isSaving = false;
 
-        // Auth Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                // Check URL for ID to load data
                 const urlParams = new URLSearchParams(window.location.search);
                 const id = urlParams.get('id');
                 
@@ -230,10 +305,8 @@
                     appState.resumeId = id;
                     loadFromFirebase(id);
                 } else {
-                    // Generate new ID if none
                     if (!appState.resumeId) {
                         appState.resumeId = 'res_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-                        // Update URL
                         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + appState.resumeId;
                         window.history.replaceState({path:newUrl},'',newUrl);
                     }
@@ -243,30 +316,24 @@
             }
         });
 
-        // --- AUTO SAVE FUNCTION ---
         window.triggerAutoSave = function() {
             if (!currentUser || !appState.resumeId) return;
-
-            // UI Feedback: Saving...
             const saveText = document.getElementById('save-text');
             const cloudStatus = document.getElementById('cloud-status');
             if(saveText) saveText.innerText = "Saving...";
             if(cloudStatus) cloudStatus.classList.add('animate-pulse');
 
-            // Debounce
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 const resumeRef = ref(database, 'resumes/' + appState.resumeId);
-                set(resumeRef, appState.data)
-                    .then(() => {
-                        if(saveText) saveText.innerText = "Saved";
-                        if(cloudStatus) cloudStatus.classList.remove('animate-pulse');
-                    })
-                    .catch((err) => {
-                        console.error("Save failed", err);
-                        if(saveText) saveText.innerText = "Error";
-                    });
-            }, 1000); // 1 second delay after last keystroke
+                set(resumeRef, appState.data).then(() => {
+                    if(saveText) saveText.innerText = "Saved";
+                    if(cloudStatus) cloudStatus.classList.remove('animate-pulse');
+                }).catch((err) => {
+                    console.error(err);
+                    if(saveText) saveText.innerText = "Error";
+                });
+            }, 1000);
         };
 
         function loadFromFirebase(id) {
@@ -276,7 +343,17 @@
             get(child(ref(database), `resumes/${id}`)).then((snapshot) => {
                 if (snapshot.exists()) {
                     appState.data = snapshot.val();
-                    window.reInit(); // Refresh UI
+                    // Merge Defaults to prevent crash
+                    const d = appState.data;
+                    if(!d.technicalSkills) d.technicalSkills = "";
+                    if(!d.softSkills) d.softSkills = "";
+                    if(!d.projects) d.projects = [];
+                    if(!d.certifications) d.certifications = [];
+                    if(!d.languages) d.languages = "";
+                    if(!d.declaration) d.declaration = "I hereby declare that the above information is true to the best of my knowledge.";
+                    if(!d.personal.moreDetails) d.personal.moreDetails = {};
+
+                    window.reInit();
                     if(saveText) saveText.innerText = "Loaded";
                 } else {
                     if(saveText) saveText.innerText = "New";
@@ -289,7 +366,6 @@
     </script>
 
     <script>
-        // --- CORE APP LOGIC ---
         let appState = {
             layout: 'modern',
             theme: 'blue',
@@ -297,32 +373,38 @@
             data: {
                 personal: {
                     fullName: 'Vikram Sharma',
-                    title: 'Software Engineer',
+                    title: 'Computer Operator',
                     email: 'vikram@example.com',
                     phone: '+91 98765 43210',
-                    address: 'Mumbai, India',
+                    address: 'Patna, Bihar',
                     linkedin: '',
                     github: '',
                     photoUrl: null,
-                    summary: 'Experienced developer building web applications.'
+                    summary: 'Detail-oriented Computer Operator with 2 years’ experience in data entry, MS Office, and customer service. Fast learner, reliable, and ready to contribute to organizational growth.',
+                    moreDetails: { dob: '', gender: '', passportDetails: '' }
                 },
+                technicalSkills: 'MS Office (Word, Excel, PowerPoint), Hindi/English Typing, Tally, Data Entry',
+                softSkills: 'Communication, Teamwork, Time Management',
                 experience: [
-                    { id: 1, company: 'Tech Corp', role: 'Developer', startDate: '2022', endDate: 'Present', description: 'Developing scalable frontend applications using React and Tailwind.' }
+                    { id: 1, company: 'Balaji Stone Crusher Pvt. Ltd.', role: 'Computer Operator', startDate: '2020', endDate: '2024', description: 'Daily data entry, production report prepare kiya. Excel me stock & load report maintain.' }
+                ],
+                projects: [
+                    { id: 1, title: 'Cricket Scoring App', tech: 'React + Firebase', description: 'Real-time score update, player stats tracking.'}
                 ],
                 education: [
-                    { id: 1, school: 'Mumbai University', degree: 'B.Tech CS', startDate: '2018', endDate: '2022', location: 'Mumbai' }
+                    { id: 1, school: 'XYZ Institute', degree: 'ADCA', startDate: '2023', endDate: '2024', location: 'Patna' },
+                    { id: 2, school: 'BSEB', degree: '12th (Intermediate)', startDate: '2020', endDate: '2022', location: 'Bihar' }
                 ],
-                skills: 'JavaScript, React, Node.js, HTML, CSS'
+                certifications: [
+                    { id: 1, name: 'Typing Certificate', issuer: 'Local Institute', year: '2023' }
+                ],
+                languages: 'Hindi, English, Bhojpuri',
+                declaration: 'I hereby declare that the above information is true to the best of my knowledge.'
             }
         };
 
-        // Constants
         const colors = {
-            blue: 'text-blue-700 border-blue-700',
-            emerald: 'text-emerald-700 border-emerald-700',
-            purple: 'text-purple-700 border-purple-700',
-            slate: 'text-slate-800 border-slate-800',
-            rose: 'text-rose-700 border-rose-700',
+            blue: 'text-blue-700 border-blue-700', emerald: 'text-emerald-700 border-emerald-700', purple: 'text-purple-700 border-purple-700', slate: 'text-slate-800 border-slate-800', rose: 'text-rose-700 border-rose-700',
         };
         const bgColors = {
             blue: 'bg-blue-50', emerald: 'bg-emerald-50', purple: 'bg-purple-50', slate: 'bg-slate-50', rose: 'bg-rose-50',
@@ -342,17 +424,20 @@
             renderPersonalInputs();
             renderExperienceList();
             renderEducationList();
+            renderProjectsList();
+            renderCertificationList();
             
-            const skillsEl = document.getElementById('skills-input');
-            if(skillsEl) skillsEl.value = appState.data.skills || "";
+            if(document.getElementById('summary-input')) document.getElementById('summary-input').value = appState.data.personal.summary || "";
+            if(document.getElementById('tech-skills-input')) document.getElementById('tech-skills-input').value = appState.data.technicalSkills || "";
+            if(document.getElementById('soft-skills-input')) document.getElementById('soft-skills-input').value = appState.data.softSkills || "";
+            if(document.getElementById('languages-input')) document.getElementById('languages-input').value = appState.data.languages || "";
+            if(document.getElementById('declaration-input')) document.getElementById('declaration-input').value = appState.data.declaration || "";
             
             document.getElementById('layout-select').value = appState.layout;
-            
             renderPreview();
             if(window.lucide) lucide.createIcons();
         }
 
-        // --- UI RENDERERS ---
         function renderColorPickers() {
             document.getElementById('color-picker-container').innerHTML = ['blue', 'emerald', 'purple', 'rose', 'slate'].map(c => `
                 <button onclick="window.handleThemeChange('${c}')" 
@@ -367,140 +452,145 @@
                 { name: 'title', placeholder: 'Job Title' },
                 { name: 'email', placeholder: 'Email', type: 'email' },
                 { name: 'phone', placeholder: 'Phone' },
-                { name: 'address', placeholder: 'City, Country' },
-                { name: 'linkedin', placeholder: 'LinkedIn URL' },
-                { name: 'github', placeholder: 'GitHub URL' },
+                { name: 'address', placeholder: 'Location' },
+                { name: 'linkedin', placeholder: 'LinkedIn' },
+                { name: 'github', placeholder: 'GitHub' },
             ];
-
-            const html = fields.map(f => `
-                <input type="${f.type || 'text'}" 
-                    placeholder="${f.placeholder}" 
-                    value="${appState.data.personal[f.name] || ''}" 
-                    oninput="window.updatePersonal('${f.name}', this.value)"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border">
+            document.getElementById('personal-form').innerHTML = fields.map(f => `
+                <input type="${f.type || 'text'}" placeholder="${f.placeholder}" value="${appState.data.personal[f.name] || ''}" oninput="window.updatePersonal('${f.name}', this.value)" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border">
             `).join('');
-            
-            const summaryHtml = `<textarea rows="3" placeholder="Professional Summary" oninput="window.updatePersonal('summary', this.value)" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border">${appState.data.personal.summary || ''}</textarea>`;
-            
-            document.getElementById('personal-form').innerHTML = html + summaryHtml;
+
+            const extraFields = [{k:'dob',p:'Date of Birth'}, {k:'gender',p:'Gender'}, {k:'passportDetails',p:'Passport Details'}];
+            if(!appState.data.personal.moreDetails) appState.data.personal.moreDetails = {};
+            document.getElementById('personal-extra-form').innerHTML = extraFields.map(f => `
+                <input type="text" placeholder="${f.p}" value="${appState.data.personal.moreDetails[f.k] || ''}" oninput="window.updatePersonalExtra('${f.k}', this.value)" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-2 border">
+            `).join('');
         }
+
+        const createListHTML = (list, type, fields) => list.map(item => `
+            <div class="relative bg-gray-50 p-3 rounded border border-gray-200 group">
+                <button onclick="window.remove${type}(${item.id})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                <div class="space-y-2">
+                    ${fields.map(f => {
+                        if(f.type === 'textarea') return `<textarea rows="2" placeholder="${f.ph}" oninput="window.update${type}(${item.id}, '${f.key}', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">${item[f.key] || ''}</textarea>`;
+                        if(f.row) return `<div class="grid grid-cols-2 gap-2">${f.row.map(sub => `<input type="text" placeholder="${sub.ph}" value="${item[sub.key] || ''}" oninput="window.update${type}(${item.id}, '${sub.key}', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">`).join('')}</div>`;
+                        return `<input type="text" placeholder="${f.ph}" value="${item[f.key] || ''}" oninput="window.update${type}(${item.id}, '${f.key}', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border ${f.bold?'font-semibold':''}">`;
+                    }).join('')}
+                </div>
+            </div>
+        `).join('');
 
         function renderExperienceList() {
-            document.getElementById('experience-list').innerHTML = appState.data.experience.map(exp => `
-                <div class="relative bg-gray-50 p-3 rounded border border-gray-200 group">
-                    <button onclick="window.removeExperience(${exp.id})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>
-                    </button>
-                    <div class="space-y-2">
-                        <input type="text" placeholder="Company" value="${exp.company}" oninput="window.updateExperience(${exp.id}, 'company', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                        <input type="text" placeholder="Role" value="${exp.role}" oninput="window.updateExperience(${exp.id}, 'role', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" placeholder="Start" value="${exp.startDate}" oninput="window.updateExperience(${exp.id}, 'startDate', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                            <input type="text" placeholder="End" value="${exp.endDate}" oninput="window.updateExperience(${exp.id}, 'endDate', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                        </div>
-                        <textarea rows="2" placeholder="Details..." oninput="window.updateExperience(${exp.id}, 'description', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">${exp.description}</textarea>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('experience-list').innerHTML = createListHTML(appState.data.experience, 'Experience', [
+                {key:'role', ph:'Job Title', bold:true}, {key:'company', ph:'Company Name'}, {row:[{key:'startDate', ph:'Start'},{key:'endDate', ph:'End'}]}, {key:'description', ph:'Details', type:'textarea'}
+            ]);
             if(window.lucide) lucide.createIcons();
         }
-
         function renderEducationList() {
-            document.getElementById('education-list').innerHTML = appState.data.education.map(edu => `
-                <div class="relative bg-gray-50 p-3 rounded border border-gray-200 group">
-                    <button onclick="window.removeEducation(${edu.id})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>
-                    </button>
-                    <div class="space-y-2">
-                        <input type="text" placeholder="School" value="${edu.school}" oninput="window.updateEducation(${edu.id}, 'school', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                        <input type="text" placeholder="Degree" value="${edu.degree}" oninput="window.updateEducation(${edu.id}, 'degree', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" placeholder="Start" value="${edu.startDate}" oninput="window.updateEducation(${edu.id}, 'startDate', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                            <input type="text" placeholder="End" value="${edu.endDate}" oninput="window.updateEducation(${edu.id}, 'endDate', this.value)" class="block w-full rounded border-gray-300 text-sm p-1.5 border">
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('education-list').innerHTML = createListHTML(appState.data.education, 'Education', [
+                {key:'degree', ph:'Degree', bold:true}, {key:'school', ph:'School/Board'}, {row:[{key:'endDate', ph:'Year'},{key:'location', ph:'Location'}]}
+            ]);
+            if(window.lucide) lucide.createIcons();
+        }
+        function renderProjectsList() {
+            document.getElementById('projects-list').innerHTML = createListHTML(appState.data.projects, 'Project', [
+                {key:'title', ph:'Title', bold:true}, {key:'tech', ph:'Tech Stack'}, {key:'description', ph:'Details', type:'textarea'}
+            ]);
+            if(window.lucide) lucide.createIcons();
+        }
+        function renderCertificationList() {
+            document.getElementById('certification-list').innerHTML = createListHTML(appState.data.certifications, 'Certification', [
+                {key:'name', ph:'Certificate Name', bold:true}, {row:[{key:'issuer', ph:'Issuer'},{key:'year', ph:'Year'}]}
+            ]);
             if(window.lucide) lucide.createIcons();
         }
 
         // --- PREVIEW RENDER ---
         function renderPreview() {
-            const { personal, experience, education, skills } = appState.data;
+            const { personal, experience, education, technicalSkills, softSkills, projects, certifications, languages, declaration } = appState.data;
             const theme = appState.theme;
             const thColor = colors[theme];
             const thIcon = iconColors[theme];
             const thBg = bgColors[theme];
             const thHeaderBg = headerBgColors[theme];
             
-            // Icons
-            const iMap = (n) => `<i data-lucide="${n}" class="inline-block w-3 h-3 mr-1 align-text-bottom"></i>`;
-            const iMapLg = (n) => `<i data-lucide="${n}" class="inline-block w-4 h-4 mt-0.5 ${thIcon}"></i>`;
+            const iMap = (n, cls='') => `<i data-lucide="${n}" class="inline-block w-4 h-4 mt-0.5 ${thIcon} ${cls} flex-shrink-0"></i>`;
             const iMapW = (n) => `<i data-lucide="${n}" class="inline-block w-3 h-3 mr-1 opacity-75"></i>`;
-
             const imgTag = personal.photoUrl ? `<img src="${personal.photoUrl}" class="w-full h-full object-cover" />` : '';
+            const md = personal.moreDetails || {};
+            const hasExtra = Object.values(md).some(v => v);
 
             let html = '';
 
-            // MODERN
+            // --- MODERN LAYOUT ---
             if (appState.layout === 'modern') {
                 html = `
-                    <div class="flex h-full text-left bg-white min-h-[1000px]">
-                        <div class="w-[32%] ${thBg} p-5 flex flex-col gap-6 pt-8">
-                            ${personal.photoUrl ? `<div class="w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-white shadow-sm mb-2">${imgTag}</div>` : ''}
+                    <div class="flex h-full text-left bg-white items-stretch">
+                        <div class="w-[32%] ${thBg} p-5 flex flex-col gap-6 pt-8 min-h-[297mm]">
+                            ${personal.photoUrl ? `<div class="w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-white shadow-sm mb-2 flex-shrink-0">${imgTag}</div>` : ''}
                             
-                            <div>
+                            <div class="break-inside-avoid">
                                 <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Contact</h3>
                                 <div class="flex flex-col gap-2 text-xs text-gray-700 break-words">
-                                    ${personal.email ? `<div class="flex items-start gap-1.5">${iMapLg('mail')}<span>${personal.email}</span></div>` : ''}
-                                    ${personal.phone ? `<div class="flex items-start gap-1.5">${iMapLg('phone')}<span>${personal.phone}</span></div>` : ''}
-                                    ${personal.address ? `<div class="flex items-start gap-1.5">${iMapLg('map-pin')}<span>${personal.address}</span></div>` : ''}
-                                    ${personal.linkedin ? `<div class="flex items-start gap-1.5">${iMapLg('linkedin')}<span>Linkedin</span></div>` : ''}
-                                    ${personal.github ? `<div class="flex items-start gap-1.5">${iMapLg('github')}<span>Github</span></div>` : ''}
+                                    ${personal.phone ? `<div class="flex items-start gap-1.5">${iMap('phone')}<span>${personal.phone}</span></div>` : ''}
+                                    ${personal.email ? `<div class="flex items-start gap-1.5">${iMap('mail')}<span>${personal.email}</span></div>` : ''}
+                                    ${personal.address ? `<div class="flex items-start gap-1.5">${iMap('map-pin')}<span>${personal.address}</span></div>` : ''}
+                                    ${personal.linkedin ? `<div class="flex items-start gap-1.5">${iMap('linkedin')}<span>Linkedin</span></div>` : ''}
+                                    ${personal.github ? `<div class="flex items-start gap-1.5">${iMap('github')}<span>Github</span></div>` : ''}
                                 </div>
                             </div>
 
-                            ${education.length ? `
-                            <div>
-                                <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Education</h3>
-                                <div class="space-y-3">
-                                    ${education.map(e => `
-                                        <div>
-                                            <div class="font-bold text-gray-900 text-xs">${e.school}</div>
-                                            <div class="text-[10px] text-gray-600">${e.degree}</div>
-                                            <div class="text-[10px] text-gray-500">${e.startDate} - ${e.endDate}</div>
-                                        </div>
-                                    `).join('')}
+                            ${technicalSkills ? `
+                            <div class="break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Technical Skills</h3>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${technicalSkills.split(',').map(s => `<span class="text-[10px] font-medium px-2 py-0.5 bg-white rounded border border-gray-200 text-gray-700">${s.trim()}</span>`).join('')}
                                 </div>
                             </div>` : ''}
 
-                            ${skills ? `
-                            <div>
-                                <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Skills</h3>
+                            ${softSkills ? `
+                            <div class="break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Soft Skills</h3>
                                 <div class="flex flex-wrap gap-1.5">
-                                    ${skills.split(',').map(s => `<span class="text-[10px] font-medium px-2 py-0.5 bg-white rounded border border-gray-200 text-gray-700">${s.trim()}</span>`).join('')}
+                                    ${softSkills.split(',').map(s => `<span class="text-[10px] font-medium px-2 py-0.5 bg-white rounded border border-gray-200 text-gray-700">${s.trim()}</span>`).join('')}
                                 </div>
+                            </div>` : ''}
+
+                            ${languages ? `
+                            <div class="break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Languages</h3>
+                                <p class="text-xs text-gray-700">${languages}</p>
+                            </div>` : ''}
+
+                            ${hasExtra ? `
+                            <div class="break-inside-avoid">
+                                 <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b-2 ${thColor} pb-1">Personal</h3>
+                                 <div class="flex flex-col gap-1 text-xs text-gray-700">
+                                    ${md.dob ? `<div><span class="font-semibold">DOB:</span> ${md.dob}</div>` : ''}
+                                    ${md.gender ? `<div><span class="font-semibold">Gender:</span> ${md.gender}</div>` : ''}
+                                    ${md.passportDetails ? `<div><span class="font-semibold">Passport:</span> ${md.passportDetails}</div>` : ''}
+                                 </div>
                             </div>` : ''}
                         </div>
 
-                        <div class="w-[68%] p-8 bg-white">
-                            <div class="mb-6">
+                        <div class="w-[68%] p-8 bg-white min-h-[297mm]">
+                            <div class="mb-6 break-inside-avoid">
                                 <h1 class="text-3xl font-bold uppercase tracking-wide leading-none ${thIcon}">${personal.fullName}</h1>
                                 <p class="text-lg text-gray-600 font-medium mt-1">${personal.title}</p>
                             </div>
 
                             ${personal.summary ? `
-                            <div class="mb-6">
-                                <h3 class="text-xs font-bold uppercase tracking-wider mb-2 ${thIcon}">Profile</h3>
-                                <p class="text-sm text-gray-700 leading-relaxed">${personal.summary}</p>
+                            <div class="mb-6 break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-2 ${thIcon}">Professional Summary</h3>
+                                <p class="text-sm text-gray-700 leading-relaxed text-justify">${personal.summary}</p>
                             </div>` : ''}
 
                             ${experience.length ? `
-                            <div>
-                                <h3 class="text-xs font-bold uppercase tracking-wider mb-4 ${thIcon}">Experience</h3>
+                            <div class="mb-6">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-4 ${thIcon}">Work Experience</h3>
                                 <div class="space-y-5">
                                     ${experience.map(e => `
-                                        <div class="relative border-l-2 border-gray-200 pl-4 ml-1">
+                                        <div class="relative border-l-2 border-gray-200 pl-4 ml-1 break-inside-avoid">
                                             <div class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-gray-300"></div>
                                             <div class="mb-1">
                                                 <h4 class="font-bold text-gray-900 text-sm">${e.role}</h4>
@@ -514,32 +604,91 @@
                                     `).join('')}
                                 </div>
                             </div>` : ''}
+
+                            ${education.length ? `
+                            <div class="mb-6 break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-4 ${thIcon}">Education</h3>
+                                <div class="space-y-3">
+                                    ${education.map(e => `
+                                        <div class="flex justify-between border-b border-gray-100 pb-2 break-inside-avoid">
+                                            <div>
+                                                <div class="font-bold text-gray-900 text-xs">${e.degree}</div>
+                                                <div class="text-[11px] text-gray-600">${e.school}</div>
+                                            </div>
+                                            <div class="text-[11px] text-gray-500 font-medium">${e.endDate}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>` : ''}
+
+                            ${projects && projects.length ? `
+                            <div class="mb-6 break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-4 ${thIcon}">Projects</h3>
+                                <div class="space-y-3">
+                                    ${projects.map(p => `
+                                        <div class="break-inside-avoid">
+                                            <div class="flex justify-between items-baseline">
+                                                <h4 class="font-bold text-gray-900 text-sm">${p.title}</h4>
+                                                ${p.tech ? `<span class="text-[10px] px-2 py-0.5 bg-gray-100 rounded text-gray-600">${p.tech}</span>` : ''}
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-1">${p.description}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>` : ''}
+
+                            ${certifications && certifications.length ? `
+                            <div class="mb-6 break-inside-avoid">
+                                <h3 class="text-xs font-bold uppercase tracking-wider mb-4 ${thIcon}">Certifications</h3>
+                                <div class="flex flex-wrap gap-4">
+                                    ${certifications.map(c => `
+                                        <div class="bg-gray-50 px-3 py-2 rounded border-l-2 ${thColor.replace('text', 'border')} break-inside-avoid">
+                                            <div class="font-bold text-xs text-gray-800">${c.name}</div>
+                                            <div class="text-[10px] text-gray-500">${c.issuer} • ${c.year}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>` : ''}
+
+                            ${declaration ? `
+                            <div class="mt-8 pt-4 border-t border-gray-200 break-inside-avoid">
+                                <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-1">Declaration</h3>
+                                <p class="text-[11px] text-gray-600 italic">${declaration}</p>
+                            </div>` : ''}
                         </div>
                     </div>
                 `;
-            }
-            
-            // CLASSIC
+            } 
+            // --- CLASSIC LAYOUT ---
             else if (appState.layout === 'classic') {
                 html = `
-                    <div class="p-8 md:p-12 h-full flex flex-col text-left font-serif bg-white min-h-[1000px]">
-                        <div class="border-b-2 pb-5 mb-5 ${thColor} flex justify-between items-start">
+                    <div class="p-8 md:p-12 h-full flex flex-col text-left font-serif bg-white min-h-[297mm]">
+                        <div class="border-b-2 pb-5 mb-5 ${thColor} flex justify-between items-start break-inside-avoid">
                             <div class="flex-1">
                                 <h1 class="text-3xl font-bold text-gray-900 uppercase tracking-wide">${personal.fullName}</h1>
                                 <p class="text-lg font-medium mt-1 ${thIcon}">${personal.title}</p>
                                 <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-600">
-                                    ${personal.email ? `<span>${iMap('mail')}${personal.email}</span>` : ''}
-                                    ${personal.phone ? `<span>${iMap('phone')}${personal.phone}</span>` : ''}
-                                    ${personal.address ? `<span>${iMap('map-pin')}${personal.address}</span>` : ''}
+                                    ${personal.email ? `<span>${iMap('mail')} ${personal.email}</span>` : ''}
+                                    ${personal.phone ? `<span>${iMap('phone')} ${personal.phone}</span>` : ''}
+                                    ${personal.address ? `<span>${iMap('map-pin')} ${personal.address}</span>` : ''}
                                 </div>
                             </div>
-                            ${personal.photoUrl ? `<div class="w-24 h-24 ml-4 rounded-full overflow-hidden border-2 ${thColor.split(' ')[1]}">${imgTag}</div>` : ''}
+                            ${personal.photoUrl ? `<div class="w-24 h-24 ml-4 rounded-full overflow-hidden border-2 ${thColor.split(' ')[1]} flex-shrink-0">${imgTag}</div>` : ''}
                         </div>
 
                         ${personal.summary ? `
-                        <div class="mb-5">
-                            <h3 class="text-xs font-bold uppercase tracking-wider mb-2 border-b ${thColor} pb-1">Summary</h3>
+                        <div class="mb-5 break-inside-avoid">
+                            <h3 class="text-xs font-bold uppercase tracking-wider mb-2 border-b ${thColor} pb-1">Professional Summary</h3>
                             <p class="text-sm text-gray-700 leading-relaxed">${personal.summary}</p>
+                        </div>` : ''}
+
+                        ${technicalSkills || softSkills ? `
+                        <div class="mb-5 break-inside-avoid">
+                            <h3 class="text-xs font-bold uppercase tracking-wider mb-2 border-b ${thColor} pb-1">Skills</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                                <div><span class="font-semibold">Technical:</span> ${technicalSkills}</div>
+                                <div><span class="font-semibold">Soft Skills:</span> ${softSkills}</div>
+                            </div>
                         </div>` : ''}
 
                         ${experience.length ? `
@@ -547,7 +696,7 @@
                             <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b ${thColor} pb-1">Experience</h3>
                             <div class="space-y-4">
                                 ${experience.map(e => `
-                                    <div>
+                                    <div class="break-inside-avoid">
                                         <div class="flex justify-between items-baseline">
                                             <h4 class="font-bold text-gray-900 text-sm">${e.role}</h4>
                                             <span class="text-[10px] text-gray-500 whitespace-nowrap">${e.startDate} – ${e.endDate}</span>
@@ -560,37 +709,146 @@
                         </div>` : ''}
 
                         ${education.length ? `
-                        <div class="mb-5">
+                        <div class="mb-5 break-inside-avoid">
                             <h3 class="text-xs font-bold uppercase tracking-wider mb-3 border-b ${thColor} pb-1">Education</h3>
                             <div class="space-y-2">
                                 ${education.map(e => `
-                                    <div>
-                                        <div class="flex justify-between items-baseline">
-                                            <h4 class="font-bold text-gray-900 text-sm">${e.school}</h4>
-                                            <span class="text-[10px] text-gray-500">${e.startDate} – ${e.endDate}</span>
+                                    <div class="flex justify-between items-baseline break-inside-avoid">
+                                        <div>
+                                            <span class="font-bold text-gray-900 text-sm">${e.degree}</span>
+                                            <span class="text-xs text-gray-600"> - ${e.school}</span>
                                         </div>
-                                        <div class="text-xs ${thIcon}">${e.degree}</div>
+                                        <span class="text-[10px] text-gray-500">${e.endDate}</span>
                                     </div>
                                 `).join('')}
                             </div>
                         </div>` : ''}
 
-                        ${skills ? `
-                        <div>
-                            <h3 class="text-xs font-bold uppercase tracking-wider mb-2 border-b ${thColor} pb-1">Skills</h3>
-                            <div class="flex flex-wrap gap-2">
-                                ${skills.split(',').map(s => `<span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${thBg} text-gray-800">${s.trim()}</span>`).join('')}
+                        ${hasExtra || languages ? `
+                        <div class="mt-auto pt-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between break-inside-avoid">
+                            <div>${languages ? `Languages: ${languages}` : ''}</div>
+                            <div class="flex gap-4">
+                                ${md.dob ? `<span>DOB: ${md.dob}</span>` : ''}
+                                ${md.gender ? `<span>Gender: ${md.gender}</span>` : ''}
+                                ${md.passportDetails ? `<span>Passport: ${md.passportDetails}</span>` : ''}
                             </div>
                         </div>` : ''}
+                        
+                        ${declaration ? `<div class="mt-2 text-[10px] text-gray-400 italic break-inside-avoid">${declaration}</div>` : ''}
                     </div>
                 `;
             }
-
-            // MINIMALIST
-            else if (appState.layout === 'minimalist') {
+            // --- PROFESSIONAL LAYOUT ---
+            else if (appState.layout === 'professional') {
                 html = `
-                    <div class="p-10 h-full flex flex-col text-left bg-white font-sans text-gray-800 min-h-[1000px]">
-                        <div class="text-center mb-8">
+                    <div class="h-full flex flex-col text-left bg-white font-sans min-h-[297mm]">
+                        <div class="${thHeaderBg} text-white p-8 flex justify-between items-center shadow-md break-inside-avoid">
+                            <div>
+                                <h1 class="text-3xl font-bold tracking-tight">${personal.fullName}</h1>
+                                <p class="text-lg opacity-90 font-light mt-1">${personal.title}</p>
+                            </div>
+                            ${personal.photoUrl ? `<div class="w-24 h-24 rounded bg-white p-1 shadow-sm flex-shrink-0"><img src="${personal.photoUrl}" class="w-full h-full object-cover rounded-sm" /></div>` : ''}
+                        </div>
+                        
+                        <div class="bg-gray-800 text-gray-300 px-8 py-2.5 text-[10px] flex flex-wrap gap-4 items-center break-inside-avoid">
+                             ${personal.email ? `<div class="flex items-center gap-1">${iMapW('mail')}${personal.email}</div>` : ''}
+                             ${personal.phone ? `<div class="flex items-center gap-1">${iMapW('phone')}${personal.phone}</div>` : ''}
+                             ${personal.address ? `<div class="flex items-center gap-1">${iMapW('map-pin')}${personal.address}</div>` : ''}
+                        </div>
+
+                        <div class="flex flex-1 items-stretch">
+                            <div class="w-2/3 p-8 pr-6">
+                                ${personal.summary ? `
+                                <div class="mb-6 break-inside-avoid">
+                                    <h3 class="text-xs font-bold uppercase text-gray-900 mb-2 flex items-center gap-2"><span class="${thBg} w-6 h-1 block"></span> Profile</h3>
+                                    <p class="text-xs text-gray-700 leading-relaxed text-justify">${personal.summary}</p>
+                                </div>` : ''}
+
+                                ${experience.length ? `
+                                <div class="mb-6">
+                                    <h3 class="text-xs font-bold uppercase text-gray-900 mb-4 flex items-center gap-2"><span class="${thBg} w-6 h-1 block"></span> Experience</h3>
+                                    <div class="space-y-5">
+                                        ${experience.map(e => `
+                                            <div class="break-inside-avoid">
+                                                <h4 class="font-bold text-gray-800 text-sm">${e.role}</h4>
+                                                <div class="text-xs ${thIcon} font-medium mb-1">${e.company}</div>
+                                                <p class="text-xs text-gray-600 mt-1 leading-relaxed">${e.description}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>` : ''}
+
+                                ${projects && projects.length ? `
+                                <div class="mb-6 break-inside-avoid">
+                                    <h3 class="text-xs font-bold uppercase text-gray-900 mb-4 flex items-center gap-2"><span class="${thBg} w-6 h-1 block"></span> Projects</h3>
+                                    <div class="space-y-3">
+                                        ${projects.map(p => `
+                                            <div class="break-inside-avoid">
+                                                <h4 class="font-bold text-gray-800 text-sm">${p.title}</h4>
+                                                <p class="text-xs text-gray-600 mt-1">${p.description}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>` : ''}
+                            </div>
+
+                            <div class="w-1/3 bg-gray-50 p-6 border-l border-gray-100 min-h-[200mm]">
+                                ${experience.length ? `
+                                <div class="mb-6 break-inside-avoid">
+                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">Timeline</h3>
+                                    <div class="space-y-3">
+                                        ${experience.map(e => `
+                                            <div class="text-[10px]">
+                                                <div class="font-bold text-gray-700">${e.company}</div>
+                                                <div class="text-gray-500">${e.startDate}-${e.endDate}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>` : ''}
+
+                                ${education.length ? `
+                                <div class="mb-6 break-inside-avoid">
+                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">Education</h3>
+                                    <div class="space-y-3">
+                                        ${education.map(e => `
+                                            <div>
+                                                <div class="font-bold text-xs text-gray-800">${e.school}</div>
+                                                <div class="text-[10px] ${thIcon} font-medium">${e.degree}</div>
+                                                <div class="text-[10px] text-gray-500 mt-0.5">${e.endDate}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>` : ''}
+
+                                ${technicalSkills ? `
+                                <div class="mb-6 break-inside-avoid">
+                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">Technical</h3>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${technicalSkills.split(',').map(s => `<span class="text-[10px] bg-white border border-gray-200 px-1 rounded">${s.trim()}</span>`).join('')}
+                                    </div>
+                                </div>` : ''}
+
+                                ${hasExtra ? `
+                                <div class="mb-6 break-inside-avoid">
+                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">Personal</h3>
+                                    <div class="flex flex-col gap-1 text-[10px] text-gray-600">
+                                        ${md.dob ? `<div>DOB: ${md.dob}</div>` : ''}
+                                        ${md.gender ? `<div>Gender: ${md.gender}</div>` : ''}
+                                        ${md.passportDetails ? `<div>Passport: ${md.passportDetails}</div>` : ''}
+                                    </div>
+                                </div>` : ''}
+                                
+                                ${declaration ? `<div class="mt-8 text-[9px] text-gray-400 italic break-inside-avoid border-t pt-2">${declaration}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            // --- MINIMALIST LAYOUT ---
+            else {
+                html = `
+                    <div class="p-10 h-full flex flex-col text-left bg-white font-sans text-gray-800 min-h-[297mm]">
+                        <div class="text-center mb-8 break-inside-avoid">
                             ${personal.photoUrl ? `<div class="w-20 h-20 mx-auto rounded-full overflow-hidden mb-3 border border-gray-200">${imgTag}</div>` : ''}
                             <h1 class="text-2xl font-light tracking-[0.2em] uppercase text-gray-900 mb-2">${personal.fullName}</h1>
                             <p class="text-xs uppercase tracking-wide text-gray-500 mb-3">${personal.title}</p>
@@ -602,7 +860,7 @@
                         </div>
 
                         ${personal.summary ? `
-                        <div class="mb-8 max-w-lg mx-auto text-center">
+                        <div class="mb-8 max-w-lg mx-auto text-center break-inside-avoid">
                             <p class="text-xs text-gray-600 leading-relaxed italic">${personal.summary}</p>
                         </div>` : ''}
 
@@ -612,7 +870,7 @@
                                 <h3 class="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-4 text-center">Experience</h3>
                                 <div class="space-y-4">
                                     ${experience.map(e => `
-                                        <div class="grid grid-cols-12 gap-3">
+                                        <div class="grid grid-cols-12 gap-3 break-inside-avoid">
                                             <div class="col-span-3 text-right pt-0.5">
                                                 <span class="text-[10px] text-gray-500 block">${e.startDate}</span>
                                                 <span class="text-[10px] text-gray-400 block">${e.endDate}</span>
@@ -628,117 +886,42 @@
                             </section>` : ''}
 
                             ${education.length ? `
-                            <section>
+                            <section class="break-inside-avoid">
                                 <h3 class="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-4 text-center">Education</h3>
                                 <div class="space-y-3">
                                     ${education.map(e => `
                                         <div class="grid grid-cols-12 gap-3">
                                             <div class="col-span-3 text-right">
-                                                <span class="text-[10px] text-gray-500">${e.startDate}-${e.endDate}</span>
+                                                <span class="text-[10px] text-gray-500">${e.endDate}</span>
                                             </div>
                                             <div class="col-span-9 border-l border-gray-200 pl-4">
-                                                <h4 class="font-bold text-xs text-gray-800">${e.school}</h4>
-                                                <div class="text-[10px] text-gray-500">${e.degree}</div>
+                                                <h4 class="font-bold text-xs text-gray-800">${e.degree}</h4>
+                                                <div class="text-[10px] text-gray-500">${e.school}</div>
                                             </div>
                                         </div>
                                     `).join('')}
                                 </div>
                             </section>` : ''}
 
-                             ${skills ? `
-                            <section>
+                             ${technicalSkills ? `
+                            <section class="break-inside-avoid">
                                 <h3 class="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-3 text-center">Skills</h3>
                                 <div class="text-center max-w-md mx-auto">
-                                    <p class="text-[11px] text-gray-600 leading-relaxed">${skills.split(',').join(' • ')}</p>
+                                    <p class="text-[11px] text-gray-600 leading-relaxed">${technicalSkills}</p>
                                 </div>
                             </section>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
 
-            // PROFESSIONAL
-            else if (appState.layout === 'professional') {
-                html = `
-                    <div class="h-full flex flex-col text-left bg-white font-sans min-h-[1000px]">
-                        <div class="${thHeaderBg} text-white p-8 flex justify-between items-center shadow-md">
-                            <div>
-                                <h1 class="text-3xl font-bold tracking-tight">${personal.fullName}</h1>
-                                <p class="text-lg opacity-90 font-light mt-1">${personal.title}</p>
-                            </div>
-                            ${personal.photoUrl ? `<div class="w-24 h-24 rounded bg-white p-1 shadow-sm"><img src="${personal.photoUrl}" class="w-full h-full object-cover rounded-sm" /></div>` : ''}
-                        </div>
-                        
-                        <div class="bg-gray-800 text-gray-300 px-8 py-2.5 text-[10px] flex flex-wrap gap-4 items-center">
-                             ${personal.email ? `<div class="flex items-center gap-1">${iMapW('mail')}${personal.email}</div>` : ''}
-                             ${personal.phone ? `<div class="flex items-center gap-1">${iMapW('phone')}${personal.phone}</div>` : ''}
-                             ${personal.address ? `<div class="flex items-center gap-1">${iMapW('map-pin')}${personal.address}</div>` : ''}
-                        </div>
-
-                        <div class="flex flex-1">
-                            <div class="w-2/3 p-8 pr-6">
-                                ${personal.summary ? `
-                                <div class="mb-6">
-                                    <h3 class="text-xs font-bold uppercase text-gray-900 mb-2 flex items-center gap-2"><span class="${thBg} w-6 h-1 block"></span> Profile</h3>
-                                    <p class="text-xs text-gray-700 leading-relaxed text-justify">${personal.summary}</p>
-                                </div>` : ''}
-
-                                ${experience.length ? `
-                                <div class="mb-6">
-                                    <h3 class="text-xs font-bold uppercase text-gray-900 mb-4 flex items-center gap-2"><span class="${thBg} w-6 h-1 block"></span> Work Experience</h3>
-                                    <div class="space-y-5">
-                                        ${experience.map(e => `
-                                            <div>
-                                                <h4 class="font-bold text-gray-800 text-sm">${e.role}</h4>
-                                                <div class="text-xs ${thIcon} font-medium mb-1">${e.company}</div>
-                                                <p class="text-xs text-gray-600 mt-1 leading-relaxed">${e.description}</p>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>` : ''}
-                            </div>
-
-                            <div class="w-1/3 bg-gray-50 p-6 border-l border-gray-100">
-                                ${experience.length ? `
-                                <div class="mb-6">
-                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">History</h3>
-                                    <div class="space-y-3">
-                                        ${experience.map(e => `
-                                            <div class="text-[10px]">
-                                                <div class="font-bold text-gray-700">${e.company}</div>
-                                                <div class="text-gray-500">${e.startDate}-${e.endDate}</div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>` : ''}
-
-                                ${education.length ? `
-                                <div class="mb-6">
-                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">Education</h3>
-                                    <div class="space-y-3">
-                                        ${education.map(e => `
-                                            <div>
-                                                <div class="font-bold text-xs text-gray-800">${e.school}</div>
-                                                <div class="text-[10px] ${thIcon} font-medium">${e.degree}</div>
-                                                <div class="text-[10px] text-gray-500 mt-0.5">${e.startDate}-${e.endDate}</div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>` : ''}
-
-                                ${skills ? `
-                                <div>
-                                    <h3 class="text-[10px] font-bold uppercase text-gray-500 mb-3 tracking-wider">Skills</h3>
-                                    <div class="flex flex-col gap-1.5">
-                                        ${skills.split(',').map(s => `
-                                            <div class="flex items-center gap-2">
-                                                <div class="h-1 w-1 rounded-full ${thHeaderBg}"></div>
-                                                <span class="text-xs text-gray-700">${s.trim()}</span>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>` : ''}
-                            </div>
+                            ${hasExtra ? `
+                            <section class="break-inside-avoid text-center">
+                                <h3 class="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-3">Personal</h3>
+                                <div class="flex justify-center gap-4 text-[10px] text-gray-600">
+                                    ${md.dob ? `<span>DOB: ${md.dob}</span>` : ''}
+                                    ${md.gender ? `<span>Gender: ${md.gender}</span>` : ''}
+                                    ${md.passportDetails ? `<span>Passport: ${md.passportDetails}</span>` : ''}
+                                </div>
+                            </section>` : ''}
+                            
+                            ${declaration ? `<div class="text-center text-[9px] text-gray-400 italic mt-8 border-t pt-2 w-1/2 mx-auto break-inside-avoid">${declaration}</div>` : ''}
                         </div>
                     </div>
                 `;
@@ -762,39 +945,48 @@
             }
         };
 
-        window.updatePersonal = (f, v) => { appState.data.personal[f] = v; renderPreview(); window.triggerAutoSave(); };
-        window.updateExperience = (id, f, v) => { 
-            const e = appState.data.experience.find(x => x.id === id); 
-            if(e) { e[f] = v; renderPreview(); window.triggerAutoSave(); }
-        };
-        window.addExperience = () => { 
-            appState.data.experience.push({ id: Date.now(), company: '', role: '', startDate: '', endDate: '', description: '' }); 
-            renderExperienceList(); renderPreview(); window.triggerAutoSave();
-        };
-        window.removeExperience = (id) => {
-            appState.data.experience = appState.data.experience.filter(e => e.id !== id);
-            renderExperienceList(); renderPreview(); window.triggerAutoSave();
-        };
-        window.updateEducation = (id, f, v) => {
-            const e = appState.data.education.find(x => x.id === id);
-            if(e) { e[f] = v; renderPreview(); window.triggerAutoSave(); }
-        };
-        window.addEducation = () => {
-            appState.data.education.push({ id: Date.now(), school: '', degree: '', startDate: '', endDate: '', location: '' });
-            renderEducationList(); renderPreview(); window.triggerAutoSave();
-        };
-        window.removeEducation = (id) => {
-            appState.data.education = appState.data.education.filter(e => e.id !== id);
-            renderEducationList(); renderPreview(); window.triggerAutoSave();
-        };
-        window.handleSkillsChange = (v) => { appState.data.skills = v; renderPreview(); window.triggerAutoSave(); };
+        // Simplified handlers
+        ['Personal', 'PersonalExtra', 'Skills', 'Misc'].forEach(type => {
+            window[`update${type}`] = (key, val) => {
+                if(type==='Personal') appState.data.personal[key] = val;
+                else if(type==='PersonalExtra') { if(!appState.data.personal.moreDetails) appState.data.personal.moreDetails={}; appState.data.personal.moreDetails[key] = val; }
+                else if(type==='Skills') { if(key==='technical') appState.data.technicalSkills=val; else appState.data.softSkills=val; }
+                else appState.data[key] = val;
+                renderPreview(); window.triggerAutoSave();
+            };
+        });
+
+        // List Handlers
+        ['Experience', 'Education', 'Project', 'Certification'].forEach(type => {
+            const lower = type.toLowerCase() + 's';
+            const dataKey = type === 'Project' ? 'projects' : lower; 
+            
+            window[`update${type}`] = (id, key, val) => {
+                const item = appState.data[dataKey].find(x => x.id === id);
+                if(item) { item[key] = val; renderPreview(); window.triggerAutoSave(); }
+            };
+            window[`add${type}`] = () => {
+                const newItem = { id: Date.now() };
+                if(type==='Experience') Object.assign(newItem, {company:'', role:'', startDate:'', endDate:'', description:''});
+                else if(type==='Education') Object.assign(newItem, {school:'', degree:'', startDate:'', endDate:'', location:''});
+                else if(type==='Project') Object.assign(newItem, {title:'', tech:'', description:''});
+                else Object.assign(newItem, {name:'', issuer:'', year:''});
+                
+                if(!appState.data[dataKey]) appState.data[dataKey] = [];
+                appState.data[dataKey].push(newItem);
+                eval(`render${type}List()`); renderPreview(); window.triggerAutoSave();
+            };
+            window[`remove${type}`] = (id) => {
+                appState.data[dataKey] = appState.data[dataKey].filter(x => x.id !== id);
+                eval(`render${type}List()`); renderPreview(); window.triggerAutoSave();
+            };
+        });
+
         window.handleLayoutChange = (v) => { appState.layout = v; renderPreview(); window.triggerAutoSave(); };
         window.handleThemeChange = (v) => { appState.theme = v; renderColorPickers(); renderPreview(); window.triggerAutoSave(); };
         window.switchTab = (t) => {
             document.getElementById('editor-section').className = t === 'editor' ? 'w-full h-full overflow-y-auto custom-scroll p-4 pb-24 space-y-6 bg-gray-50' : 'hidden';
             document.getElementById('preview-section').className = t === 'preview' ? 'w-full h-full overflow-y-auto custom-scroll bg-gray-200/50 p-4' : 'hidden';
-            
-            // Tab Styles
             document.getElementById('tab-editor').className = t === 'editor' ? 'flex-1 py-3 text-sm font-medium text-center border-b-2 border-blue-600 text-blue-600' : 'flex-1 py-3 text-sm font-medium text-center border-b-2 border-transparent text-gray-500';
             document.getElementById('tab-preview').className = t === 'preview' ? 'flex-1 py-3 text-sm font-medium text-center border-b-2 border-blue-600 text-blue-600' : 'flex-1 py-3 text-sm font-medium text-center border-b-2 border-transparent text-gray-500';
         };
