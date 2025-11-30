@@ -9,482 +9,606 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* --- Mobile Responsive Preview Scale --- */
+        /* --- Preview Scale Logic --- */
         .preview-container {
             container-type: inline-size;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            overflow: hidden;
             padding: 20px;
+            background-color: #f3f4f6; /* slate-100 */
+            border-radius: 0.5rem;
+            overflow: hidden; /* Fix for floating artifacts */
+            min-height: 280px;
         }
 
-        /* Scale logic for preview only */
         @media (max-width: 640px) {
-            .preview-card-scale {
-                transform: scale(0.85); 
-                transform-origin: center;
-            }
-        }
-        @media (max-width: 380px) {
-            .preview-card-scale {
-                transform: scale(0.70);
-            }
+            .preview-card-scale { transform: scale(0.85); transform-origin: center; }
         }
 
         /* --- PRINT SETTINGS (A4 Optimized) --- */
         @media print {
             @page {
                 size: A4;
-                margin: 10mm; /* Safe margin for printers */
+                margin: 5mm; /* Narrow margins for max space */
             }
             
             body {
                 background: white;
-                visibility: hidden;
                 margin: 0;
                 padding: 0;
             }
 
-            .no-print { display: none !important; }
+            body * {
+                visibility: hidden; /* Hide UI */
+            }
 
-            /* Show only the print container */
-            #print-queue-container {
+            /* Show Print Container */
+            #print-area, #print-area * {
                 visibility: visible;
+            }
+
+            #print-area {
                 position: absolute;
                 top: 0;
                 left: 0;
                 width: 100%;
-                display: block;
+                padding: 5mm;
             }
 
-            /* Grid for "Fill A4" Mode */
+            /* Grid Layouts for A4 */
             .print-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr); /* 2 Columns */
-                gap: 5mm; /* Cutting gap */
-                justify-content: center;
-                align-content: start;
-            }
-
-            /* Single Card Mode Center */
-            .print-single {
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 90vh;
+                flex-wrap: wrap;
+                gap: 5mm; /* Space between cards for cutting */
+                justify-content: flex-start;
+                align-content: flex-start;
             }
 
-            /* --- Card Styling Fixes for Print --- */
+            /* Card Sizing Fixes */
             .card-wrapper {
                 box-shadow: none !important;
-                border: 1px solid #ddd !important;
+                border: 1px solid #ddd !important; /* Cut line */
                 print-color-adjust: exact !important;
                 -webkit-print-color-adjust: exact !important;
+                break-inside: avoid;
                 page-break-inside: avoid;
-                margin: 0 auto;
+                margin: 0;
+                position: relative !important; /* Force relative positioning */
                 
-                /* Standard CR80 Size in mm */
+                /* EXACT PHYSICAL DIMENSIONS */
                 width: 85.6mm !important;
                 height: 54mm !important;
-                transform: scale(1) !important; /* No scaling in print */
             }
 
+            /* Student/Vertical Card Override */
             .card-wrapper.portrait {
                 width: 54mm !important;
                 height: 85.6mm !important;
             }
-            
-            /* Orientation Overrides based on User Selection */
-            body.print-landscape #print-queue-container {
-                /* Rotation handled by @page mostly, but fallback just in case */
-                width: 297mm;
-            }
+        }
+
+        /* Helper for Grid Display in UI */
+        .batch-item-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: white;
+            transition: all 0.2s;
+        }
+        .batch-item-wrapper:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
     </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between shadow-sm no-print sticky top-0 z-50">
-        <div class="flex items-center gap-2 text-indigo-600">
-            <i data-lucide="id-card" class="w-7 h-7"></i>
-            <h1 class="text-lg md:text-xl font-bold tracking-tight">ID Printer</h1>
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm no-print">
+        <div class="flex items-center gap-2 text-indigo-700">
+            <i data-lucide="id-card" class="w-6 h-6"></i>
+            <h1 class="text-lg font-bold">ID Batch Printer</h1>
         </div>
         <div class="flex gap-2">
-            <button onclick="window.print()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-md active:scale-95">
+            <button onclick="clearBatch()" class="flex items-center gap-1 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded text-sm font-medium border border-transparent hover:border-red-200 transition-all">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+            </button>
+            <button onclick="window.print()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded shadow-sm text-sm font-medium transition-all active:scale-95">
                 <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>Print Final</span>
+                <span id="print-btn-text">Print Batch (0)</span>
             </button>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl mx-auto w-full p-4 flex flex-col-reverse md:flex-row gap-6">
+    <main class="flex-1 w-full max-w-[1400px] mx-auto p-4 flex flex-col md:flex-row gap-6">
         
-        <!-- Controls Sidebar -->
-        <div class="w-full md:w-1/3 bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-fit no-print overflow-y-auto max-h-[90vh]">
+        <!-- LEFT: Editor Panel -->
+        <div class="w-full md:w-[350px] shrink-0 flex flex-col gap-4 no-print h-[calc(100vh-100px)] overflow-y-auto">
             
-            <!-- Design Section -->
-            <div class="mb-6 border-b border-gray-100 pb-6">
-                <h2 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-4 uppercase tracking-wider">
-                    <i data-lucide="palette" class="w-4 h-4"></i> Design
-                </h2>
+            <!-- 1. Design Selector -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">1. Select Template</h3>
                 <div class="grid grid-cols-3 gap-2">
-                    <button onclick="setTemplate('corporate')" id="btn-corporate" class="template-btn py-2 px-1 text-xs font-medium rounded border transition-all bg-indigo-600 text-white border-indigo-600 shadow-sm">Corporate</button>
-                    <button onclick="setTemplate('student')" id="btn-student" class="template-btn py-2 px-1 text-xs font-medium rounded border transition-all bg-white text-gray-600 border-gray-300 hover:bg-gray-50">Student</button>
-                    <button onclick="setTemplate('event')" id="btn-event" class="template-btn py-2 px-1 text-xs font-medium rounded border transition-all bg-white text-gray-600 border-gray-300 hover:bg-gray-50">Event</button>
+                    <button onclick="setTemplate('corporate')" id="btn-corporate" class="template-btn py-2 text-xs font-semibold rounded border bg-indigo-600 text-white border-indigo-600">Corporate</button>
+                    <button onclick="setTemplate('student')" id="btn-student" class="template-btn py-2 text-xs font-semibold rounded border bg-white text-gray-600 border-gray-300">Student</button>
+                    <button onclick="setTemplate('event')" id="btn-event" class="template-btn py-2 text-xs font-semibold rounded border bg-white text-gray-600 border-gray-300">Event</button>
                 </div>
             </div>
 
-            <!-- Print Settings Section (NEW) -->
-            <div class="mb-6 border-b border-gray-100 pb-6 bg-indigo-50 -mx-5 px-5 py-4">
-                <h2 class="text-sm font-bold text-indigo-800 flex items-center gap-2 mb-3 uppercase tracking-wider">
-                    <i data-lucide="settings" class="w-4 h-4"></i> Print Settings
-                </h2>
+            <!-- 2. Data Entry -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex-1">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">2. Enter Details</h3>
                 
-                <!-- Print Mode -->
-                <div class="mb-3">
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Print Layout</label>
-                    <div class="flex rounded-md shadow-sm" role="group">
-                        <button onclick="setPrintMode('single')" id="btn-mode-single" class="px-3 py-2 text-xs font-medium border border-indigo-200 rounded-l-lg bg-white text-gray-700 hover:bg-gray-50 flex-1 focus:z-10 focus:ring-2 focus:ring-indigo-500">
-                            Single Card
-                        </button>
-                        <button onclick="setPrintMode('fill')" id="btn-mode-fill" class="px-3 py-2 text-xs font-medium border border-l-0 border-indigo-200 rounded-r-lg bg-indigo-600 text-white flex-1 focus:z-10 focus:ring-2 focus:ring-indigo-500">
-                            Fill A4 (x8)
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-gray-500 mt-1" id="print-hint">Prints 8 copies on one A4 sheet for easy cutting.</p>
-                </div>
-
-                <!-- Orientation -->
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Paper Orientation</label>
-                    <select onchange="setOrientation(this.value)" class="w-full text-xs border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="portrait">Portrait (Vertical)</option>
-                        <option value="landscape">Landscape (Horizontal)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Input Forms -->
-            <div class="space-y-3">
-                <h2 class="text-sm font-bold text-gray-800 flex items-center gap-2 mb-2 uppercase tracking-wider">
-                    <i data-lucide="user" class="w-4 h-4"></i> Details
-                </h2>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Full Name</label>
-                    <input type="text" id="inputName" value="Rahul Sharma" oninput="updateCard()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-none focus:border-indigo-500 transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Role / Designation</label>
-                    <input type="text" id="inputRole" value="Senior Developer" oninput="updateCard()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-none focus:border-indigo-500 transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-3">
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">ID Number</label>
-                        <input type="text" id="inputId" value="EMP-001" oninput="updateCard()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Full Name</label>
+                        <input type="text" id="inputName" placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Location</label>
-                        <input type="text" id="inputLocation" value="Mumbai" oninput="updateCard()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase" id="labelRole">Role / Class</label>
+                        <input type="text" id="inputRole" placeholder="e.g. Senior Developer" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
-                </div>
-
-                <!-- Photo Upload -->
-                <div class="pt-2">
-                    <label class="block w-full cursor-pointer group">
-                        <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
-                        <div class="flex items-center justify-center gap-2 w-full py-3 border border-dashed border-gray-300 rounded-lg text-xs text-gray-600 font-medium group-hover:border-indigo-500 group-hover:text-indigo-600 bg-gray-50 transition-all">
-                            <i data-lucide="image-plus" class="w-4 h-4"></i>
-                            <span>Change Photo</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">ID No.</label>
+                            <input type="text" id="inputId" placeholder="EMP-001" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                         </div>
-                    </label>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Location</label>
+                            <input type="text" id="inputLocation" placeholder="Mumbai" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Photo</label>
+                        <div class="flex gap-2 items-center">
+                            <label class="flex-1 cursor-pointer bg-gray-50 border border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 rounded px-3 py-2 flex items-center justify-center gap-2 transition-all">
+                                <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+                                <i data-lucide="upload" class="w-4 h-4 text-gray-400"></i>
+                                <span class="text-xs text-gray-600 font-medium">Upload</span>
+                            </label>
+                            <button onclick="clearImage()" class="p-2 text-gray-400 hover:text-red-500 border border-gray-200 rounded hover:bg-red-50" title="Remove Photo">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add Button -->
+                    <button onclick="addCardToBatch()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold shadow-md active:scale-95 flex items-center justify-center gap-2 transition-all">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Add to Print Queue
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Preview Area -->
-        <div class="w-full md:w-2/3 flex flex-col items-center">
+        <!-- RIGHT: Preview & Batch List -->
+        <div class="flex-1 flex flex-col gap-6 h-[calc(100vh-100px)] overflow-y-auto no-print pb-20">
             
-            <div class="w-full bg-gray-200/50 rounded-xl border border-gray-200 flex flex-col items-center justify-center p-4 min-h-[450px] relative overflow-hidden">
-                <span class="absolute top-2 left-2 bg-gray-300 text-gray-600 text-[10px] px-2 py-1 rounded">Live Preview</span>
+            <!-- Live Preview -->
+            <div class="w-full flex flex-col items-center">
+                <div class="mb-2 flex justify-between w-full max-w-md items-center px-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Live Preview</span>
+                    <span class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Auto-updates as you type</span>
+                </div>
                 
-                <div id="active-card-container" class="preview-container">
-                    <!-- Cards will be injected here via JS to allow easy cloning -->
+                <div id="live-preview-container" class="preview-container border border-gray-200 shadow-sm">
+                    <!-- Active Template renders here -->
                 </div>
             </div>
-            
-            <!-- Hidden Print Container (Populated dynamically) -->
-            <div id="print-queue-container">
-                <div id="print-content" class="print-grid"></div>
-            </div>
 
-            <p class="text-gray-400 text-xs mt-4 no-print flex items-center gap-2">
-                <i data-lucide="info" class="w-3 h-3"></i>
-                <span>Use 'Fill A4' to print multiple copies. Use margins: 'None' in printer settings.</span>
-            </p>
+            <!-- Batch Queue -->
+            <div class="w-full max-w-5xl mx-auto">
+                <div class="flex items-center justify-between mb-3 px-2 border-b border-gray-200 pb-2">
+                    <h3 class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> 
+                        Print Queue <span id="queue-count" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs">0 Cards</span>
+                    </h3>
+                    <div class="text-xs text-gray-500">
+                        Paper: <span class="font-bold">A4</span> | Layout: <span id="orientation-label" class="font-bold">Grid</span>
+                    </div>
+                </div>
+
+                <!-- Grid of added cards -->
+                <div id="batch-grid" class="flex flex-wrap gap-4 justify-center md:justify-start">
+                    <!-- Added cards will appear here -->
+                    <div class="w-full py-10 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                        No cards added yet. Fill details and click "Add to Print Queue".
+                    </div>
+                </div>
+            </div>
         </div>
 
     </main>
 
-    <!-- HIDDEN TEMPLATES SOURCE (Used to generate cards) -->
+    <!-- PRINT AREA (Hidden until Print) -->
+    <div id="print-area">
+        <div id="print-content" class="print-grid"></div>
+    </div>
+
+    <!-- --- TEMPLATE SOURCES (Hidden) --- -->
     <div style="display:none;">
-        
-        <!-- TEMPLATE 1: CORPORATE -->
-        <div id="source-corporate" class="card-wrapper w-[337px] h-[212px] bg-white rounded-lg overflow-hidden flex flex-col relative text-gray-800 shadow-sm border border-gray-200">
-            <div class="absolute top-0 left-0 w-full h-full z-0">
-                <div class="h-full w-1/3 bg-blue-600 absolute right-0 top-0 skew-x-[-15deg] origin-top translate-x-10"></div>
-                <div class="h-24 w-full bg-blue-500 absolute top-0 left-0" style="clip-path: polygon(0 0, 100% 0, 100% 60%, 0% 100%);"></div>
+
+        <!-- 1. CORPORATE TEMPLATE (Landscape) -->
+        <div id="tpl-corporate" class="card-wrapper relative w-[337px] h-[212px] bg-white rounded-lg overflow-hidden flex flex-col text-gray-800 border border-gray-200">
+            <div class="absolute inset-0 z-0">
+                <div class="h-full w-[40%] bg-blue-700 absolute right-0 top-0 skew-x-[-20deg] origin-bottom translate-x-12"></div>
+                <div class="h-2 w-full bg-blue-600 absolute top-0 left-0"></div>
             </div>
             <div class="z-10 relative h-full flex flex-col p-4">
-                <div class="flex justify-between items-start text-white">
-                    <div class="bg-white/20 p-1 rounded-full"><i data-lucide="shield" class="w-6 h-6 text-white"></i></div>
-                    <div class="text-right">
-                        <h3 class="font-bold text-sm tracking-wider uppercase">Identity Card</h3>
-                        <p class="text-[9px] opacity-90">TechnoSolutions Ltd.</p>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center gap-4">
-                    <div class="w-20 h-20 rounded-full bg-white p-1 shadow-sm shrink-0 z-20">
-                        <img class="profile-img w-full h-full rounded-full object-cover bg-gray-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul" alt="Profile">
-                    </div>
-                    <div class="text-gray-800 z-20">
-                        <h2 class="card-name font-bold text-lg leading-tight">Rahul Sharma</h2>
-                        <p class="card-role text-blue-700 font-bold text-[10px] uppercase mt-0.5 bg-blue-50 px-2 py-0.5 rounded inline-block">Senior Developer</p>
-                    </div>
-                </div>
-                <div class="mt-auto flex justify-between items-end border-t border-gray-100 pt-2 z-20 bg-white/50 backdrop-blur-[2px] rounded-b-lg">
-                    <div class="text-[10px] text-gray-600 leading-tight">
-                        <p class="mb-0.5"><span class="font-bold text-blue-800">ID:</span> <span class="card-id font-mono">EMP-001</span></p>
-                        <p><span class="font-bold text-blue-800">LOC:</span> <span class="card-location">Mumbai</span></p>
-                    </div>
-                    <img class="qr-code w-10 h-10 border border-white shadow-sm" src="" alt="QR">
-                </div>
-            </div>
-        </div>
-
-        <!-- TEMPLATE 2: STUDENT -->
-        <div id="source-student" class="card-wrapper portrait w-[212px] h-[337px] bg-white rounded-lg overflow-hidden flex flex-col relative border-b-8 border-orange-500 shadow-sm">
-            <!-- Simplified Background for better Print Safety -->
-            <div class="bg-orange-500 h-[100px] w-full absolute top-0 rounded-b-[40px] z-0"></div>
-            <div class="z-10 flex flex-col items-center mt-6 w-full h-full">
-                <div class="w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden bg-white z-20">
-                    <img class="profile-img w-full h-full object-cover" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Student" alt="Profile">
-                </div>
-                <div class="text-center mt-2 px-2 w-full z-20">
-                    <h2 class="card-name font-extrabold text-lg text-gray-900 leading-tight">Rahul Sharma</h2>
-                    <div class="inline-block bg-orange-100 text-orange-700 text-[10px] font-bold px-3 py-1 rounded-full mt-1 uppercase card-role">Senior Developer</div>
-                </div>
-                <div class="w-full px-5 mt-6 space-y-3 text-left flex-1">
-                    <div class="flex items-center gap-3 text-xs border-b border-gray-100 pb-1.5">
-                        <div class="w-6 flex justify-center"><i data-lucide="hash" class="w-3.5 h-3.5 text-orange-500"></i></div>
-                        <div><p class="text-[9px] text-gray-400 uppercase">ID No</p><p class="card-id font-semibold text-gray-700">EMP-001</p></div>
-                    </div>
-                    <div class="flex items-center gap-3 text-xs border-b border-gray-100 pb-1.5">
-                        <div class="w-6 flex justify-center"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-500"></i></div>
-                        <div><p class="text-[9px] text-gray-400 uppercase">Location</p><p class="card-location font-semibold text-gray-700">Mumbai</p></div>
-                    </div>
-                </div>
-                <div class="mt-auto mb-4 flex flex-col items-center">
-                    <img class="qr-code w-14 h-14 mix-blend-multiply" src="" alt="QR">
-                    <p class="text-[9px] text-gray-400 mt-1">Valid: 2025-26</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- TEMPLATE 3: EVENT -->
-        <div id="source-event" class="card-wrapper w-[337px] h-[212px] bg-black text-white rounded-lg overflow-hidden flex relative shadow-sm">
-            <div class="w-12 bg-green-500 h-full flex flex-col items-center justify-center relative z-10">
-                 <span class="text-black font-black -rotate-90 text-sm tracking-[0.25em] whitespace-nowrap">ACCESS</span>
-            </div>
-            <div class="flex-1 p-5 flex flex-col relative z-10">
                 <div class="flex justify-between items-start">
-                    <div>
-                        <h4 class="text-green-400 font-mono text-[10px] tracking-widest mb-1">CONF-2025</h4>
-                        <h2 class="card-name text-2xl font-bold text-white leading-none">Rahul Sharma</h2>
-                        <p class="card-role text-gray-400 text-[10px] uppercase font-bold mt-1 tracking-wide">Speaker</p>
-                    </div>
-                    <div class="w-14 h-14 bg-gray-800 rounded border border-gray-700 overflow-hidden shrink-0">
-                        <img class="profile-img w-full h-full object-cover" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Event" alt="Profile">
+                    <div class="text-blue-700"><i data-lucide="shield-check" class="w-8 h-8"></i></div>
+                    <div class="text-right text-white">
+                        <h3 class="font-bold text-sm tracking-wider uppercase opacity-90">ID CARD</h3>
                     </div>
                 </div>
-                <div class="mt-auto flex items-end justify-between border-t border-gray-800 pt-3">
-                    <div class="text-[10px] text-gray-500 font-mono">
-                        # <span class="card-id text-gray-300">EMP-001</span>
+                <div class="mt-2 flex items-center gap-4">
+                    <div class="w-[85px] h-[85px] rounded-full bg-white p-1 shadow-md shrink-0 z-20">
+                        <img class="data-photo w-full h-full rounded-full object-cover bg-gray-100" src="" alt="Profile">
                     </div>
-                    <div class="bg-white p-1 rounded-sm">
-                        <img class="qr-code w-10 h-10" src="" alt="QR">
+                    <div class="z-20 pt-2">
+                        <h2 class="data-name font-bold text-lg leading-tight text-gray-900 line-clamp-2">Name Here</h2>
+                        <p class="data-role text-blue-700 font-bold text-[10px] uppercase mt-0.5 tracking-wide line-clamp-1">Role Here</p>
+                    </div>
+                </div>
+                <div class="mt-auto flex justify-between items-end pt-2 z-20">
+                    <div class="text-[10px] text-gray-500 font-mono leading-tight">
+                        <p>ID: <span class="data-id font-bold text-gray-800">000</span></p>
+                        <p>LOC: <span class="data-loc font-bold text-gray-800">City</span></p>
+                    </div>
+                    <img class="data-qr w-10 h-10 mix-blend-multiply" src="" alt="QR">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. STUDENT TEMPLATE (Portrait - FIXED) -->
+        <div id="tpl-student" class="card-wrapper relative portrait w-[212px] h-[337px] bg-white rounded-lg overflow-hidden flex flex-col border-t-8 border-orange-500">
+            <!-- Header Arc -->
+            <div class="absolute top-0 left-0 w-full h-[80px] bg-orange-500 rounded-b-[50%] scale-x-125 z-0"></div>
+            
+            <div class="z-10 flex flex-col items-center mt-4 w-full h-full p-3">
+                <!-- Photo -->
+                <div class="w-[90px] h-[90px] rounded-full border-4 border-white shadow-md overflow-hidden bg-white z-10 mb-2">
+                    <img class="data-photo w-full h-full object-cover" src="" alt="Student">
+                </div>
+                
+                <!-- Info -->
+                <div class="text-center w-full z-10">
+                    <h2 class="data-name font-bold text-lg text-gray-900 leading-tight mb-1 line-clamp-2">Student Name</h2>
+                    <span class="data-role inline-block bg-orange-50 text-orange-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-orange-100">Class XII</span>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="w-full mt-6 space-y-2 flex-1">
+                    <div class="flex items-center gap-2 border-b border-gray-100 pb-1">
+                        <div class="w-6 text-center"><i data-lucide="hash" class="w-3 h-3 text-orange-400 mx-auto"></i></div>
+                        <div class="text-xs">
+                            <span class="text-[9px] text-gray-400 block uppercase">Roll No</span>
+                            <span class="data-id font-bold text-gray-700">STD-001</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 border-b border-gray-100 pb-1">
+                        <div class="w-6 text-center"><i data-lucide="map-pin" class="w-3 h-3 text-orange-400 mx-auto"></i></div>
+                        <div class="text-xs">
+                            <span class="text-[9px] text-gray-400 block uppercase">Address</span>
+                            <span class="data-loc font-bold text-gray-700 line-clamp-1">New Delhi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-auto mb-2 text-center w-full">
+                    <img class="data-qr w-12 h-12 mx-auto mix-blend-darken" src="" alt="QR">
+                    <p class="text-[8px] text-gray-400 mt-1 uppercase tracking-widest">School Identity Card</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. EVENT TEMPLATE (Landscape) -->
+        <div id="tpl-event" class="card-wrapper relative w-[337px] h-[212px] bg-neutral-900 text-white rounded-lg overflow-hidden flex border border-gray-800">
+            <div class="w-[30px] bg-green-500 h-full flex flex-col items-center justify-center relative z-10">
+                 <span class="text-black font-black -rotate-90 text-[10px] tracking-[0.3em] whitespace-nowrap uppercase">PASS</span>
+            </div>
+            <div class="flex-1 p-4 flex flex-col relative z-10">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="flex-1">
+                        <h4 class="text-green-400 font-mono text-[9px] tracking-widest mb-1">EVENT 2025</h4>
+                        <h2 class="data-name text-xl font-bold text-white leading-none line-clamp-2">Name Here</h2>
+                        <p class="data-role text-gray-400 text-[9px] uppercase font-bold mt-1 tracking-wide">Visitor</p>
+                    </div>
+                    <div class="w-[50px] h-[50px] bg-gray-800 rounded border border-gray-700 overflow-hidden shrink-0">
+                        <img class="data-photo w-full h-full object-cover" src="" alt="User">
+                    </div>
+                </div>
+                <div class="mt-auto flex items-end justify-between border-t border-gray-800 pt-2">
+                    <div class="text-[9px] text-gray-500 font-mono">
+                        #<span class="data-id text-gray-300">000</span>
+                    </div>
+                    <div class="bg-white p-0.5 rounded-sm">
+                        <img class="data-qr w-9 h-9" src="" alt="QR">
                     </div>
                 </div>
             </div>
-            <div class="absolute right-0 bottom-0 text-[7rem] font-bold text-white opacity-[0.03] leading-none -mb-4 -mr-4 pointer-events-none z-0">VIP</div>
         </div>
 
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- SCRIPT -->
     <script>
-        // --- CONFIGURATION ---
+        // State
         let currentTemplate = 'corporate';
-        let printMode = 'fill'; // 'single' or 'fill'
-        let currentOrientation = 'portrait';
-        let uploadedImage = null;
+        let batchList = []; // Array to store card data objects
+        let currentImage = null; // Temp holder for uploaded image data URL
 
-        // Initialize
+        // Config
+        const CONFIG = {
+            corporate: { name: 'Rahul Sharma', role: 'Senior Developer', id: 'EMP-001', loc: 'Mumbai', labelRole: 'Designation' },
+            student: { name: 'Aarav Singh', role: 'Class X-A', id: 'R-204', loc: 'Delhi', labelRole: 'Class / Section' },
+            event: { name: 'Priya Patel', role: 'Speaker', id: 'VIP-09', loc: 'Main Hall', labelRole: 'Access Type' }
+        };
+
+        const SEEDS = { corporate: 'Rahul', student: 'Aarav', event: 'Priya' };
+
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            renderActiveCard();
-            updateCardData();
+            
+            // Set up live listeners
+            ['inputName', 'inputRole', 'inputId', 'inputLocation'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateLivePreview);
+            });
+
+            // Default
+            setTemplate('corporate');
         });
 
-        function renderActiveCard() {
-            // Clear containers
-            const activeContainer = document.getElementById('active-card-container');
-            const printContent = document.getElementById('print-content');
-            activeContainer.innerHTML = '';
-            printContent.innerHTML = '';
+        // --- CORE FUNCTIONS ---
 
-            // Get Source Template
-            const sourceId = `source-${currentTemplate}`;
-            const sourceNode = document.getElementById(sourceId);
+        function setTemplate(tpl) {
+            currentTemplate = tpl;
             
-            if(!sourceNode) return;
+            // Update UI State
+            document.querySelectorAll('.template-btn').forEach(b => {
+                b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                b.classList.add('bg-white', 'text-gray-600', 'border-gray-300');
+            });
+            const btn = document.getElementById(`btn-${tpl}`);
+            btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-300');
+            btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
 
-            // 1. Render for Preview (Single Scaled Card)
-            const previewClone = sourceNode.cloneNode(true);
-            previewClone.id = 'preview-card';
-            previewClone.classList.add('preview-card-scale'); // Add scaling class
-            activeContainer.appendChild(previewClone);
+            // Update Input Labels/Placeholders
+            const defaults = CONFIG[tpl];
+            document.getElementById('labelRole').innerText = defaults.labelRole;
+            
+            // If inputs are empty, show placeholders, don't force values so user can type
+            document.getElementById('inputName').placeholder = defaults.name;
+            document.getElementById('inputRole').placeholder = defaults.role;
+            document.getElementById('inputId').placeholder = defaults.id;
 
-            // 2. Render for Print Queue
-            if (printMode === 'single') {
-                printContent.className = 'print-single';
-                const singleClone = sourceNode.cloneNode(true);
-                singleClone.id = '';
-                printContent.appendChild(singleClone);
-            } else {
-                printContent.className = 'print-grid';
-                // Clone 8 times for A4
-                for(let i=0; i<8; i++) {
-                    const gridClone = sourceNode.cloneNode(true);
-                    gridClone.id = ''; 
-                    printContent.appendChild(gridClone);
-                }
-            }
+            updateLivePreview();
+        }
 
-            // Re-apply data to new nodes
-            updateCardData();
+        function updateLivePreview() {
+            // 1. Get current form data
+            const data = getFormData();
+            
+            // 2. Clone Template
+            const tplId = `tpl-${currentTemplate}`;
+            const source = document.getElementById(tplId);
+            const previewContainer = document.getElementById('live-preview-container');
+            
+            previewContainer.innerHTML = ''; // Clear
+            const clone = source.cloneNode(true);
+            clone.id = 'active-preview';
+            clone.classList.add('preview-card-scale'); // Apply scale for mobile
+
+            // 3. Populate Data
+            populateCard(clone, data);
+
+            previewContainer.appendChild(clone);
             lucide.createIcons();
         }
 
-        function updateCardData() {
-            const name = document.getElementById('inputName').value || 'User Name';
-            const role = document.getElementById('inputRole').value || 'Role';
-            const id = document.getElementById('inputId').value || '000';
-            const location = document.getElementById('inputLocation').value || 'City';
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(id)}`;
-
-            // Helper to update all instances (Preview + Print Queue)
-            const updateText = (selector, value) => {
-                document.querySelectorAll(selector).forEach(el => el.innerText = value);
+        function getFormData() {
+            return {
+                template: currentTemplate,
+                name: document.getElementById('inputName').value || document.getElementById('inputName').placeholder,
+                role: document.getElementById('inputRole').value || document.getElementById('inputRole').placeholder,
+                id: document.getElementById('inputId').value || document.getElementById('inputId').placeholder,
+                loc: document.getElementById('inputLocation').value || document.getElementById('inputLocation').placeholder,
+                photo: currentImage
             };
-            const updateSrc = (selector, value) => {
-                document.querySelectorAll(selector).forEach(el => el.src = value);
+        }
+
+        function populateCard(node, data) {
+            // Helper
+            const txt = (sel, val) => {
+                const el = node.querySelector(sel);
+                if(el) el.innerText = val;
             };
+            
+            txt('.data-name', data.name);
+            txt('.data-role', data.role);
+            txt('.data-id', data.id);
+            txt('.data-loc', data.loc);
 
-            updateText('.card-name', name);
-            updateText('.card-role', role);
-            updateText('.card-id', id);
-            updateText('.card-location', location);
-            updateSrc('.qr-code', qrUrl);
+            // QR
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(data.id)}`;
+            const qrEl = node.querySelector('.data-qr');
+            if(qrEl) qrEl.src = qrUrl;
 
-            // Handle Image
-            if (uploadedImage) {
-                updateSrc('.profile-img', uploadedImage);
-            } else {
-                // Reset to default dicebear if no upload
-                const seeds = {corporate: 'Rahul', student: 'Student', event: 'Event'};
-                const defaultUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seeds[currentTemplate]}`;
-                // Only reset if it looks like a default avatar currently
-                // Ideally we track state properly, but this is simple logic
-                if(!uploadedImage) {
-                     updateSrc('.profile-img', defaultUrl);
+            // Photo
+            const photoEl = node.querySelector('.data-photo');
+            if(photoEl) {
+                if(data.photo) {
+                    photoEl.src = data.photo;
+                } else {
+                    // Default Avatar
+                    const seed = SEEDS[data.template] || 'User';
+                    photoEl.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
                 }
             }
         }
 
-        // --- CONTROLS ---
+        // --- BATCH MANAGEMENT ---
 
-        function setTemplate(name) {
-            currentTemplate = name;
+        function addCardToBatch() {
+            // Capture current state strictly
+            const data = {
+                template: currentTemplate,
+                name: document.getElementById('inputName').value.trim() || CONFIG[currentTemplate].name,
+                role: document.getElementById('inputRole').value.trim() || CONFIG[currentTemplate].role,
+                id: document.getElementById('inputId').value.trim() || CONFIG[currentTemplate].id,
+                loc: document.getElementById('inputLocation').value.trim() || CONFIG[currentTemplate].loc,
+                photo: currentImage
+            };
+
+            batchList.push(data);
+            renderBatchGrid();
+            renderPrintArea(); // Sync hidden print area
             
-            // Update UI Buttons
-            document.querySelectorAll('.template-btn').forEach(btn => {
-                btn.className = "template-btn py-2 px-1 text-xs font-medium rounded border transition-all bg-white text-gray-600 border-gray-300 hover:bg-gray-50";
+            // Visual feedback
+            const btn = document.querySelector('button[onclick="addCardToBatch()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Added!`;
+            btn.classList.add('bg-green-800');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-800');
+                lucide.createIcons();
+            }, 1000);
+        }
+
+        function renderBatchGrid() {
+            const grid = document.getElementById('batch-grid');
+            const countLabel = document.getElementById('queue-count');
+            const printBtn = document.getElementById('print-btn-text');
+            
+            countLabel.innerText = `${batchList.length} Cards`;
+            printBtn.innerText = `Print Batch (${batchList.length})`;
+
+            if(batchList.length === 0) {
+                grid.innerHTML = `<div class="w-full py-10 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">No cards added yet. Fill details and click "Add to Print Queue".</div>`;
+                return;
+            }
+
+            grid.innerHTML = '';
+
+            // Render mini previews in the list with FIX for Overlapping
+            batchList.forEach((data, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "batch-item-wrapper group relative";
+                
+                // Set Fixed Size for wrapper based on card orientation
+                const isPortrait = data.template === 'student';
+                // Scale 0.6 of 337x212 = 202x127 (approx)
+                // Scale 0.6 of 212x337 = 127x202 (approx)
+                
+                if (isPortrait) {
+                    wrapper.style.width = '128px';
+                    wrapper.style.height = '203px';
+                } else {
+                    wrapper.style.width = '203px';
+                    wrapper.style.height = '128px';
+                }
+
+                // Get Template Node
+                const tplId = `tpl-${data.template}`;
+                const source = document.getElementById(tplId);
+                const clone = source.cloneNode(true);
+                
+                // Clear ID to prevent duplication issues
+                clone.id = '';
+                
+                // Scale down logic
+                clone.style.transform = "scale(0.6)"; 
+                clone.style.transformOrigin = "top left";
+                // No negative margins needed now because wrapper constrains flow
+                
+                populateCard(clone, data);
+                
+                // Delete Button Overlay
+                const delBtn = document.createElement('button');
+                delBtn.className = "absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-50";
+                delBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
+                delBtn.onclick = () => removeCard(index);
+
+                wrapper.appendChild(clone);
+                wrapper.appendChild(delBtn);
+                grid.appendChild(wrapper);
             });
-            document.getElementById(`btn-${name}`).className = "template-btn py-2 px-1 text-xs font-medium rounded border transition-all bg-indigo-600 text-white border-indigo-600 shadow-sm";
-
-            renderActiveCard();
         }
 
-        function setPrintMode(mode) {
-            printMode = mode;
-            
-            // Toggle Button Styles
-            const btnSingle = document.getElementById('btn-mode-single');
-            const btnFill = document.getElementById('btn-mode-fill');
-            const hint = document.getElementById('print-hint');
+        function removeCard(index) {
+            batchList.splice(index, 1);
+            renderBatchGrid();
+            renderPrintArea();
+        }
 
-            if(mode === 'single') {
-                btnSingle.className = "px-3 py-2 text-xs font-medium border border-indigo-200 rounded-l-lg bg-indigo-600 text-white flex-1 focus:z-10";
-                btnFill.className = "px-3 py-2 text-xs font-medium border border-l-0 border-indigo-200 rounded-r-lg bg-white text-gray-700 hover:bg-gray-50 flex-1 focus:z-10";
-                hint.innerText = "Prints a single card in the center of the page.";
+        function clearBatch() {
+            if(confirm('Clear all cards from the print queue?')) {
+                batchList = [];
+                renderBatchGrid();
+                renderPrintArea();
+            }
+        }
+
+        // --- PRINT AREA SYNC ---
+
+        function renderPrintArea() {
+            const container = document.getElementById('print-content');
+            container.innerHTML = '';
+            
+            // Check orientation needs
+            let hasPortrait = false;
+            let hasLandscape = false;
+
+            batchList.forEach(data => {
+                if(data.template === 'student') hasPortrait = true;
+                else hasLandscape = true;
+
+                const tplId = `tpl-${data.template}`;
+                const source = document.getElementById(tplId);
+                const clone = source.cloneNode(true);
+                clone.id = ''; // Remove ID
+                populateCard(clone, data);
+                container.appendChild(clone);
+            });
+
+            // Update Orientation Label in UI
+            const orientLabel = document.getElementById('orientation-label');
+            
+            if(hasPortrait && !hasLandscape) {
+                orientLabel.innerText = "Portrait (Best for Vertical Cards)";
+            } else if (!hasPortrait && hasLandscape) {
+                orientLabel.innerText = "Landscape (Best for Horizontal Cards)";
             } else {
-                btnSingle.className = "px-3 py-2 text-xs font-medium border border-indigo-200 rounded-l-lg bg-white text-gray-700 hover:bg-gray-50 flex-1 focus:z-10";
-                btnFill.className = "px-3 py-2 text-xs font-medium border border-l-0 border-indigo-200 rounded-r-lg bg-indigo-600 text-white flex-1 focus:z-10";
-                hint.innerText = "Prints 8 copies on one A4 sheet for easy cutting.";
-            }
-
-            renderActiveCard();
-        }
-
-        function setOrientation(value) {
-            currentOrientation = value;
-            document.body.classList.remove('print-portrait', 'print-landscape');
-            document.body.classList.add(`print-${value}`);
-            
-            // Note: CSS @page rule handles the actual rotation in most modern browsers, 
-            // but this class allows us to style the preview or fallback if needed.
-            const style = document.createElement('style');
-            style.innerHTML = `@media print { @page { size: A4 ${value}; } }`;
-            
-            // Remove old dynamic styles
-            const oldStyle = document.getElementById('dynamic-print-style');
-            if(oldStyle) oldStyle.remove();
-            
-            style.id = 'dynamic-print-style';
-            document.head.appendChild(style);
-        }
-
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImage = e.target.result;
-                    updateCardData();
-                };
-                reader.readAsDataURL(file);
+                orientLabel.innerText = "Mixed (Check Print Preview)";
             }
         }
-        
-        // Expose updateCard globally for oninput events
-        window.updateCard = updateCardData;
-        
-        // Initial setup
-        setPrintMode('fill'); // Default to fill as requested
-        setOrientation('portrait');
+
+        // --- UTILS ---
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                currentImage = evt.target.result;
+                updateLivePreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            currentImage = null;
+            document.getElementById('photoInput').value = '';
+            updateLivePreview();
+        }
+
     </script>
 </body>
 </html>
