@@ -72,7 +72,7 @@
                 Desi Movie Picker
             </h1>
             <p id="header-subtitle" class="text-slate-400 text-xs uppercase tracking-widest font-semibold">
-                COMPLETE COLLECTION (2013-2025)
+                FULL DATABASE (2013-2025)
             </p>
         </div>
 
@@ -88,146 +88,157 @@
         // --- 1. THE MASSIVE DATABASE ---
         const MOVIE_DATABASE = {
             "2025 Upcoming": [
-                { title: "Chhaava", year: 2025, director: "Laxman Utekar", cast: "Vicky Kaushal, Rashmika Mandanna, Akshaye Khanna", rating: "Rank 1", desc: "Chhatrapati Sambhaji Maharaj ki shaurya gatha. Ek yoddha jiske saamne maut bhi ghabra gayi." },
-                { title: "War 2", year: 2025, director: "Ayan Mukerji", cast: "Hrithik Roshan, NTR Jr., Kiara Advani", rating: "Rank 3", desc: "Spy Universe ka sabse bada face-off. Kabir vs NTR Jr. Action ka naya level." },
-                { title: "Sikandar", year: 2025, director: "AR Murugadoss", cast: "Salman Khan, Rashmika Mandanna, Kajal Aggarwal", rating: "Rank 8", desc: "Eid 2025 release. Salman Khan action avatar mein wapas." },
-                { title: "Housefull 5", year: 2025, director: "Tarun Mansukhani", cast: "Akshay Kumar, Riteish Deshmukh, Sanjay Dutt", rating: "Rank 7", desc: "Cruise ship par comedy ka dose. Akshay, Riteish aur puri gang ki paagalpanti." },
-                { title: "Sitaare Zameen Par", year: 2025, director: "R.S. Prasanna", cast: "Aamir Khan, Genelia Deshmukh", rating: "Rank 5", desc: "Ek heartwarming sports drama. 'Champions' ka remake jisme emotions aur jeet ki kahani hai." },
-                { title: "Raid 2", year: 2025, director: "Raj Kumar Gupta", cast: "Ajay Devgn, Riteish Deshmukh, Vaani Kapoor", rating: "Rank 6", desc: "IRS Officer Amay Patnaik wapas aa raha hai ek aur bade tax chori ka pardafash karne." },
-                { title: "Sky Force", year: 2025, director: "Sandeep Kewlani", cast: "Akshay Kumar, Veer Pahariya, Sara Ali Khan", rating: "Rank 10", desc: "India ke pehle aur sabse khatarnak airstrike ki ansuni kahani." },
-                { title: "Jolly LLB 3", year: 2025, director: "Subhash Kapoor", cast: "Akshay Kumar, Arshad Warsi, Huma Qureshi", rating: "Exp", desc: "Dono Jolly aamne-saamne. Courtroom mein comedy aur drama ka double dose." },
-                { title: "De De Pyaar De 2", year: 2025, director: "Anshul Sharma", cast: "Ajay Devgn, R. Madhavan, Rakul Preet Singh", rating: "Exp", desc: "Ashish ki love life mein naya twist. Madhavan ki entry se comedy aur badhne wali hai." },
-                { title: "Thamma", year: 2025, director: "Aditya Sarpotdar", cast: "Ayushmann Khurrana, Rashmika Mandanna", rating: "Rank 9", desc: "Maddock Supernatural Universe ki agli horror-comedy." }
+                { title: "Chhaava", year: 2025, director: "Laxman Utekar", cast: "Vicky Kaushal, Rashmika Mandanna, Akshaye Khanna", rating: "Exp", desc: "Chhatrapati Sambhaji Maharaj ki shaurya gatha." },
+                { title: "War 2", year: 2025, director: "Ayan Mukerji", cast: "Hrithik Roshan, NTR Jr.", rating: "Exp", desc: "Spy Universe ka sabse bada face-off. Kabir vs NTR Jr." },
+                { title: "Sikandar", year: 2025, director: "AR Murugadoss", cast: "Salman Khan, Rashmika Mandanna", rating: "Exp", desc: "Salman Khan action avatar mein wapas." },
+                { title: "Housefull 5", year: 2025, director: "Tarun Mansukhani", cast: "Akshay Kumar, Riteish Deshmukh", rating: "Exp", desc: "Cruise ship par comedy ka dose." },
+                { title: "Sitaare Zameen Par", year: 2025, director: "R.S. Prasanna", cast: "Aamir Khan, Genelia Deshmukh", rating: "Exp", desc: "Ek heartwarming sports drama 'Champions' ka remake." },
+                { title: "Raid 2", year: 2025, director: "Raj Kumar Gupta", cast: "Ajay Devgn, Riteish Deshmukh", rating: "Exp", desc: "IRS Officer Amay Patnaik wapas aa raha hai." },
+                { title: "Sky Force", year: 2025, director: "Sandeep Kewlani", cast: "Akshay Kumar, Veer Pahariya", rating: "Exp", desc: "India ke pehle airstrike ki ansuni kahani." },
+                { title: "Jolly LLB 3", year: 2025, director: "Subhash Kapoor", cast: "Akshay Kumar, Arshad Warsi", rating: "Exp", desc: "Dono Jolly aamne-saamne court mein." },
+                { title: "De De Pyaar De 2", year: 2025, director: "Anshul Sharma", cast: "Ajay Devgn, R. Madhavan", rating: "Exp", desc: "Ashish ki love life mein naya twist." },
+                { title: "Thamma", year: 2025, director: "Aditya Sarpotdar", cast: "Ayushmann Khurrana, Rashmika", rating: "Exp", desc: "Maddock Supernatural Universe ki agli horror-comedy." }
             ],
             "2024 Hits": [
-                { title: "Stree 2", year: 2024, director: "Amar Kaushik", cast: "Shraddha Kapoor, Rajkummar Rao", rating: "Rank 1", desc: "Sarkata ka aatank aur Stree ki wapsi. 2024 ki sabse badi blockbuster." },
-                { title: "Bhool Bhulaiyaa 3", year: 2024, director: "Anees Bazmee", cast: "Kartik Aaryan, Vidya Balan, Madhuri Dixit", rating: "Rank 2", desc: "Rooh Baba ka saamna is baar do-do Manjulika se hota hai." },
-                { title: "Singham Again", year: 2024, director: "Rohit Shetty", cast: "Ajay Devgn, Akshay Kumar, Ranveer Singh", rating: "Rank 3", desc: "Avengers of Cop Universe. Singham, Simmba, Sooryavanshi ek saath." },
-                { title: "Fighter", year: 2024, director: "Siddharth Anand", cast: "Hrithik Roshan, Deepika Padukone", rating: "Rank 4", desc: "Indian Air Force ke top pilots desh ke liye khatarnak mission par." },
-                { title: "Shaitaan", year: 2024, director: "Vikas Bahl", cast: "Ajay Devgn, R. Madhavan, Jyothika", rating: "Rank 5", desc: "Ek ajnabi family ke ghar aata hai aur unki beti ko kaala jaadoo se control kar leta hai." },
-                { title: "Munjya", year: 2024, director: "Aditya Sarpotdar", cast: "Sharvari, Abhay Verma", rating: "Rank 8", desc: "Ek shrapit aatma 'Munjya' jo apni shaadi ke liye tadap raha hai. Horror comedy surprise hit." },
-                { title: "Crew", year: 2024, director: "Rajesh A Krishnan", cast: "Tabu, Kareena Kapoor, Kriti Sanon", rating: "Rank 6", desc: "Teen air hostess jo sone ki taskari mein phans jati hain. Glamour aur comedy." },
-                { title: "Teri Baaton Mein Aisa Uljha Jiya", year: 2024, director: "Amit Joshi", cast: "Shahid Kapoor, Kriti Sanon", rating: "Rank 7", desc: "Ek robot aur insaan ki anokhi love story. Kriti Sanon robot Sifra ke role mein." },
-                { title: "Laapataa Ladies", year: 2024, director: "Kiran Rao", cast: "Nitanshi Goel, Pratibha Ranta", rating: "Hit", desc: "Do dulhan train mein exchange ho jati hain. Gaon ki simple aur funny kahani." },
-                { title: "Maidaan", year: 2024, director: "Amit Sharma", cast: "Ajay Devgn, Priyamani", rating: "Hit", desc: "Syed Abdul Rahim ki biopic jinhone Indian Football ko naye mukam par pahunchaya." }
+                { title: "Stree 2", year: 2024, director: "Amar Kaushik", cast: "Shraddha Kapoor, Rajkummar Rao", rating: "Blockbuster", desc: "Sarkata ka aatank aur Stree ki wapsi." },
+                { title: "Bhool Bhulaiyaa 3", year: 2024, director: "Anees Bazmee", cast: "Kartik Aaryan, Vidya Balan, Madhuri Dixit", rating: "Blockbuster", desc: "Rooh Baba vs Manjulika x 2." },
+                { title: "Singham Again", year: 2024, director: "Rohit Shetty", cast: "Ajay Devgn, Akshay Kumar, Ranveer Singh", rating: "Hit", desc: "Cop Universe: Singham, Simmba, Sooryavanshi ek saath." },
+                { title: "Fighter", year: 2024, director: "Siddharth Anand", cast: "Hrithik Roshan, Deepika Padukone", rating: "Hit", desc: "Indian Air Force ke top pilots ka mission." },
+                { title: "Shaitaan", year: 2024, director: "Vikas Bahl", cast: "Ajay Devgn, R. Madhavan", rating: "Superhit", desc: "Ek ajnabi family ke ghar aata hai aur kaala jaadoo karta hai." },
+                { title: "Munjya", year: 2024, director: "Aditya Sarpotdar", cast: "Sharvari, Abhay Verma", rating: "Blockbuster", desc: "Ek shrapit aatma 'Munjya' jo shaadi karna chahta hai." },
+                { title: "Crew", year: 2024, director: "Rajesh A Krishnan", cast: "Tabu, Kareena Kapoor, Kriti Sanon", rating: "Hit", desc: "Teen air hostess sone ki taskari mein phans jati hain." },
+                { title: "Teri Baaton Mein Aisa Uljha Jiya", year: 2024, director: "Amit Joshi", cast: "Shahid Kapoor, Kriti Sanon", rating: "Hit", desc: "Ek robot aur insaan ki love story." },
+                { title: "Laapataa Ladies", year: 2024, director: "Kiran Rao", cast: "Nitanshi Goel, Pratibha Ranta", rating: "Hit", desc: "Do dulhan train mein exchange ho jati hain." },
+                { title: "Maidaan", year: 2024, director: "Amit Sharma", cast: "Ajay Devgn", rating: "Avg", desc: "Indian Football ke golden era ki kahani." }
             ],
             "2023 Blockbusters": [
-                { title: "Jawan", year: 2023, director: "Atlee", cast: "Shah Rukh Khan, Nayanthara", rating: "Rank 1", desc: "Baap-bete ki jodi system ke corruption ke khilaf ladti hai." },
-                { title: "Pathaan", year: 2023, director: "Siddharth Anand", cast: "Shah Rukh Khan, Deepika Padukone", rating: "Rank 2", desc: "Pathaan desh ko bachane ke liye Jim se ladta hai." },
-                { title: "Animal", year: 2023, director: "Sandeep Reddy Vanga", cast: "Ranbir Kapoor, Rashmika Mandanna", rating: "Rank 3", desc: "Ek beta apne pita ke liye duniya jala deta hai." },
-                { title: "Gadar 2", year: 2023, director: "Anil Sharma", cast: "Sunny Deol, Ameesha Patel", rating: "Rank 4", desc: "Tara Singh wapas Pakistan jata hai apne bete ko bachane." },
-                { title: "Dunki", year: 2023, director: "Rajkumar Hirani", cast: "Shah Rukh Khan, Taapsee Pannu", rating: "Rank 5", desc: "Punjab se London jane ke liye 'Donkey Flight' lene wale doston ki kahani." },
-                { title: "Tiger 3", year: 2023, director: "Maneesh Sharma", cast: "Salman Khan, Katrina Kaif", rating: "Rank 6", desc: "Tiger aur Zoya desh aur parivar ko bachane ki jung ladte hain." },
-                { title: "Rocky Aur Rani Kii Prem Kahaani", year: 2023, director: "Karan Johar", cast: "Ranveer Singh, Alia Bhatt", rating: "Rank 7", desc: "Do alag culture ke parivaron ki kahani aur pyaar." },
-                { title: "OMG 2", year: 2023, director: "Amit Rai", cast: "Akshay Kumar, Pankaj Tripathi", rating: "Rank 10", desc: "Ek pita court mein sex education ke liye ladta hai." },
-                { title: "12th Fail", year: 2023, director: "Vidhu Vinod Chopra", cast: "Vikrant Massey", rating: "Hit", desc: "IPS Manoj Kumar Sharma ki inspiring kahani." },
+                { title: "Jawan", year: 2023, director: "Atlee", cast: "Shah Rukh Khan, Nayanthara", rating: "All Time Blockbuster", desc: "Baap-bete ki jodi corruption ke khilaf." },
+                { title: "Pathaan", year: 2023, director: "Siddharth Anand", cast: "Shah Rukh Khan, Deepika Padukone", rating: "All Time Blockbuster", desc: "Pathaan vs Jim. Spy thriller." },
+                { title: "Animal", year: 2023, director: "Sandeep Reddy Vanga", cast: "Ranbir Kapoor, Bobby Deol", rating: "All Time Blockbuster", desc: "Ek beta apne pita ke liye duniya jala deta hai." },
+                { title: "Gadar 2", year: 2023, director: "Anil Sharma", cast: "Sunny Deol, Ameesha Patel", rating: "All Time Blockbuster", desc: "Tara Singh wapas Pakistan jata hai." },
+                { title: "Dunki", year: 2023, director: "Rajkumar Hirani", cast: "Shah Rukh Khan, Taapsee Pannu", rating: "Hit", desc: "London jane ke liye 'Donkey Flight' lene wale doston ki kahani." },
+                { title: "Tiger 3", year: 2023, director: "Maneesh Sharma", cast: "Salman Khan, Katrina Kaif", rating: "Hit", desc: "Tiger aur Zoya ka personal mission." },
+                { title: "Rocky Aur Rani Kii Prem Kahaani", year: 2023, director: "Karan Johar", cast: "Ranveer Singh, Alia Bhatt", rating: "Hit", desc: "Randhawa aur Chatterjee families ka clash." },
+                { title: "OMG 2", year: 2023, director: "Amit Rai", cast: "Akshay Kumar, Pankaj Tripathi", rating: "Superhit", desc: "Sex education par bani zaroori film." },
+                { title: "12th Fail", year: 2023, director: "Vidhu Vinod Chopra", cast: "Vikrant Massey", rating: "Superhit", desc: "IPS Manoj Kumar Sharma ki inspiring kahani." },
                 { title: "Sam Bahadur", year: 2023, director: "Meghna Gulzar", cast: "Vicky Kaushal", rating: "Hit", desc: "Field Marshal Sam Manekshaw ki biopic." }
             ],
             "2022 Hits": [
-                { title: "Brahmāstra", year: 2022, director: "Ayan Mukerji", cast: "Ranbir Kapoor, Alia Bhatt", rating: "Rank 1", desc: "Shiva ko apni shaktiyon ka ehsaas hota hai. Astraverse ki shuruwat." },
-                { title: "Drishyam 2", year: 2022, director: "Abhishek Pathak", cast: "Ajay Devgn, Tabu", rating: "Rank 2", desc: "Vijay Salgaonkar ka parivar phir musibat mein." },
-                { title: "The Kashmir Files", year: 2022, director: "Vivek Agnihotri", cast: "Anupam Kher, Mithun Chakraborty", rating: "Rank 3", desc: "1990 mein Kashmiri Pandits ke saath hue anyay ki kahani." },
-                { title: "Bhool Bhulaiyaa 2", year: 2022, director: "Anees Bazmee", cast: "Kartik Aaryan, Kiara Advani", rating: "Rank 4", desc: "Manjulika wapas aayi hai. Horror comedy hit." },
-                { title: "Gangubai Kathiawadi", year: 2022, director: "Sanjay Leela Bhansali", cast: "Alia Bhatt", rating: "Rank 5", desc: "Kamathipura ki mafia queen Gangubai ki kahani." },
-                { title: "Jugjugg Jeeyo", year: 2022, director: "Raj Mehta", cast: "Varun Dhawan, Kiara Advani", rating: "Rank 7", desc: "Ek parivar jahan baap aur beta dono divorce chahte hain." },
-                { title: "Vikram Vedha", year: 2022, director: "Pushkar-Gayathri", cast: "Hrithik Roshan, Saif Ali Khan", rating: "Rank 8", desc: "Ek gangster aur cop ke beech ki moral jung." },
-                { title: "Bhediya", year: 2022, director: "Amar Kaushik", cast: "Varun Dhawan, Kriti Sanon", rating: "Hit", desc: "Ek aadmi bhediya ban jata hai. Horror comedy universe." }
+                { title: "Brahmāstra", year: 2022, director: "Ayan Mukerji", cast: "Ranbir Kapoor, Alia Bhatt", rating: "Hit", desc: "Shiva aur Astraverse ki shuruwat." },
+                { title: "Drishyam 2", year: 2022, director: "Abhishek Pathak", cast: "Ajay Devgn, Tabu", rating: "Blockbuster", desc: "Vijay Salgaonkar is back." },
+                { title: "The Kashmir Files", year: 2022, director: "Vivek Agnihotri", cast: "Anupam Kher", rating: "All Time Blockbuster", desc: "1990 Kashmiri Pandits ke saath hue anyay ki kahani." },
+                { title: "Bhool Bhulaiyaa 2", year: 2022, director: "Anees Bazmee", cast: "Kartik Aaryan, Kiara Advani", rating: "Blockbuster", desc: "Manjulika wapas aayi hai." },
+                { title: "Gangubai Kathiawadi", year: 2022, director: "Sanjay Leela Bhansali", cast: "Alia Bhatt", rating: "Hit", desc: "Kamathipura ki mafia queen." },
+                { title: "Jugjugg Jeeyo", year: 2022, director: "Raj Mehta", cast: "Varun Dhawan, Kiara Advani", rating: "Hit", desc: "Divorce aur family drama." },
+                { title: "Vikram Vedha", year: 2022, director: "Pushkar-Gayathri", cast: "Hrithik Roshan, Saif Ali Khan", rating: "Avg", desc: "Gangster aur Cop ki moral jung." },
+                { title: "Bhediya", year: 2022, director: "Amar Kaushik", cast: "Varun Dhawan, Kriti Sanon", rating: "Avg", desc: "Ek aadmi bhediya ban jata hai." }
             ],
-            "2021 Hits": [
-                { title: "Sooryavanshi", year: 2021, director: "Rohit Shetty", cast: "Akshay Kumar, Katrina Kaif", rating: "Rank 1", desc: "DCP Veer Sooryavanshi Mumbai ko terrorist attack se bachane ke liye aata hai." },
-                { title: "83", year: 2021, director: "Kabir Khan", cast: "Ranveer Singh, Deepika Padukone", rating: "Rank 2", desc: "1983 Cricket World Cup mein India ki aitihasik jeet." },
-                { title: "Shershaah", year: 2021, director: "Vishnuvardhan", cast: "Sidharth Malhotra, Kiara Advani", rating: "Superhit", desc: "Captain Vikram Batra ki bravery aur Kargil war ki love story." },
-                { title: "Mimi", year: 2021, director: "Laxman Utekar", cast: "Kriti Sanon, Pankaj Tripathi", rating: "Superhit", desc: "Ek dancer surrogate mother banti hai." },
-                { title: "Sardar Udham", year: 2021, director: "Shoojit Sircar", cast: "Vicky Kaushal", rating: "Critical Hit", desc: "Jallianwala Bagh massacre ka badla lene wale krantikari Udham Singh ki kahani." }
-            ],
-            "2015 Hits (Jan-Mar)": [
-                { title: "Badlapur", year: 2015, director: "Sriram Raghavan", cast: "Varun Dhawan, Nawazuddin Siddiqui", rating: "Hit", desc: "Raghu apne parivar ki maut ka badla lene ke liye 15 saal intezaar karta hai." },
-                { title: "Baby", year: 2015, director: "Neeraj Pandey", cast: "Akshay Kumar, Taapsee Pannu", rating: "Superhit", desc: "A covert counter-intelligence unit foils a major terrorist plot." },
-                { title: "Dum Laga Ke Haisha", year: 2015, director: "Sharat Katariya", cast: "Ayushmann Khurrana, Bhumi Pednekar", rating: "Hit", desc: "A reluctant husband finds love in his arranged marriage with an overweight wife." },
-                { title: "NH10", year: 2015, director: "Navdeep Singh", cast: "Anushka Sharma, Neil Bhoopalam", rating: "Hit", desc: "A couple's road trip turns into a nightmare when they witness an honor killing." },
-                { title: "Roy", year: 2015, director: "Vikramjit Singh", cast: "Ranbir Kapoor, Arjun Rampal, Jacqueline Fernandez", rating: "Flop", desc: "A thief and a filmmaker's lives intertwine in a mysterious love triangle." },
-                { title: "Tevar", year: 2015, director: "Amit Sharma", cast: "Arjun Kapoor, Sonakshi Sinha", rating: "Avg", desc: "A kabaddi player saves a girl from a powerful politician who wants to marry her." },
-                { title: "Hunterrr", year: 2015, director: "Harshavardhan Kulkarni", cast: "Gulshan Devaiah, Radhika Apte", rating: "Hit", desc: "A sex addict tries to live a normal life and find love." },
-                { title: "Shamitabh", year: 2015, director: "R. Balki", cast: "Amitabh Bachchan, Dhanush", rating: "Avg", desc: "A mute actor achieves fame with the help of an old man's voice." }
+            "2015 Hits": [
+                { title: "Bajrangi Bhaijaan", year: 2015, director: "Kabir Khan", cast: "Salman Khan, Kareena Kapoor", rating: "All Time Blockbuster", desc: "Ek Hanuman bhakt Munni ko Pakistan chhodne jata hai." },
+                { title: "Bajirao Mastani", year: 2015, director: "Sanjay Leela Bhansali", cast: "Ranveer Singh, Deepika Padukone", rating: "Blockbuster", desc: "Peshwa Bajirao aur Mastani ki prem kahani." },
+                { title: "Prem Ratan Dhan Payo", year: 2015, director: "Sooraj Barjatya", cast: "Salman Khan, Sonam Kapoor", rating: "Superhit", desc: "Ek aam aadmi rajkumar ki jagah leta hai." },
+                { title: "Dilwale", year: 2015, director: "Rohit Shetty", cast: "Shah Rukh Khan, Kajol", rating: "Hit", desc: "Raj aur Meera ki dushmani aur pyaar." },
+                { title: "Tanu Weds Manu Returns", year: 2015, director: "Aanand L. Rai", cast: "Kangana Ranaut, R. Madhavan", rating: "Blockbuster", desc: "Tanu aur Manu ki shaadi mein pareshani aur Datto ki entry." },
+                { title: "Baby", year: 2015, director: "Neeraj Pandey", cast: "Akshay Kumar", rating: "Superhit", desc: "Counter-intelligence unit ka mission." },
+                { title: "ABCD 2", year: 2015, director: "Remo D'Souza", cast: "Varun Dhawan, Shraddha Kapoor", rating: "Superhit", desc: "Dance group Las Vegas jata hai competition ke liye." },
+                { title: "Welcome Back", year: 2015, director: "Anees Bazmee", cast: "Anil Kapoor, Nana Patekar", rating: "Hit", desc: "Uday aur Majnu bhai ab sharif ho gaye hain." },
+                { title: "Singh Is Bliing", year: 2015, director: "Prabhu Deva", cast: "Akshay Kumar, Amy Jackson", rating: "Hit", desc: "Raftaar Singh Goa jata hai aur pyaar mein padta hai." },
+                { title: "Gabbar Is Back", year: 2015, director: "Krish", cast: "Akshay Kumar", rating: "Hit", desc: "Vigilante corruption ke khilaf ladta hai." },
+                { title: "Dil Dhadakne Do", year: 2015, director: "Zoya Akhtar", cast: "Anil Kapoor, Ranveer Singh", rating: "Hit", desc: "Mehra family cruise par jati hai." },
+                { title: "Piku", year: 2015, director: "Shoojit Sircar", cast: "Amitabh Bachchan, Deepika Padukone", rating: "Superhit", desc: "Baap-beti ka road trip aur constipation ki baatein." },
+                { title: "Badlapur", year: 2015, director: "Sriram Raghavan", cast: "Varun Dhawan, Nawazuddin Siddiqui", rating: "Hit", desc: "Raghu badla lene ke liye 15 saal intezaar karta hai." },
+                { title: "Drishyam", year: 2015, director: "Nishikant Kamat", cast: "Ajay Devgn, Tabu", rating: "Hit", desc: "2 October ko kya hua tha?" },
+                { title: "Tamasha", year: 2015, director: "Imtiaz Ali", cast: "Ranbir Kapoor, Deepika Padukone", rating: "Classic", desc: "Ved apni asli pehchan dhoondhta hai." },
+                { title: "NH10", year: 2015, director: "Navdeep Singh", cast: "Anushka Sharma", rating: "Hit", desc: "Road trip nightmare ban jati hai." },
+                { title: "Dum Laga Ke Haisha", year: 2015, director: "Sharat Katariya", cast: "Ayushmann Khurrana, Bhumi Pednekar", rating: "Hit", desc: "Ek anokhi prem kahani." },
+                { title: "Talvar", year: 2015, director: "Meghna Gulzar", cast: "Irrfan Khan", rating: "Critical Hit", desc: "Double murder case investigation." }
             ],
             "2014 Blockbusters": [
-                { title: "PK", year: 2014, director: "Rajkumar Hirani", cast: "Aamir Khan, Anushka Sharma", rating: "All Time Blockbuster", desc: "Ek alien dharti par aata hai aur bhagwan ko dhoondhta hai. Comedy aur satire ka masterpiece." },
-                { title: "Kick", year: 2014, director: "Sajid Nadiadwala", cast: "Salman Khan, Jacqueline Fernandez", rating: "Blockbuster", desc: "Devi Lal Singh 'Kick' ke liye kuch bhi karega. Action aur style." },
-                { title: "Happy New Year", year: 2014, director: "Farah Khan", cast: "Shah Rukh Khan, Deepika Padukone", rating: "Blockbuster", desc: "India ki sabse badi heist ek dance competition ke zariye." },
-                { title: "Bang Bang!", year: 2014, director: "Siddharth Anand", cast: "Hrithik Roshan, Katrina Kaif", rating: "Hit", desc: "Action, romance aur exotic locations. Knight and Day ka remake." },
-                { title: "Jai Ho", year: 2014, director: "Sohail Khan", cast: "Salman Khan, Daisy Shah", rating: "Hit", desc: "An ex-army officer fights against corruption by creating a chain of helping people." },
-                { title: "Holiday", year: 2014, director: "A.R. Murugadoss", cast: "Akshay Kumar, Sonakshi Sinha", rating: "Superhit", desc: "A soldier on leave hunts down sleeper cells planning terrorist attacks." },
-                { title: "2 States", year: 2014, director: "Abhishek Varman", cast: "Arjun Kapoor, Alia Bhatt", rating: "Superhit", desc: "North Indian ladka aur South Indian ladki ki shaadi ki mushkilein." },
-                { title: "Ek Villain", year: 2014, director: "Mohit Suri", cast: "Sidharth Malhotra, Shraddha Kapoor, Riteish Deshmukh", rating: "Superhit", desc: "Ek gangster apni patni ke katil ko dhoondhta hai. Music zabardast hai." },
-                { title: "Gunday", year: 2014, director: "Ali Abbas Zafar", cast: "Ranveer Singh, Arjun Kapoor, Priyanka Chopra", rating: "Hit", desc: "Two childhood friends become the biggest coal mafia in Calcutta." },
-                { title: "Haider", year: 2014, director: "Vishal Bhardwaj", cast: "Shahid Kapoor, Tabu", rating: "Critical Masterpiece", desc: "Hamlet ka Kashmir adaptation. Shahid Kapoor ka career best performance." },
-                { title: "Highway", year: 2014, director: "Imtiaz Ali", cast: "Alia Bhatt, Randeep Hooda", rating: "Classic", desc: "Ek ladki apne kidnapper ke saath aazadi mehsoos karti hai." },
-                { title: "Mary Kom", year: 2014, director: "Omung Kumar", cast: "Priyanka Chopra", rating: "Hit", desc: "Boxing champion Mary Kom ki biopic." },
-                { title: "Main Tera Hero", year: 2014, director: "David Dhawan", cast: "Varun Dhawan, Ileana D'Cruz", rating: "Hit", desc: "Seenu falls in love with Sunaina but has to deal with a corrupt cop and a don's daughter." },
-                { title: "Humpty Sharma Ki Dulhania", year: 2014, director: "Shashank Khaitan", cast: "Varun Dhawan, Alia Bhatt", rating: "Superhit", desc: "A modern take on Dilwale Dulhania Le Jayenge set in Delhi and Ambala." },
-                { title: "Mardaani", year: 2014, director: "Pradeep Sarkar", cast: "Rani Mukerji", rating: "Hit", desc: "A fearless cop hunts down a human trafficking kingpin." },
-                { title: "Queen", year: 2014, director: "Vikas Bahl", cast: "Kangana Ranaut", rating: "Classic", desc: "Rani goes on her honeymoon alone after her marriage is cancelled." },
-                { title: "Ugly", year: 2014, director: "Anurag Kashyap", cast: "Rahul Bhat, Ronit Roy", rating: "Critical Acclaim", desc: "A dark thriller about the kidnapping of a young girl." }
+                { title: "PK", year: 2014, director: "Rajkumar Hirani", cast: "Aamir Khan, Anushka Sharma", rating: "All Time Blockbuster", desc: "Alien dharti par bhagwan dhoondhta hai." },
+                { title: "Kick", year: 2014, director: "Sajid Nadiadwala", cast: "Salman Khan", rating: "Blockbuster", desc: "Devil apne kick ke liye kuch bhi karega." },
+                { title: "Happy New Year", year: 2014, director: "Farah Khan", cast: "Shah Rukh Khan, Deepika Padukone", rating: "Blockbuster", desc: "Heist aur dance competition." },
+                { title: "Bang Bang!", year: 2014, director: "Siddharth Anand", cast: "Hrithik Roshan, Katrina Kaif", rating: "Hit", desc: "Action romance remake." },
+                { title: "Jai Ho", year: 2014, director: "Sohail Khan", cast: "Salman Khan", rating: "Hit", desc: "Aam aadmi ki taqat." },
+                { title: "Holiday", year: 2014, director: "A.R. Murugadoss", cast: "Akshay Kumar", rating: "Superhit", desc: "Sleeper cells ke khilaf jung." },
+                { title: "2 States", year: 2014, director: "Abhishek Varman", cast: "Arjun Kapoor, Alia Bhatt", rating: "Superhit", desc: "Punjabi boy, Tamil girl love story." },
+                { title: "Ek Villain", year: 2014, director: "Mohit Suri", cast: "Sidharth Malhotra, Shraddha Kapoor", rating: "Superhit", desc: "Ek gangster aur serial killer ki kahani." },
+                { title: "Heropanti", year: 2014, director: "Sabbir Khan", cast: "Tiger Shroff, Kriti Sanon", rating: "Hit", desc: "Tiger Shroff ka debut." },
+                { title: "Humpty Sharma Ki Dulhania", year: 2014, director: "Shashank Khaitan", cast: "Varun Dhawan, Alia Bhatt", rating: "Superhit", desc: "DDLJ style romance." },
+                { title: "Gunday", year: 2014, director: "Ali Abbas Zafar", cast: "Ranveer Singh, Arjun Kapoor", rating: "Hit", desc: "Bikram aur Bala, Calcutta ke gunde." },
+                { title: "Queen", year: 2014, director: "Vikas Bahl", cast: "Kangana Ranaut", rating: "Blockbuster", desc: "Rani honeymoon par akele jati hai." },
+                { title: "Haider", year: 2014, director: "Vishal Bhardwaj", cast: "Shahid Kapoor", rating: "Critical Masterpiece", desc: "Hamlet adaptation in Kashmir." },
+                { title: "Mary Kom", year: 2014, director: "Omung Kumar", cast: "Priyanka Chopra", rating: "Hit", desc: "Boxing champion ki biopic." },
+                { title: "Highway", year: 2014, director: "Imtiaz Ali", cast: "Alia Bhatt, Randeep Hooda", rating: "Hit", desc: "Stockholm syndrome love story." },
+                { title: "Main Tera Hero", year: 2014, director: "David Dhawan", cast: "Varun Dhawan", rating: "Hit", desc: "Masala entertainer." },
+                { title: "Ragini MMS 2", year: 2014, director: "Bhushan Patel", cast: "Sunny Leone", rating: "Hit", desc: "Horror sequel." },
+                { title: "Mardaani", year: 2014, director: "Pradeep Sarkar", cast: "Rani Mukerji", rating: "Hit", desc: "Human trafficking ke khilaf jung." }
             ],
             "2013 Blockbusters": [
-                { title: "Dhoom 3", year: 2013, director: "Vijay Krishna Acharya", cast: "Aamir Khan, Katrina Kaif", rating: "All Time Blockbuster", desc: "Sahir, ek circus entertainer, Chicago police ko chakma deta hai." },
-                { title: "Chennai Express", year: 2013, director: "Rohit Shetty", cast: "Shah Rukh Khan, Deepika Padukone", rating: "Blockbuster", desc: "Rahul aur Meenamma ki train journey jo pyaar mein badal jati hai." },
-                { title: "Yeh Jawaani Hai Deewani", year: 2013, director: "Ayan Mukerji", cast: "Ranbir Kapoor, Deepika Padukone", rating: "Blockbuster", desc: "Bunny aur Naina ki dosti, sapne aur pyaar ka safar." },
-                { title: "Krrish 3", year: 2013, director: "Rakesh Roshan", cast: "Hrithik Roshan, Priyanka Chopra", rating: "Blockbuster", desc: "Krrish Kaal aur uske mutants se ladta hai." },
-                { title: "Goliyon Ki Raasleela Ram-Leela", year: 2013, director: "Sanjay Leela Bhansali", cast: "Ranveer Singh, Deepika Padukone", rating: "Hit", desc: "Ram aur Leela, do dushman parivaron ke premi." },
-                { title: "Bhaag Milkha Bhaag", year: 2013, director: "Rakeysh Omprakash Mehra", cast: "Farhan Akhtar", rating: "Superhit", desc: "The Flying Sikh Milkha Singh ki biopic." },
-                { title: "Race 2", year: 2013, director: "Abbas-Mustan", cast: "Saif Ali Khan, John Abraham, Deepika Padukone", rating: "Hit", desc: "Ranvir Singh seeks revenge for the death of his lover in this twisty thriller." },
-                { title: "Special 26", year: 2013, director: "Neeraj Pandey", cast: "Akshay Kumar, Manoj Bajpayee", rating: "Superhit", desc: "A group of con artists rob rich businessmen and politicians by posing as CBI officers." },
-                { title: "Kai Po Che!", year: 2013, director: "Abhishek Kapoor", cast: "Sushant Singh Rajput, Rajkummar Rao, Amit Sadh", rating: "Hit", desc: "Three friends start a cricket academy amidst political and religious turmoil." },
-                { title: "Aashiqui 2", year: 2013, director: "Mohit Suri", cast: "Aditya Roy Kapur, Shraddha Kapoor", rating: "Blockbuster", desc: "Ek mashhoor singer apna career kharab kar leta hai apne pyaar ke liye." },
-                { title: "Raanjhanaa", year: 2013, director: "Aanand L. Rai", cast: "Dhanush, Sonam Kapoor", rating: "Hit", desc: "Kundan ka Zoya ke liye ek tarfa pyaar." },
-                { title: "Fukrey", year: 2013, director: "Mrighdeep Singh Lamba", cast: "Pulkit Samrat, Varun Sharma", rating: "Hit", desc: "Chaar dost aur Bholi Punjaban. Lottery ke sapne." },
-                { title: "Grand Masti", year: 2013, director: "Indra Kumar", cast: "Riteish Deshmukh, Vivek Oberoi, Aftab Shivdasani", rating: "Superhit", desc: "Three married men go for a college reunion and get into trouble." },
-                { title: "Go Goa Gone", year: 2013, director: "Raj & DK", cast: "Saif Ali Khan, Kunal Khemu, Vir Das", rating: "Cult Classic", desc: "A group of friends encounter zombies in Goa." },
-                { title: "The Lunchbox", year: 2013, director: "Ritesh Batra", cast: "Irrfan Khan, Nimrat Kaur", rating: "Critical Hit", desc: "A mistaken delivery in Mumbai's famous lunchbox delivery system connects a young housewife to an older man." },
-                { title: "Shahid", year: 2013, director: "Hansal Mehta", cast: "Rajkummar Rao", rating: "Critical Acclaim", desc: "Biopic of lawyer and human rights activist Shahid Azmi." },
-                { title: "Madras Cafe", year: 2013, director: "Shoojit Sircar", cast: "John Abraham", rating: "Critical Hit", desc: "Sri Lankan civil war aur Rajiv Gandhi assassination par based spy thriller." }
+                { title: "Dhoom 3", year: 2013, director: "Vijay Krishna Acharya", cast: "Aamir Khan", rating: "All Time Blockbuster", desc: "Circus thief vs Police." },
+                { title: "Chennai Express", year: 2013, director: "Rohit Shetty", cast: "Shah Rukh Khan, Deepika Padukone", rating: "Blockbuster", desc: "Don't underestimate the power of a common man." },
+                { title: "Krrish 3", year: 2013, director: "Rakesh Roshan", cast: "Hrithik Roshan", rating: "Blockbuster", desc: "Superhero vs Mutants." },
+                { title: "Yeh Jawaani Hai Deewani", year: 2013, director: "Ayan Mukerji", cast: "Ranbir Kapoor, Deepika Padukone", rating: "Blockbuster", desc: "Dosti, sapne aur pyaar." },
+                { title: "Goliyon Ki Raasleela Ram-Leela", year: 2013, director: "Sanjay Leela Bhansali", cast: "Ranveer Singh, Deepika Padukone", rating: "Hit", desc: "Desi Romeo Juliet." },
+                { title: "Bhaag Milkha Bhaag", year: 2013, director: "Rakeysh Omprakash Mehra", cast: "Farhan Akhtar", rating: "Superhit", desc: "Flying Sikh ki kahani." },
+                { title: "Grand Masti", year: 2013, director: "Indra Kumar", cast: "Riteish Deshmukh, Vivek Oberoi", rating: "Superhit", desc: "Adult comedy sequel." },
+                { title: "Aashiqui 2", year: 2013, director: "Mohit Suri", cast: "Aditya Roy Kapur, Shraddha Kapoor", rating: "Blockbuster", desc: "Musical love tragedy." },
+                { title: "Special 26", year: 2013, director: "Neeraj Pandey", cast: "Akshay Kumar", rating: "Superhit", desc: "Fake CBI raid." },
+                { title: "Raanjhanaa", year: 2013, director: "Aanand L. Rai", cast: "Dhanush, Sonam Kapoor", rating: "Hit", desc: "Banaras ki love story." },
+                { title: "Kai Po Che!", year: 2013, director: "Abhishek Kapoor", cast: "Sushant Singh Rajput", rating: "Hit", desc: "Teen doston ki kahani." },
+                { title: "Fukrey", year: 2013, director: "Mrighdeep Singh Lamba", cast: "Pulkit Samrat, Varun Sharma", rating: "Hit", desc: "Lottery aur sapne." },
+                { title: "ABCD", year: 2013, director: "Remo D'Souza", cast: "Prabhu Deva", rating: "Hit", desc: "Any Body Can Dance." },
+                { title: "Chashme Baddoor", year: 2013, director: "David Dhawan", cast: "Ali Zafar", rating: "Hit", desc: "Remake of classic comedy." },
+                { title: "Jolly LLB", year: 2013, director: "Subhash Kapoor", cast: "Arshad Warsi", rating: "Hit", desc: "Courtroom drama satire." },
+                { title: "Madras Cafe", year: 2013, director: "Shoojit Sircar", cast: "John Abraham", rating: "Hit", desc: "Spy thriller set in Sri Lanka." },
+                { title: "The Lunchbox", year: 2013, director: "Ritesh Batra", cast: "Irrfan Khan", rating: "Critically Acclaimed", desc: "Anokhi prem kahani via dabbawalas." },
+                { title: "Go Goa Gone", year: 2013, director: "Raj & DK", cast: "Saif Ali Khan", rating: "Hit", desc: "Zombie comedy." }
             ],
-            "Akshay & Ajay Special": [
-                { title: "Holiday", year: 2014, director: "A.R. Murugadoss", cast: "Akshay Kumar, Sonakshi Sinha", rating: "Superhit", desc: "Ek fauji sleeper cells ke network ko khatam karta hai." },
-                { title: "Baby", year: 2015, director: "Neeraj Pandey", cast: "Akshay Kumar, Taapsee Pannu", rating: "Superhit", desc: "Counter-intelligence unit terrorists ke plans ko nakaam karne ke liye." },
-                { title: "Singham Returns", year: 2014, director: "Rohit Shetty", cast: "Ajay Devgn, Kareena Kapoor", rating: "Blockbuster", desc: "Bajirao Singham Mumbai wapas aata hai aur corrupt politician se ladta hai." },
-                { title: "Special 26", year: 2013, director: "Neeraj Pandey", cast: "Akshay Kumar, Manoj Bajpayee", rating: "Superhit", desc: "Nakli CBI officers politicians aur businessmen ko lootte hain." },
-                { title: "Singham Again", year: 2024, director: "Rohit Shetty", cast: "Ajay Devgn, Kareena Kapoor", rating: "82%", desc: "Bajirao Singham Ramayana se prerit hokar apni patni ko bachane ke liye 'Danger Lanka' par hamla bolta hai." },
-                { title: "Drishyam 2", year: 2022, director: "Abhishek Pathak", cast: "Ajay Devgn, Tabu", rating: "92%", desc: "Saat saal baad, Vijay Salgaonkar ka parivar phir se musibat mein hai." },
-                { title: "OMG 2", year: 2023, director: "Amit Rai", cast: "Akshay Kumar, Pankaj Tripathi", rating: "85%", desc: "Ek pita apne bete ke liye sex education ki maang karte hue court jata hai." },
-                { title: "Tanhaji", year: 2020, director: "Om Raut", cast: "Ajay Devgn, Saif Ali Khan", rating: "89%", desc: "Chhatrapati Shivaji Maharaj ka subedar Tanhaji, Kondhana kila wapas lene ke liye ladta hai." },
-                { title: "Airlift", year: 2016, director: "Raja Krishna Menon", cast: "Akshay Kumar", rating: "Superhit", desc: "1990 Kuwait evacuation ki true story." },
-                { title: "Singham", year: 2011, director: "Rohit Shetty", cast: "Ajay Devgn, Kajal Aggarwal", rating: "82%", desc: "Bajirao Singham, ek imaandaar police afsar, Goa ke ek powerful don se takkar leta hai." },
-                { title: "Rowdy Rathore", year: 2012, director: "Prabhu Deva", cast: "Akshay Kumar, Sonakshi Sinha", rating: "76%", desc: "Ek chor ek bahadur police officer ki beti ki dekhbhal karne par majboor ho jata hai." },
-                { title: "Action Jackson", year: 2014, director: "Prabhu Deva", cast: "Ajay Devgn, Sonakshi Sinha", rating: "Avg", desc: "Vishy ek local gunda hai jo ek international don ka hamshakal niklta hai." },
-                { title: "Himmatwala", year: 2013, director: "Sajid Khan", cast: "Ajay Devgn, Tamannaah", rating: "Flop", desc: "Ek beta apne gaon wapas aata hai apne pita ki bezzati ka badla lene." },
-                { title: "Entertainment", year: 2014, director: "Sajid-Farhad", cast: "Akshay Kumar, Tamannaah", rating: "Avg", desc: "Akhil ko pata chalta hai ki uske pita ne saari daulat apne kutte ke naam kar di hai." }
+            "Akshay Special": [
+                { title: "OMG 2", year: 2023, rating: "Superhit" },
+                { title: "Sooryavanshi", year: 2021, rating: "Blockbuster" },
+                { title: "Good Newwz", year: 2019, rating: "Superhit" },
+                { title: "Mission Mangal", year: 2019, rating: "Superhit" },
+                { title: "Housefull 4", year: 2019, rating: "Hit" },
+                { title: "Kesari", year: 2019, rating: "Hit" },
+                { title: "2.0", year: 2018, rating: "Blockbuster" },
+                { title: "Gold", year: 2018, rating: "Hit" },
+                { title: "Pad Man", year: 2018, rating: "Hit" },
+                { title: "Toilet: Ek Prem Katha", year: 2017, rating: "Superhit" },
+                { title: "Jolly LLB 2", year: 2017, rating: "Hit" },
+                { title: "Rustom", year: 2016, rating: "Hit" },
+                { title: "Housefull 3", year: 2016, rating: "Hit" },
+                { title: "Airlift", year: 2016, rating: "Superhit" },
+                { title: "Singh Is Bliing", year: 2015, rating: "Hit" },
+                { title: "Brothers", year: 2015, rating: "Avg" },
+                { title: "Gabbar Is Back", year: 2015, rating: "Hit" },
+                { title: "Baby", year: 2015, rating: "Superhit" },
+                { title: "Holiday", year: 2014, rating: "Superhit" },
+                { title: "Special 26", year: 2013, rating: "Superhit" },
+                { title: "Rowdy Rathore", year: 2012, rating: "Blockbuster" },
+                { title: "Housefull 2", year: 2012, rating: "Superhit" },
+                { title: "OMG", year: 2012, rating: "Superhit" },
+                { title: "Khiladi 786", year: 2012, rating: "Avg" }
             ],
-            "IMDb Top Picks": [
-                { title: "12th Fail", year: 2023, director: "Vidhu Vinod Chopra", cast: "Vikrant Massey, Medha Shankar", rating: "8.7", desc: "IPS Manoj Kumar Sharma ki asli sangharsh gatha." },
-                { title: "Nayakan", year: 1987, director: "Mani Ratnam", cast: "Kamal Haasan", rating: "8.6", desc: "Ek aam aadmi Mumbai ka don Velu Naicker banta hai." },
-                { title: "Gol Maal", year: 1979, director: "Hrishikesh Mukherjee", cast: "Amol Palekar, Utpal Dutt", rating: "8.5", desc: "Ramprasad ko apni naukri bachane ke liye apne nakli judwa bhai Lakshman ko lana padta hai." },
-                { title: "Manichithrathazhu", year: 1993, director: "Fazil", cast: "Mohanlal, Shobana", rating: "8.7", desc: "Ek purani haveli mein bhoot ka saaya. Bhool Bhulaiyaa ki original inspiration." },
-                { title: "777 Charlie", year: 2022, director: "Kiranraj K", cast: "Rakshit Shetty", rating: "8.7", desc: "Ek akela aadmi aur ek kutte ki emotional road trip." },
-                { title: "Rocketry", year: 2022, director: "R. Madhavan", cast: "R. Madhavan", rating: "8.6", desc: "ISRO scientist Nambi Narayanan ki jasooli ke jhoothe ilzaam aur sangharsh ki kahani." },
-                { title: "Kaithi", year: 2019, director: "Lokesh Kanagaraj", cast: "Karthi", rating: "8.4", desc: "Ek qaidi apne beti se milne ja raha hai, lekin police ki madad karne ke liye drug mafia se ladta hai." },
-                { title: "Jai Bhim", year: 2021, director: "T.J. Gnanavel", cast: "Suriya, Lijomol Jose", rating: "8.6", desc: "Ek wakeel ek adivasi mahila ko nyay dilane ke liye system se ladta hai." },
-                { title: "Gangs of Wasseypur", year: 2012, director: "Anurag Kashyap", cast: "Manoj Bajpayee, Nawazuddin Siddiqui", rating: "8.2", desc: "Dhanbad ke coal mafia ki teen pushton ki khooni kahani." },
-                { title: "Mahanati", year: 2018, director: "Nag Ashwin", cast: "Keerthy Suresh, Dulquer Salmaan", rating: "8.4", desc: "Legendary actress Savitri ki zindagi ka utaar-chadaav." },
-                { title: "Vikram Vedha", year: 2017, director: "Pushkar-Gayathri", cast: "R. Madhavan, Vijay Sethupathi", rating: "8.2", desc: "Ek police wala aur ek gangster ke beech ki morality ki jung." },
-                { title: "Sarpatta Parambarai", year: 2021, director: "Pa. Ranjith", cast: "Arya", rating: "8.5", desc: "1970s mein boxing clans ke beech ki izzat ki ladai." }
-            ],
-            "Telugu Blockbusters": [
-                { title: "Mayabazar", year: 1957, director: "K.V. Reddy", cast: "N.T. Rama Rao, Savitri", rating: "9.1", desc: "Mahabharat katha par aadharit ek visual masterpiece." },
-                { title: "C/o Kancharapalem", year: 2018, director: "Venkatesh Maha", cast: "Subba Rao, Radha Bessy", rating: "8.8", desc: "Ek chote se gaon ki chaar alag-alag prem kahaniyan jo dil ko chu leti hain." },
-                { title: "Jersey", year: 2019, director: "Gowtam Tinnanuri", cast: "Nani, Shraddha Srinath", rating: "8.5", desc: "Ek cricketer jo apne bete ki khwahish puri karne ke liye 36 saal ki umar mein wapas maidan mein utarta hai." },
-                { title: "Mahanati", year: 2018, director: "Nag Ashwin", cast: "Keerthy Suresh, Dulquer Salmaan", rating: "8.4", desc: "Legendary actress Savitri ki zindagi ka utaar-chadaav aur unka stardom." },
-                { title: "Rangasthalam", year: 2018, director: "Sukumar", cast: "Ram Charan, Samantha Ruth Prabhu", rating: "8.2", desc: "Chitti Babu, jo sun nahi sakta, apne gaon ko corrupt president se bachane ke liye ladta hai." },
-                { title: "Baahubali 2", year: 2017, director: "S.S. Rajamouli", cast: "Prabhas, Rana Daggubati", rating: "8.2", desc: "Kattappa ne Baahubali ko kyun maara? Is sawal ka jawab aur Mahishmati ka anjaam." },
-                { title: "Sita Ramam", year: 2022, director: "Hanu Raghavapudi", cast: "Dulquer Salmaan, Mrunal Thakur", rating: "8.5", desc: "Ek fauji Ram ko Sita se chitthiyan milti hain. Ye pyaar ki kahani border aur dharm ki diwaron se pare hai." },
-                { title: "Pokiri", year: 2006, director: "Puri Jagannadh", cast: "Mahesh Babu, Ileana D'Cruz", rating: "8.0", desc: "Pandu, ek ruthless gangster, jo police aur land mafia ke beech phasa hai." },
-                { title: "RRR", year: 2022, director: "S.S. Rajamouli", cast: "NTR Jr., Ram Charan", rating: "7.8", desc: "Do mahan krantikari angrezon ke khilaf ladne ke liye ek saath aate hain. Dosti aur action ki misaal." }
+            "Ajay Special": [
+                { title: "Singham Again", year: 2024, rating: "Hit" },
+                { title: "Shaitaan", year: 2024, rating: "Superhit" },
+                { title: "Maidaan", year: 2024, rating: "Avg" },
+                { title: "Drishyam 2", year: 2022, rating: "Blockbuster" },
+                { title: "Tanhaji", year: 2020, rating: "Blockbuster" },
+                { title: "De De Pyaar De", year: 2019, rating: "Hit" },
+                { title: "Total Dhamaal", year: 2019, rating: "Hit" },
+                { title: "Raid", year: 2018, rating: "Hit" },
+                { title: "Golmaal Again", year: 2017, rating: "Blockbuster" },
+                { title: "Baadshaho", year: 2017, rating: "Avg" },
+                { title: "Shivaay", year: 2016, rating: "Avg" },
+                { title: "Drishyam", year: 2015, rating: "Hit" },
+                { title: "Action Jackson", year: 2014, rating: "Flop" },
+                { title: "Singham Returns", year: 2014, rating: "Superhit" },
+                { title: "Satyagraha", year: 2013, rating: "Avg" },
+                { title: "Himmatwala", year: 2013, rating: "Flop" },
+                { title: "Son of Sardaar", year: 2012, rating: "Hit" },
+                { title: "Bol Bachchan", year: 2012, rating: "Hit" },
+                { title: "Singham", year: 2011, rating: "Superhit" }
             ]
         };
 
@@ -276,7 +287,7 @@
 
             // Update Header Subtitle
             if (currentStep === 'genre-select') {
-                headerSubtitle.textContent = isDataLoaded ? "2025 CALENDAR LOADED" : "AKSHAY, AJAY & 2024 HITS";
+                headerSubtitle.textContent = isDataLoaded ? "2025 CALENDAR LOADED" : "AKSHAY, AJAY & 2013-2024 HITS";
             } else {
                 headerSubtitle.textContent = `${selectedGenre || ''} SPECIAL`;
             }
@@ -291,32 +302,32 @@
 
                 Object.keys(db).forEach(genre => {
                     const btn = document.createElement('button');
-                    const isNew = genre === '2025 Upcoming' || genre.includes('20');
-                    const isTop = genre === 'IMDb Top Picks' || genre === 'Telugu Blockbusters';
+                    const isNew = genre.includes('2025') || genre.includes('2024');
+                    const isStar = genre.includes('Special') || genre.includes('Blockbusters');
                     
                     let bgClass = 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-rose-500/50';
                     if (isNew) bgClass = 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/50 hover:border-amber-400 col-span-2';
-                    if (isTop) bgClass = 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/50 hover:border-emerald-400 col-span-2';
+                    if (isStar) bgClass = 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/50 hover:border-emerald-400 col-span-2';
 
                     btn.className = `group relative overflow-hidden p-4 rounded-xl border transition-all duration-300 text-left shrink-0 ${bgClass}`;
                     
                     let gradientClass = 'from-rose-500/0 to-rose-500/0 group-hover:from-rose-500/10 group-hover:to-orange-500/10';
                     if (isNew) gradientClass = 'from-amber-500/10 to-orange-500/10';
-                    if (isTop) gradientClass = 'from-emerald-500/10 to-teal-500/10';
+                    if (isStar) gradientClass = 'from-emerald-500/10 to-teal-500/10';
 
                     let icon = '';
                     if (isNew) icon = '<i data-lucide="star" class="w-5 h-5 text-amber-400 fill-amber-400 animate-pulse"></i>';
-                    else if (isTop) icon = '<i data-lucide="trophy" class="w-5 h-5 text-emerald-400 fill-emerald-400"></i>';
+                    else if (isStar) icon = '<i data-lucide="trophy" class="w-5 h-5 text-emerald-400 fill-emerald-400"></i>';
 
                     btn.innerHTML = `
                         <div class="absolute inset-0 bg-gradient-to-r transition-all duration-300 ${gradientClass}"></div>
                         <div class="flex items-center justify-between relative z-10">
-                            <span class="font-bold text-lg transition-colors ${isNew ? 'text-amber-300 group-hover:text-amber-200' : isTop ? 'text-emerald-300 group-hover:text-emerald-200' : 'text-slate-200 group-hover:text-white'}">
+                            <span class="font-bold text-lg transition-colors ${isNew ? 'text-amber-300 group-hover:text-amber-200' : isStar ? 'text-emerald-300 group-hover:text-emerald-200' : 'text-slate-200 group-hover:text-white'}">
                                 ${genre}
                             </span>
                             ${icon}
                         </div>
-                        ${(!isNew && !isTop) ? '<i data-lucide="chevron-right" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all"></i>' : ''}
+                        ${(!isNew && !isStar) ? '<i data-lucide="chevron-right" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all"></i>' : ''}
                     `;
                     btn.onclick = () => handleGenreSelect(genre);
                     gridDiv.appendChild(btn);
@@ -428,7 +439,7 @@
 
                         <div class="bg-slate-700/30 rounded-xl p-4 border border-slate-700/50">
                             <p class="text-slate-200 text-sm leading-relaxed font-medium">
-                                "${selectedMovie.desc}"
+                                "${selectedMovie.desc || 'Ek zabardast entertainer movie jo aapko zaroor pasand aayegi!'}"
                             </p>
                         </div>
                     </div>
