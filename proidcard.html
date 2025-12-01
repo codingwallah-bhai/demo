@@ -6,7 +6,7 @@
     <title>Smart ID Card Printer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,110 +16,39 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px; /* Reduced padding for mobile */
+            padding: 20px;
             min-height: 100vh;
         }
 
-        /* --- CONTROLS SECTION --- */
+        /* --- CONTROLS --- */
         .controls {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 950px;
-            margin-bottom: 30px;
+            background: white; padding: 25px; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 950px; margin-bottom: 30px;
         }
-
         .controls-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            flex-wrap: wrap; /* Wraps on mobile */
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;
         }
-
-        .template-selector {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap; /* Stack buttons on mobile */
-        }
-
+        .template-selector { display: flex; gap: 10px; flex-wrap: wrap; }
         .template-btn {
-            padding: 8px 15px;
-            border: 2px solid #ddd;
-            background: #f9f9f9;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
+            padding: 8px 15px; border: 2px solid #ddd; background: #f9f9f9; cursor: pointer;
+            border-radius: 6px; font-weight: bold; display: flex; align-items: center; gap: 5px; font-size: 14px;
         }
-        .template-btn.active {
-            border-color: #333;
-            background: #333;
-            color: white;
-        }
+        .template-btn.active { border-color: #333; background: #333; color: white; }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         .input-group { display: flex; flex-direction: column; }
         .input-group label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
         .input-group input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        
-        /* Highlight QR Input */
         #inQR { border: 2px solid #007bff; background-color: #f0f8ff; }
 
-        .file-upload-btn {
-            grid-column: 1 / -1;
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        
+        .file-upload-btn { grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .custom-file-upload {
-            flex: 1;
-            border: 2px dashed #555;
-            color: #555;
-            padding: 10px;
-            text-align: center;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-            background: #f8f8f8;
-            min-width: 140px;
+            flex: 1; border: 2px dashed #555; color: #555; padding: 10px; text-align: center;
+            border-radius: 6px; cursor: pointer; font-weight: bold; background: #f8f8f8; min-width: 140px;
         }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            flex: 1;
-            min-width: 120px;
-        }
+        .action-buttons { display: flex; gap: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; flex-wrap: wrap; }
+        .btn { padding: 12px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; flex: 1; min-width: 120px; }
         .btn-add { background: #28a745; color: white; }
         .btn-print { background: #333; color: white; }
         .btn-optimize { background: #007bff; color: white; }
@@ -127,42 +56,22 @@
 
 
         /* =========================================
-           CARDS CSS (FIXED DIMENSIONS)
+           TEMPLATE 1: GREEN HORIZONTAL
            ========================================= */
-        
-        /* --- 1. GREEN HORIZONTAL --- */
         .card-horizontal {
-            width: 650px; min-width: 650px; 
-            height: 410px; min-height: 410px;
-            position: relative;
-            background: linear-gradient(135deg, #ffffff 0%, #f4f4f4 50%, #ececec 100%);
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            overflow: hidden;
-            border: 1px solid #ddd;
-            display: none; 
-            flex-shrink: 0;
-            margin: 0 auto;
+            width: 650px; min-width: 650px; height: 410px; min-height: 410px;
+            position: relative; background: linear-gradient(135deg, #ffffff 0%, #f4f4f4 50%, #ececec 100%);
+            border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden;
+            border: 1px solid #ddd; display: none; flex-shrink: 0; margin: 0 auto;
         }
         .card-horizontal.visible { display: block; }
-
-        .h-header-pill {
-            position: absolute; top: 40px; left: -20px;
-            background-color: #0d5f35; color: white;
-            height: 55px; padding: 0 40px 0 50px;
-            border-radius: 0 50px 50px 0;
-            display: flex; align-items: center;
-            box-shadow: 4px 4px 10px rgba(0,0,0,0.2); z-index: 2;
-        }
+        .h-header-pill { position: absolute; top: 40px; left: -20px; background-color: #0d5f35; color: white; height: 55px; padding: 0 40px 0 50px; border-radius: 0 50px 50px 0; display: flex; align-items: center; box-shadow: 4px 4px 10px rgba(0,0,0,0.2); z-index: 2; }
         .h-header-pill h1 { font-size: 24px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
         .h-logo-area { position: absolute; top: 40px; right: 40px; display: flex; align-items: center; gap: 10px; }
         .h-logo-text { font-size: 18px; font-weight: 600; color: #444; text-transform: uppercase; }
         .h-logo-img { height: 40px; object-fit: contain; }
         .h-content { position: absolute; top: 120px; left: 45px; display: flex; width: 90%; }
-        .h-photo-box {
-            width: 145px; height: 155px; border: 3px solid #0d5f35; border-radius: 20px;
-            padding: 3px; background: white; margin-right: 30px; overflow: hidden; flex-shrink: 0;
-        }
+        .h-photo-box { width: 145px; height: 155px; border: 3px solid #0d5f35; border-radius: 20px; padding: 3px; background: white; margin-right: 30px; overflow: hidden; flex-shrink: 0; }
         .h-photo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 15px; }
         .h-details { display: flex; flex-direction: column; gap: 10px; justify-content: center; width: 100%; }
         .h-row { display: flex; align-items: center; font-size: 15px; }
@@ -175,30 +84,18 @@
         .h-green-bar { width: 120px; height: 10px; background: #0d5f35; border-radius: 10px; }
         .h-corner-shape { position: absolute; bottom: 0; right: 0; width: 160px; height: 60px; background: #0d5f35; border-top-left-radius: 40px; display: flex; align-items: center; justify-content: center; }
 
-
         /* --- 2. BLUE VERTICAL --- */
         .card-vertical {
-            width: 340px; min-width: 340px;
-            height: 540px; min-height: 540px;
-            position: relative;
-            background: linear-gradient(180deg, #ffffff 60%, #eef6ff 100%);
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-            overflow: hidden;
-            border: 1px solid #ddd;
-            display: none; flex-shrink: 0;
-            margin: 0 auto;
+            width: 340px; min-width: 340px; height: 540px; min-height: 540px;
+            position: relative; background: linear-gradient(180deg, #ffffff 60%, #eef6ff 100%);
+            border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden;
+            border: 1px solid #ddd; display: none; flex-shrink: 0; margin: 0 auto;
         }
         .card-vertical.visible { display: block; }
-
         .v-top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 25px; background: #1a3c6e; }
         .v-top-shape { position: absolute; top: 10px; left: 0; width: 60%; height: 50px; background: #2b5d9b; border-bottom-right-radius: 50px; }
         .v-logo { position: absolute; top: 35px; right: 20px; color: #1a3c6e; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        .v-photo-wrapper {
-            margin-top: 80px; margin-left: auto; margin-right: auto;
-            width: 140px; height: 140px; border-radius: 25px; border: 4px solid #1a3c6e;
-            padding: 4px; background: white; overflow: hidden;
-        }
+        .v-photo-wrapper { margin-top: 80px; margin-left: auto; margin-right: auto; width: 140px; height: 140px; border-radius: 25px; border: 4px solid #1a3c6e; padding: 4px; background: white; overflow: hidden; }
         .v-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
         .v-info { text-align: center; margin-top: 15px; width: 100%; padding: 0 20px; }
         .v-name { font-size: 24px; font-weight: 800; color: #1a3c6e; text-transform: uppercase; margin-bottom: 5px; }
@@ -209,123 +106,146 @@
         .v-footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40px; background: #1a3c6e; }
         .v-footer-accent { position: absolute; bottom: 0; left: 0; width: 40%; height: 55px; background: #2b5d9b; border-top-right-radius: 40px; }
 
-        /* --- 3. NEW BLUE HORIZONTAL (Fixed Layout) --- */
+        /* --- 3. BLUE HORIZONTAL --- */
         .card-horizontal-blue {
-            width: 650px; min-width: 650px;
-            height: 410px; min-height: 410px;
-            position: relative;
-            background-color: white;
-            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
-            background-size: 20px 20px;
-            border-radius: 10px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            overflow: hidden;
-            border: 1px solid #ccc;
-            display: none; flex-shrink: 0;
-            margin: 0 auto;
+            width: 650px; min-width: 650px; height: 410px; min-height: 410px;
+            position: relative; background-color: white;
+            background-image: radial-gradient(#e0e0e0 1px, transparent 1px); background-size: 20px 20px;
+            border-radius: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden;
+            border: 1px solid #ccc; display: none; flex-shrink: 0; margin: 0 auto;
         }
         .card-horizontal-blue.visible { display: block; }
-
-        .hb-header {
-            position: absolute; top: 0; left: 0; width: 100%; height: 70px;
-            background: #003366; 
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 30px; color: white;
-        }
+        .hb-header { position: absolute; top: 0; left: 0; width: 100%; height: 70px; background: #003366; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; color: white; }
         .hb-logo-area { display: flex; align-items: center; gap: 10px; }
         .hb-company { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-        
         .hb-body { position: absolute; top: 90px; left: 0; width: 100%; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
-        
         .hb-details { flex: 1; margin-right: 40px; }
-        .hb-role { 
-            font-size: 16px; font-weight: bold; color: #003366; 
-            text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid #003366; display: inline-block; padding-bottom: 5px;
-        }
+        .hb-role { font-size: 16px; font-weight: bold; color: #003366; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid #003366; display: inline-block; padding-bottom: 5px; }
         .hb-row { display: grid; grid-template-columns: 80px 10px 1fr; margin-bottom: 8px; align-items: center; color: #333; font-size: 15px; }
         .hb-label { font-weight: 600; color: #555; }
         .hb-val { font-weight: 700; color: #000; text-transform: uppercase; }
-
-        .hb-photo-box {
-            width: 150px; height: 170px;
-            border: 4px solid #003366; border-radius: 10px; overflow: hidden; background: #ddd;
-        }
+        .hb-photo-box { width: 150px; height: 170px; border: 4px solid #003366; border-radius: 10px; overflow: hidden; background: #ddd; }
         .hb-photo-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .hb-footer {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 40px;
-            background: #003366;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
-        }
-        
+        .hb-footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40px; background: #003366; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
         .hb-signature { font-family: 'Cursive', sans-serif; font-size: 18px; color: #003366; position: absolute; bottom: 50px; left: 40px; }
-        
-        /* QR FIXED POSITION */
-        .hb-qr { 
-            position: absolute; 
-            bottom: 55px; /* Shifted UP to avoid footer cut */
-            right: 30px; 
-            background: white; 
-            padding: 2px; 
-            border-radius: 4px; 
-            border: 1px solid #ddd;
-        }
+        .hb-qr { position: absolute; bottom: 55px; right: 30px; background: white; padding: 2px; border-radius: 4px; border: 1px solid #ddd; }
         .hb-qr img { width: 70px; height: 70px; display: block; }
 
+        /* --- 4. MODERN VERTICAL (New Wavy Black) --- */
+        .card-vertical-modern {
+            width: 340px; min-width: 340px; height: 540px; min-height: 540px;
+            position: relative; background-color: #ffffff;
+            /* Creating angled geometric background pattern - subtler now */
+            background: 
+                linear-gradient(115deg, transparent 75%, #f8f9fa 75%),
+                linear-gradient(245deg, transparent 75%, #f8f9fa 75%),
+                linear-gradient(180deg, #fff 0%, #fff 100%);
+            border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            overflow: hidden; border: 1px solid #ddd;
+            display: none; flex-shrink: 0; margin: 0 auto; text-align: center;
+        }
+        .card-vertical-modern.visible { display: block; }
 
-        /* =========================================
-           PRINT SHEET STYLES
-           ========================================= */
+        /* Smooth Dark Header Wave */
+        .vm-header-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 130px;
+            background: #212529;
+            /* Improved wave SVG */
+            clip-path: ellipse(150% 100% at 50% 0%);
+            z-index: 1;
+        }
+        /* Decor line */
+        .vm-header-decor {
+            position: absolute; top: 5px; left: 0; width: 100%; height: 110px;
+            background: #343a40;
+            clip-path: ellipse(150% 100% at 50% 0%);
+            z-index: 0;
+        }
+
+        .vm-logo-area-new { 
+            position: absolute; top: 20px; width: 100%; text-align: center; z-index: 2; 
+            color: #ccc;
+        }
+        .vm-logo-new { font-weight: bold; color: #fff; font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 2px;}
+        .vm-logo-icon-circle { width: 35px; height: 35px; background: white; border-radius: 50%; color: #333; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; }
+
+        /* Photo */
+        .vm-photo-container {
+            margin-top: 85px; position: relative; z-index: 3;
+            display: flex; justify-content: center;
+        }
+        .vm-photo-circle {
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            border: 5px solid #212529; /* Dark border to match header */
+            overflow: hidden;
+            background: white;
+            padding: 3px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .vm-photo-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+        /* Content */
+        .vm-body { margin-top: 15px; padding: 0 20px; }
+        .vm-name { font-size: 22px; font-weight: 900; color: #212529; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; }
+        .vm-role { 
+            font-size: 12px; color: #555; font-weight: 600; text-transform: uppercase; 
+            border-top: 2px solid #333; display: inline-block; padding-top: 5px; margin-top: 5px; margin-bottom: 15px; width: 120px; 
+        }
+        
+        .vm-details { text-align: left; font-size: 13px; color: #444; margin-top: 5px; width: 85%; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        .vm-row { display: grid; grid-template-columns: 70px 10px 1fr; margin-bottom: 4px; }
+        .vm-label { font-weight: 600; color: #333; }
+        .vm-val { color: #555; font-weight: 500; }
+
+        /* Footer Waves */
+        .vm-footer {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: #212529;
+            clip-path: ellipse(150% 100% at 50% 100%);
+            z-index: 1;
+        }
+        .vm-footer-decor {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 95px;
+            background: #343a40;
+            clip-path: ellipse(150% 100% at 50% 100%);
+            z-index: 0;
+        }
+        
+        /* QR Code (Restored) */
+        .vm-qr-new {
+            position: absolute; bottom: 20px; /* On top of footer */
+            left: 50%; transform: translateX(-50%);
+            background: white; padding: 4px; border-radius: 4px;
+            width: 70px; height: 70px;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 5; /* Ensure above wave */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .vm-qr-new img { width: 100%; height: 100%; display: block; }
+
+
+        /* --- PRINT SHEET STYLES --- */
         #print-sheet-container {
             width: 210mm; min-height: 297mm; background: white; padding: 10mm;
             margin-top: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.2);
             display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px;
         }
-
         .print-wrapper {
             position: relative; border: 1px dashed #ddd; 
             display: flex; justify-content: center; align-items: center; 
             overflow: visible; page-break-inside: avoid; margin: 2px;
         }
-
         .wrapper-horizontal { width: 330px; height: 215px; }
         .wrapper-vertical { width: 175px; height: 280px; }
+        .scaled-card { transform: scale(0.5); transform-origin: center center; box-shadow: none; border: 1px dashed #999; flex-shrink: 0; }
 
-        .scaled-card {
-            transform: scale(0.5); transform-origin: center center;
-            box-shadow: none; border: 1px dashed #999; flex-shrink: 0; 
-        }
-
-        /* --- MOBILE RESPONSIVE MEDIA QUERIES --- */
+        /* --- MOBILE RESPONSIVE --- */
         @media screen and (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr; /* 1 column on mobile */
-            }
-            
-            /* Scale down preview to fit screen */
-            .card-horizontal, .card-horizontal-blue {
-                transform: scale(0.55);
-                transform-origin: top center;
-                margin-bottom: -180px; /* Reduce gap created by scale */
-            }
-            .card-vertical {
-                transform: scale(0.85);
-                transform-origin: top center;
-                margin-bottom: -80px;
-            }
-            
-            #current-editor-title {
-                text-align: center;
-                font-size: 14px;
-            }
-            
-            #print-sheet-container {
-                width: 100%; /* Fit screen width */
-                min-height: auto;
-                padding: 5px;
-                transform: scale(0.6); /* View print sheet smaller on mobile */
-                transform-origin: top left;
-            }
+            .form-grid { grid-template-columns: 1fr; }
+            .card-horizontal, .card-horizontal-blue { transform: scale(0.55); transform-origin: top center; margin-bottom: -180px; }
+            .card-vertical, .card-vertical-modern { transform: scale(0.85); transform-origin: top center; margin-bottom: -80px; }
+            #print-sheet-container { width: 100%; padding: 5px; transform: scale(0.6); transform-origin: top left; }
         }
 
         @media print {
@@ -335,14 +255,12 @@
             #print-sheet-container {
                 position: relative; width: 100%; min-height: auto; height: auto;
                 box-shadow: none; margin: 0; padding: 0; border: none;
-                display: flex; flex-wrap: wrap; gap: 5px; align-content: flex-start;
-                transform: none; /* Reset scaling for print */
+                display: flex; flex-wrap: wrap; gap: 5px; align-content: flex-start; transform: none;
             }
             .print-wrapper { border: none; margin: 2px; } 
             .scaled-card { border: 1px solid #ccc; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
-
     </style>
 </head>
 <body>
@@ -360,41 +278,41 @@
                 <div class="template-btn" onclick="switchTemplate('horizontal-blue')">
                     <i class="fas fa-address-card"></i> Blue (H-2)
                 </div>
+                <div class="template-btn" onclick="switchTemplate('vertical-modern')">
+                    <i class="fas fa-user-tie"></i> Modern (V-2)
+                </div>
             </div>
         </div>
 
         <div class="form-grid">
             <div class="input-group">
                 <label>Name</label>
-                <input type="text" id="inName" value="MATT ZHANG" oninput="updateCard()">
+                <input type="text" id="inName" value="DANIEL GALLEGO" oninput="updateCard()">
             </div>
             <div class="input-group">
                 <label>Header Title / Role</label>
-                <input type="text" id="inRole" value="STUDENT ID CARD" oninput="updateCard()">
+                <input type="text" id="inRole" value="MANAGER" oninput="updateCard()">
             </div>
             <div class="input-group">
                 <label>ID Number</label>
-                <input type="text" id="inID" value="123-456-7890" oninput="updateCard()">
+                <input type="text" id="inID" value="1234567890" oninput="updateCard()">
             </div>
-            
             <div class="input-group">
                 <label>Mobile (+91..)</label>
-                <input type="text" id="inMobile" value="+91 98765 43210" oninput="updateCard()">
+                <input type="text" id="inMobile" value="+123-456-7890" oninput="updateCard()">
             </div>
             <div class="input-group">
                 <label>DOB / Email</label>
-                <input type="text" id="inExtra" value="22/11/2002" oninput="updateCard()">
+                <input type="text" id="inExtra" value="hello@reallygreatsite.com" oninput="updateCard()">
             </div>
             <div class="input-group">
-                <label>QR Data (Link/ID/Info)</label>
-                <input type="text" id="inQR" placeholder="Auto-generates from ID if empty" oninput="updateCard()">
+                <label>QR Data</label>
+                <input type="text" id="inQR" placeholder="Auto-generates if empty" oninput="updateCard()">
             </div>
-
              <div class="input-group">
                 <label>Company / School</label>
-                <input type="text" id="inCompany" value="SALFORD & CO." oninput="updateCard()">
+                <input type="text" id="inCompany" value="Studio Shodwe" oninput="updateCard()">
             </div>
-            
             <div class="input-group" style="grid-column: 1 / -1;">
                 <label>Address (For Horizontal Card)</label>
                 <input type="text" id="inAddress" value="123 ANYWHERE ST., ANY CITY" oninput="updateCard()">
@@ -427,14 +345,9 @@
         <!-- 1. GREEN HORIZONTAL -->
         <div class="card-horizontal visible" id="cardHorizontal">
             <div class="h-header-pill"><h1 id="hRole">STUDENT ID CARD</h1></div>
-            <div class="h-logo-area">
-                <img id="hLogo" class="h-logo-img" src="https://cdn-icons-png.flaticon.com/512/6065/6065488.png">
-                <div class="h-logo-text" id="hCompany">SALFORD & CO.</div>
-            </div>
+            <div class="h-logo-area"><img id="hLogo" class="h-logo-img" src="https://cdn-icons-png.flaticon.com/512/6065/6065488.png"><div class="h-logo-text" id="hCompany">SALFORD & CO.</div></div>
             <div class="h-content">
-                <div class="h-photo-box">
-                    <img id="hPhoto" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80">
-                </div>
+                <div class="h-photo-box"><img id="hPhoto" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"></div>
                 <div class="h-details">
                     <div class="h-row"><div class="h-label">NAME</div><div class="h-sep">:</div><div class="h-val" id="hName">MATT ZHANG</div></div>
                     <div class="h-row"><div class="h-label">ID</div><div class="h-sep">:</div><div class="h-val" id="hID">123-456-7890</div></div>
@@ -443,54 +356,27 @@
                     <div class="h-row"><div class="h-label">ADDRESS</div><div class="h-sep">:</div><div class="h-val" id="hAddress" style="font-size:12px;">123 ANYWHERE ST...</div></div>
                 </div>
             </div>
-            <div class="h-qr-area">
-                <img id="hQRImage" class="h-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456">
-            </div>
-            <div class="h-decor">
-                <div class="h-green-bar"></div>
-                <i class="fas fa-circle" style="color:#0d5f35; font-size:8px;"></i>
-                <i class="fas fa-circle" style="color:#0d5f35; font-size:8px;"></i>
-            </div>
-            <div class="h-corner-shape">
-                <i class="fas fa-crown" style="color:#d4af37;"></i>
-            </div>
+            <div class="h-qr-area"><img id="hQRImage" class="h-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456"></div>
+            <div class="h-decor"><div class="h-green-bar"></div><i class="fas fa-circle" style="color:#0d5f35; font-size:8px;"></i><i class="fas fa-circle" style="color:#0d5f35; font-size:8px;"></i></div>
+            <div class="h-corner-shape"><i class="fas fa-crown" style="color:#d4af37;"></i></div>
         </div>
 
         <!-- 2. BLUE VERTICAL -->
         <div class="card-vertical" id="cardVertical">
-            <div class="v-top-bar"></div>
-            <div class="v-top-shape"></div>
-            <div class="v-logo">
-                <img id="vLogo" style="height:20px;" src="https://cdn-icons-png.flaticon.com/512/6065/6065488.png"> 
-                <span id="vCompany">SALFORD & CO.</span>
-            </div>
-            <div class="v-photo-wrapper">
-                <img id="vPhoto" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80">
-            </div>
+            <div class="v-top-bar"></div><div class="v-top-shape"></div>
+            <div class="v-logo"><img id="vLogo" style="height:20px;" src="https://cdn-icons-png.flaticon.com/512/6065/6065488.png"> <span id="vCompany">SALFORD & CO.</span></div>
+            <div class="v-photo-wrapper"><img id="vPhoto" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"></div>
             <div class="v-info">
-                <div class="v-name" id="vName">MATT ZHANG</div>
-                <div class="v-pill" id="vRole">STUDENT ID CARD</div>
-                <div class="v-details">
-                    <div>ID: <span id="vID">123-456-7890</span></div>
-                    <div><i class="fas fa-phone-alt"></i> <span id="vMobile">+91 98765 43210</span></div>
-                    <div><span id="vExtra">22/11/2002</span></div>
-                </div>
+                <div class="v-name" id="vName">MATT ZHANG</div><div class="v-pill" id="vRole">STUDENT ID CARD</div>
+                <div class="v-details"><div>ID: <span id="vID">123-456-7890</span></div><div><i class="fas fa-phone-alt"></i> <span id="vMobile">+91 98765 43210</span></div><div><span id="vExtra">22/11/2002</span></div></div>
             </div>
-            <div class="v-qr-area">
-                <img id="vQRImage" class="v-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456">
-            </div>
-            <div class="v-footer-accent"></div>
-            <div class="v-footer"></div>
+            <div class="v-qr-area"><img id="vQRImage" class="v-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456"></div>
+            <div class="v-footer-accent"></div><div class="v-footer"></div>
         </div>
 
-        <!-- 3. NEW BLUE HORIZONTAL -->
+        <!-- 3. BLUE HORIZONTAL -->
         <div class="card-horizontal-blue" id="cardHorizontalBlue">
-            <div class="hb-header">
-                <div class="hb-company" id="hbCompany">SALFORD & CO.</div>
-                <div class="hb-logo-area">
-                    <img id="hbLogo" style="height:40px; filter: brightness(0) invert(1);" src="https://cdn-icons-png.flaticon.com/512/6065/6065488.png">
-                </div>
-            </div>
+            <div class="hb-header"><div class="hb-company" id="hbCompany">SALFORD & CO.</div><div class="hb-logo-area"><img id="hbLogo" style="height:40px; filter: brightness(0) invert(1);" src="https://cdn-icons-png.flaticon.com/512/6065/6065488.png"></div></div>
             <div class="hb-body">
                 <div class="hb-details">
                     <div class="hb-role" id="hbRole">STUDENT ID CARD</div>
@@ -500,16 +386,48 @@
                     <div class="hb-row"><div class="hb-label">DOB</div><div>:</div><div class="hb-val" id="hbExtra">22/11/2002</div></div>
                     <div class="hb-row"><div class="hb-label">ADDRESS</div><div>:</div><div class="hb-val" id="hbAddress" style="font-size:12px">123 ANYWHERE ST.</div></div>
                 </div>
-                <div class="hb-photo-box">
-                    <img id="hbPhoto" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80">
-                </div>
+                <div class="hb-photo-box"><img id="hbPhoto" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"></div>
             </div>
             <div class="hb-signature">Signature</div>
-            <div class="hb-qr">
-                <img id="hbQRImage" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456">
-            </div>
+            <div class="hb-qr"><img id="hbQRImage" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456"></div>
             <div class="hb-footer"></div>
         </div>
+
+        <!-- 4. MODERN VERTICAL (Matching Reference) -->
+        <div class="card-vertical-modern" id="cardVerticalModern">
+            <div class="vm-header-decor"></div>
+            <div class="vm-header-bg"></div>
+            
+            <div class="vm-logo-area-new">
+                <div class="vm-logo-new">
+                    <div class="vm-logo-icon-circle"><i class="fas fa-building"></i></div>
+                    <div id="vmCompany">Studio Shodwe</div>
+                </div>
+            </div>
+
+            <div class="vm-photo-container">
+                <div class="vm-photo-circle">
+                    <img id="vmPhoto" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80">
+                </div>
+            </div>
+            
+            <div class="vm-body">
+                <div class="vm-name" id="vmName">DANIEL GALLEGO</div>
+                <div class="vm-role" id="vmRole">MANAGER</div>
+                <div class="vm-details">
+                    <div class="vm-row"><div class="vm-label">ID No</div><div class="vm-sep">:</div><div class="vm-val" id="vmID">1234567890</div></div>
+                    <div class="vm-row"><div class="vm-label">E-mail</div><div class="vm-sep">:</div><div class="vm-val" id="vmExtra">hello@reallygreatsite.com</div></div>
+                    <div class="vm-row"><div class="vm-label">Phone</div><div class="vm-sep">:</div><div class="vm-val" id="vmMobile">+123-456-7890</div></div>
+                </div>
+            </div>
+            
+            <div class="vm-footer-decor"></div>
+            <div class="vm-footer"></div>
+            <div class="vm-qr-new">
+                <img id="vmQRImage" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ID123456">
+            </div>
+        </div>
+
     </div>
 
     <!-- PRINT SHEET -->
@@ -524,24 +442,17 @@
             const h = document.getElementById('cardHorizontal');
             const v = document.getElementById('cardVertical');
             const hb = document.getElementById('cardHorizontalBlue');
+            const vm = document.getElementById('cardVerticalModern');
             const btns = document.querySelectorAll('.template-btn');
 
             // Hide all
-            h.classList.remove('visible');
-            v.classList.remove('visible');
-            hb.classList.remove('visible');
+            h.classList.remove('visible'); v.classList.remove('visible'); hb.classList.remove('visible'); vm.classList.remove('visible');
             btns.forEach(b => b.classList.remove('active'));
 
-            if(type === 'horizontal') {
-                h.classList.add('visible');
-                btns[0].classList.add('active');
-            } else if(type === 'vertical') {
-                v.classList.add('visible');
-                btns[1].classList.add('active');
-            } else {
-                hb.classList.add('visible');
-                btns[2].classList.add('active');
-            }
+            if(type === 'horizontal') { h.classList.add('visible'); btns[0].classList.add('active'); }
+            else if(type === 'vertical') { v.classList.add('visible'); btns[1].classList.add('active'); }
+            else if(type === 'horizontal-blue') { hb.classList.add('visible'); btns[2].classList.add('active'); }
+            else { vm.classList.add('visible'); btns[3].classList.add('active'); }
         }
 
         function updateCard() {
@@ -551,6 +462,7 @@
                 if(document.getElementById('h'+f)) document.getElementById('h'+f).innerText = val;
                 if(document.getElementById('v'+f)) document.getElementById('v'+f).innerText = val;
                 if(document.getElementById('hb'+f)) document.getElementById('hb'+f).innerText = val;
+                if(document.getElementById('vm'+f)) document.getElementById('vm'+f).innerText = val;
             });
             
             const addr = document.getElementById('inAddress').value;
@@ -562,23 +474,28 @@
             document.getElementById('hQRImage').src = qrUrl;
             document.getElementById('vQRImage').src = qrUrl;
             document.getElementById('hbQRImage').src = qrUrl;
+            document.getElementById('vmQRImage').src = qrUrl;
         }
 
         function loadPhoto(event) {
             const reader = new FileReader();
             reader.onload = function(){ 
-                document.getElementById('hPhoto').src = reader.result; 
-                document.getElementById('vPhoto').src = reader.result; 
-                document.getElementById('hbPhoto').src = reader.result; 
+                const res = reader.result;
+                document.getElementById('hPhoto').src = res; 
+                document.getElementById('vPhoto').src = res; 
+                document.getElementById('hbPhoto').src = res;
+                document.getElementById('vmPhoto').src = res;
             };
             reader.readAsDataURL(event.target.files[0]);
         }
         function loadLogo(event) {
             const reader = new FileReader();
             reader.onload = function(){ 
-                document.getElementById('hLogo').src = reader.result; 
-                document.getElementById('vLogo').src = reader.result; 
-                document.getElementById('hbLogo').src = reader.result; 
+                const res = reader.result;
+                document.getElementById('hLogo').src = res; 
+                document.getElementById('vLogo').src = res; 
+                document.getElementById('hbLogo').src = res;
+                // VM template doesn't use the same logo slot, relies on company name text mostly or icon
             };
             reader.readAsDataURL(event.target.files[0]);
         }
@@ -587,30 +504,18 @@
             const sheet = document.getElementById('print-sheet-container');
             let original, wrapperClass, sortType;
             
-            if(currentTemplate === 'horizontal') {
-                original = document.getElementById('cardHorizontal');
-                wrapperClass = 'wrapper-horizontal';
-                sortType = 'h1';
-            } else if(currentTemplate === 'vertical') {
-                original = document.getElementById('cardVertical');
-                wrapperClass = 'wrapper-vertical';
-                sortType = 'v1';
-            } else {
-                original = document.getElementById('cardHorizontalBlue');
-                wrapperClass = 'wrapper-horizontal';
-                sortType = 'h2';
-            }
+            if(currentTemplate === 'horizontal') { original = document.getElementById('cardHorizontal'); wrapperClass = 'wrapper-horizontal'; sortType = 'h1'; } 
+            else if(currentTemplate === 'vertical') { original = document.getElementById('cardVertical'); wrapperClass = 'wrapper-vertical'; sortType = 'v1'; } 
+            else if(currentTemplate === 'horizontal-blue') { original = document.getElementById('cardHorizontalBlue'); wrapperClass = 'wrapper-horizontal'; sortType = 'h2'; }
+            else { original = document.getElementById('cardVerticalModern'); wrapperClass = 'wrapper-vertical'; sortType = 'v2'; }
 
             const wrapper = document.createElement('div');
             wrapper.className = `print-wrapper ${wrapperClass}`;
             wrapper.setAttribute('data-type', sortType); 
             
             const clone = original.cloneNode(true);
-            clone.classList.remove('visible'); 
-            clone.style.display = 'block'; 
-            clone.removeAttribute('id');
+            clone.classList.remove('visible'); clone.style.display = 'block'; clone.removeAttribute('id');
             clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-            
             clone.classList.add('scaled-card');
             
             wrapper.appendChild(clone);
@@ -621,29 +526,20 @@
         function optimizeLayout() {
             const sheet = document.getElementById('print-sheet-container');
             const cards = Array.from(sheet.children);
-            
-            // Sort: H1 -> H2 -> V1
             cards.sort((a, b) => {
                 const typeA = a.getAttribute('data-type');
                 const typeB = b.getAttribute('data-type');
-                if (typeA < typeB) return -1; 
-                if (typeA > typeB) return 1;
-                return 0;
+                if (typeA < typeB) return -1; if (typeA > typeB) return 1; return 0;
             });
-
             sheet.innerHTML = '';
             cards.forEach(card => sheet.appendChild(card));
         }
 
         function clearSheet() {
-            if(confirm('Clear entire print sheet?')) {
-                document.getElementById('print-sheet-container').innerHTML = '';
-            }
+            if(confirm('Clear entire print sheet?')) { document.getElementById('print-sheet-container').innerHTML = ''; }
         }
 
-        function printPage() {
-            window.print();
-        }
+        function printPage() { window.print(); }
     </script>
 </body>
 </html>
