@@ -23,11 +23,12 @@
             background-color: #f1f5f9;
             background-image: linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px);
             background-size: 20px 20px;
-            overflow: hidden; /* Handled by scaler */
+            overflow: auto; /* Allow scrolling if card is too big */
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            padding: 20px;
         }
 
         /* --- The Card --- */
@@ -41,6 +42,7 @@
             overflow: hidden;
             transform-origin: center;
             touch-action: none;
+            flex-shrink: 0; /* Prevent shrinking in flex container */
         }
         .card-stage.portrait { width: 378px; height: 600px; }
 
@@ -95,9 +97,20 @@
         /* --- RESPONSIVE LAYOUT --- */
         @media (max-width: 768px) {
             .app-layout { flex-direction: column; }
-            .sidebar-tools { order: 2; width: 100%; height: 300px; border-right: none; border-top: 1px solid #e2e8f0; }
-            .main-canvas { order: 1; flex: 1; min-height: 50vh; }
-            .sidebar-props { position: fixed; bottom: 0; left: 0; width: 100%; height: 50vh; z-index: 100; transform: translateY(100%); transition: transform 0.3s; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
+            .sidebar-tools { order: 2; width: 100%; height: auto; min-height: 200px; border-right: none; border-top: 1px solid #e2e8f0; }
+            .main-canvas { order: 1; flex: 1; min-height: 50vh; overflow: hidden; } /* Ensure canvas area is scrollable/scalable */
+            /* Properties panel mobile view */
+            .sidebar-props { 
+                position: fixed; 
+                bottom: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 60vh; 
+                z-index: 100; 
+                transform: translateY(100%); 
+                transition: transform 0.3s; 
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.1); 
+            }
             .sidebar-props.open { transform: translateY(0); }
         }
 
@@ -197,7 +210,7 @@
         <!-- CENTER: Canvas -->
         <div class="main-canvas flex-1 bg-slate-100 relative flex flex-col overflow-hidden">
             <div class="absolute top-2 left-2 z-10 bg-white/80 px-2 py-1 rounded text-[10px] shadow backdrop-blur">
-                Canvas Scale: <span id="scale-val">100%</span>
+                Scale: <span id="scale-val">100%</span>
             </div>
             
             <div class="flex-1 canvas-bg" id="canvas-wrapper" onclick="deselectAll(event)">
@@ -223,8 +236,7 @@
 
             <div id="controls" class="hidden flex-1 overflow-y-auto p-4 space-y-4">
                 
-                <!-- Common: Position/Size -->
-                <!-- Text -->
+                <!-- Text Inputs -->
                 <div id="text-inputs" class="hidden space-y-3">
                     <textarea id="prop-text" class="w-full text-sm p-2 border rounded" rows="2" oninput="updateElement('text')"></textarea>
                     <div class="flex gap-2">
@@ -283,7 +295,7 @@
         const card = document.getElementById('card');
         const imgInput = document.getElementById('global-img-input');
 
-        // --- TEMPLATES (Matching User Images) ---
+        // --- TEMPLATES (Based on User Images) ---
         const TEMPLATES = [
             {
                 id: 't1_red', name: 'Ginyard Red', portrait: true, elements: [
@@ -365,19 +377,21 @@
             const resize = () => {
                 const wrapper = document.getElementById('canvas-wrapper');
                 const stage = document.getElementById('card');
-                const padding = 40;
+                const padding = 20; // Slightly less padding for mobile
                 
                 const availW = wrapper.clientWidth - padding;
                 const availH = wrapper.clientHeight - padding;
                 const cardW = stage.offsetWidth;
                 const cardH = stage.offsetHeight;
                 
-                const scale = Math.min(availW / cardW, availH / cardH, 1); // Never scale up > 1
+                // Calculate scale to fit
+                const scale = Math.min(availW / cardW, availH / cardH, 1);
+                
                 stage.style.transform = `scale(${scale})`;
                 document.getElementById('scale-val').innerText = Math.round(scale * 100) + '%';
             };
             window.addEventListener('resize', resize);
-            setInterval(resize, 1000); // Poll for layout changes
+            setInterval(resize, 1000); 
             resize();
         }
 
