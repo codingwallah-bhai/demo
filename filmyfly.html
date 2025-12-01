@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desi Movie Picker</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Styles & Animations */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Scrollbar styling */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        .animate-slide-up {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        /* Gradient Text Utility */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 selection:bg-rose-500 selection:text-white">
+
+    <!-- Main Card Container -->
+    <div id="app-container" class="max-w-md w-full bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 overflow-hidden relative flex flex-col min-h-[600px] max-h-[90vh]">
+        
+        <!-- Decorative background blobs -->
+        <div class="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 -mb-16 -ml-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Header (Static) -->
+        <div class="p-6 pb-2 text-center relative z-10 flex-shrink-0">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-500 to-orange-500 shadow-lg mb-4">
+                <i data-lucide="popcorn" class="w-6 h-6 text-white"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gradient bg-gradient-to-r from-white to-slate-400 mb-1">
+                Desi Movie Picker
+            </h1>
+            <p id="header-subtitle" class="text-slate-400 text-xs uppercase tracking-widest font-semibold">
+                ALL YEARS (2022-2025) ADDED!
+            </p>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="content-area" class="p-6 relative z-10 flex-1 flex flex-col overflow-hidden">
+            <!-- JavaScript will render content here -->
+        </div>
+
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- 1. THE MASSIVE DATABASE ---
+        const MOVIE_DATABASE = {
+            "2025 Upcoming": [
+                { title: "Chhaava", year: 2025, director: "Laxman Utekar", cast: "Vicky Kaushal, Rashmika Mandanna", rating: "Rank 1", desc: "Chhatrapati Sambhaji Maharaj ki shaurya gatha. Ek yoddha jiske saamne maut bhi ghabra gayi." },
+                { title: "War 2", year: 2025, director: "Ayan Mukerji", cast: "Hrithik Roshan, NTR Jr.", rating: "Rank 3", desc: "Spy Universe ka sabse bada face-off. Kabir vs NTR Jr. Action ka naya level." },
+                { title: "Sikandar", year: 2025, director: "AR Murugadoss", cast: "Salman Khan, Rashmika Mandanna", rating: "Rank 8", desc: "Eid 2025 release. Salman Khan action avatar mein wapas." },
+                { title: "Housefull 5", year: 2025, director: "Tarun Mansukhani", cast: "Akshay Kumar, Riteish Deshmukh", rating: "Rank 7", desc: "Cruise ship par comedy ka dose. Akshay, Riteish aur puri gang ki paagalpanti." },
+                { title: "Sitaare Zameen Par", year: 2025, director: "R.S. Prasanna", cast: "Aamir Khan, Genelia Deshmukh", rating: "Rank 5", desc: "Ek heartwarming sports drama. 'Champions' ka remake jisme emotions aur jeet ki kahani hai." },
+                { title: "Raid 2", year: 2025, director: "Raj Kumar Gupta", cast: "Ajay Devgn, Riteish Deshmukh", rating: "Rank 6", desc: "IRS Officer Amay Patnaik wapas aa raha hai ek aur bade tax chori ka pardafash karne." },
+                { title: "Sky Force", year: 2025, director: "Sandeep Kewlani", cast: "Akshay Kumar, Veer Pahariya", rating: "Rank 10", desc: "India ke pehle aur sabse khatarnak airstrike ki ansuni kahani." },
+                { title: "Jolly LLB 3", year: 2025, director: "Subhash Kapoor", cast: "Akshay Kumar, Arshad Warsi", rating: "Exp", desc: "Dono Jolly aamne-saamne. Courtroom mein comedy aur drama ka double dose." },
+                { title: "De De Pyaar De 2", year: 2025, director: "Anshul Sharma", cast: "Ajay Devgn, R. Madhavan", rating: "Exp", desc: "Ashish ki love life mein naya twist. Madhavan ki entry se comedy aur badhne wali hai." },
+                { title: "Thamma", year: 2025, director: "Aditya Sarpotdar", cast: "Ayushmann Khurrana, Rashmika", rating: "Rank 9", desc: "Maddock Supernatural Universe ki agli horror-comedy." }
+            ],
+            "2024 Hits": [
+                { title: "Stree 2", year: 2024, director: "Amar Kaushik", cast: "Shraddha Kapoor, Rajkummar Rao", rating: "Rank 1", desc: "Sarkata ka aatank aur Stree ki wapsi. 2024 ki sabse badi blockbuster." },
+                { title: "Bhool Bhulaiyaa 3", year: 2024, director: "Anees Bazmee", cast: "Kartik Aaryan, Vidya Balan, Madhuri Dixit", rating: "Rank 2", desc: "Rooh Baba ka saamna is baar do-do Manjulika se hota hai." },
+                { title: "Singham Again", year: 2024, director: "Rohit Shetty", cast: "Ajay Devgn, Akshay Kumar, Ranveer Singh", rating: "Rank 3", desc: "Avengers of Cop Universe. Singham, Simmba, Sooryavanshi ek saath." },
+                { title: "Fighter", year: 2024, director: "Siddharth Anand", cast: "Hrithik Roshan, Deepika Padukone", rating: "Rank 4", desc: "Indian Air Force ke top pilots desh ke liye khatarnak mission par." },
+                { title: "Shaitaan", year: 2024, director: "Vikas Bahl", cast: "Ajay Devgn, R. Madhavan", rating: "Rank 5", desc: "Ek ajnabi family ke ghar aata hai aur unki beti ko kaala jaadoo se control kar leta hai." },
+                { title: "Munjya", year: 2024, director: "Aditya Sarpotdar", cast: "Sharvari, Abhay Verma", rating: "Rank 8", desc: "Ek shrapit aatma 'Munjya' jo apni shaadi ke liye tadap raha hai." },
+                { title: "Crew", year: 2024, director: "Rajesh A Krishnan", cast: "Tabu, Kareena Kapoor, Kriti Sanon", rating: "Rank 6", desc: "Teen air hostess jo sone ki taskari mein phans jati hain." },
+                { title: "Teri Baaton Mein Aisa Uljha Jiya", year: 2024, director: "Amit Joshi", cast: "Shahid Kapoor, Kriti Sanon", rating: "Rank 7", desc: "Ek robot aur insaan ki anokhi love story." },
+                { title: "Kill", year: 2024, director: "Nikhil Nagesh Bhat", cast: "Lakshya, Raghav Juyal", rating: "Hit", desc: "Train mein ek commando dacoits se akele ladta hai. Pure violence." },
+                { title: "Laapataa Ladies", year: 2024, director: "Kiran Rao", cast: "Nitanshi Goel, Pratibha Ranta", rating: "Hit", desc: "Do dulhan train mein exchange ho jati hain. Gaon ki simple aur funny kahani." },
+                { title: "Maidaan", year: 2024, director: "Amit Sharma", cast: "Ajay Devgn, Priyamani", rating: "Hit", desc: "Syed Abdul Rahim ki biopic jinhone Indian Football ko naye mukam par pahunchaya." },
+                { title: "Bade Miyan Chote Miyan", year: 2024, director: "Ali Abbas Zafar", cast: "Akshay Kumar, Tiger Shroff", rating: "Avg", desc: "Do elite soldiers desh ko bachane ke liye." },
+                { title: "Jigra", year: 2024, director: "Vasan Bala", cast: "Alia Bhatt, Vedang Raina", rating: "Avg", desc: "Ek behen apne bhai ko jail se nikalne ke liye kisi bhi hadd tak jati hai." },
+                { title: "Do Patti", year: 2024, director: "Shashanka Chaturvedi", cast: "Kajol, Kriti Sanon", rating: "Hit", desc: "Mystery thriller jisme Kriti double role mein hain aur Kajol cop bani hain." }
+            ],
+            "2023 Blockbusters": [
+                { title: "Jawan", year: 2023, director: "Atlee", cast: "Shah Rukh Khan, Nayanthara", rating: "Rank 1", desc: "Baap-bete ki jodi system ke corruption ke khilaf ladti hai." },
+                { title: "Pathaan", year: 2023, director: "Siddharth Anand", cast: "Shah Rukh Khan, Deepika Padukone", rating: "Rank 2", desc: "Pathaan desh ko bachane ke liye Jim se ladta hai." },
+                { title: "Animal", year: 2023, director: "Sandeep Reddy Vanga", cast: "Ranbir Kapoor, Rashmika Mandanna", rating: "Rank 3", desc: "Ek beta apne pita ke liye duniya jala deta hai." },
+                { title: "Gadar 2", year: 2023, director: "Anil Sharma", cast: "Sunny Deol, Ameesha Patel", rating: "Rank 4", desc: "Tara Singh wapas Pakistan jata hai apne bete ko bachane." },
+                { title: "Dunki", year: 2023, director: "Rajkumar Hirani", cast: "Shah Rukh Khan, Taapsee Pannu", rating: "Rank 5", desc: "Punjab se London jane ke liye 'Donkey Flight' lene wale doston ki kahani." },
+                { title: "Tiger 3", year: 2023, director: "Maneesh Sharma", cast: "Salman Khan, Katrina Kaif", rating: "Rank 6", desc: "Tiger aur Zoya desh aur parivar ko bachane ki jung ladte hain." },
+                { title: "Rocky Aur Rani Kii Prem Kahaani", year: 2023, director: "Karan Johar", cast: "Ranveer Singh, Alia Bhatt", rating: "Rank 7", desc: "Do alag culture ke parivaron ki kahani." },
+                { title: "OMG 2", year: 2023, director: "Amit Rai", cast: "Akshay Kumar, Pankaj Tripathi", rating: "Rank 10", desc: "Ek pita court mein sex education ke liye ladta hai." },
+                { title: "12th Fail", year: 2023, director: "Vidhu Vinod Chopra", cast: "Vikrant Massey", rating: "Hit", desc: "IPS Manoj Kumar Sharma ki inspiring kahani." },
+                { title: "Sam Bahadur", year: 2023, director: "Meghna Gulzar", cast: "Vicky Kaushal", rating: "Hit", desc: "Field Marshal Sam Manekshaw ki biopic." },
+                { title: "Tu Jhoothi Main Makkaar", year: 2023, director: "Luv Ranjan", cast: "Ranbir Kapoor, Shraddha Kapoor", rating: "Hit", desc: "Modern relationship aur breakup drama." },
+                { title: "The Kerala Story", year: 2023, director: "Sudipto Sen", cast: "Adah Sharma", rating: "Rank 9", desc: "Teen ladkiyon ki dil dehla dene wali kahani." }
+            ],
+            "2022 Hits": [
+                { title: "Brahmāstra: Part One – Shiva", year: 2022, director: "Ayan Mukerji", cast: "Ranbir Kapoor, Alia Bhatt", rating: "Rank 1", desc: "Shiva ko apni shaktiyon ka ehsaas hota hai. Astraverse ki shuruwat." },
+                { title: "Drishyam 2", year: 2022, director: "Abhishek Pathak", cast: "Ajay Devgn, Tabu", rating: "Rank 2", desc: "Vijay Salgaonkar ka parivar phir musibat mein. Kya wo bachenge?" },
+                { title: "The Kashmir Files", year: 2022, director: "Vivek Agnihotri", cast: "Anupam Kher, Mithun Chakraborty", rating: "Rank 3", desc: "1990 mein Kashmiri Pandits ke saath hue anyay ki kahani." },
+                { title: "Bhool Bhulaiyaa 2", year: 2022, director: "Anees Bazmee", cast: "Kartik Aaryan, Kiara Advani", rating: "Rank 4", desc: "Manjulika wapas aayi hai. Horror comedy hit." },
+                { title: "Gangubai Kathiawadi", year: 2022, director: "Sanjay Leela Bhansali", cast: "Alia Bhatt", rating: "Rank 5", desc: "Kamathipura ki mafia queen Gangubai ki kahani." },
+                { title: "Jugjugg Jeeyo", year: 2022, director: "Raj Mehta", cast: "Varun Dhawan, Kiara Advani", rating: "Rank 7", desc: "Ek parivar jahan baap aur beta dono divorce chahte hain." },
+                { title: "Vikram Vedha", year: 2022, director: "Pushkar-Gayathri", cast: "Hrithik Roshan, Saif Ali Khan", rating: "Rank 8", desc: "Ek gangster aur cop ke beech ki moral jung." },
+                { title: "Bhediya", year: 2022, director: "Amar Kaushik", cast: "Varun Dhawan, Kriti Sanon", rating: "Hit", desc: "Ek aadmi bhediya ban jata hai. Horror comedy universe." },
+                { title: "Monica, O My Darling", year: 2022, director: "Vasan Bala", cast: "Rajkummar Rao, Huma Qureshi", rating: "Hit", desc: "Ek robotics expert murder plot mein phans jata hai. Neo-noir comedy." },
+                { title: "Freddy", year: 2022, director: "Shashanka Ghosh", cast: "Kartik Aaryan, Alaya F", rating: "Hit", desc: "Ek shy dentist jo pyaar mein pagal hokar killer ban jata hai." },
+                { title: "Qala", year: 2022, director: "Anvita Dutt", cast: "Triptii Dimri, Babil Khan", rating: "Critically Acclaimed", desc: "Ek playback singer ki haunting musical journey." },
+                { title: "Darlings", year: 2022, director: "Jasmeet K Reen", cast: "Alia Bhatt, Shefali Shah, Vijay Varma", rating: "Hit", desc: "Ek patni apne abusive pati se badla leti hai." }
+            ],
+            "Akshay & Ajay Special": [
+                { title: "Singham Again", year: 2024, director: "Rohit Shetty", cast: "Ajay Devgn, Kareena Kapoor", rating: "82%", desc: "Bajirao Singham Ramayana se prerit hokar apni patni ko bachane ke liye 'Danger Lanka' par hamla bolta hai." },
+                { title: "Bade Miyan Chote Miyan", year: 2024, director: "Ali Abbas Zafar", cast: "Akshay Kumar, Tiger Shroff", rating: "65%", desc: "Do elite soldiers ek naye khatre 'Masked Villain' se desh ko bachane ke liye wapas aate hain." },
+                { title: "Maidaan", year: 2024, director: "Amit Ravindernath Sharma", cast: "Ajay Devgn, Priyamani", rating: "86%", desc: "Syed Abdul Rahim ki biopic, jinhone Indian Football ko 'Golden Era' tak pahunchaya." },
+                { title: "Sarfira", year: 2024, director: "Sudha Kongara", cast: "Akshay Kumar, Radhika Madan", rating: "80%", desc: "Ek aam aadmi ka sapna ki wo aam logon ke liye hawai jahaz ki yatra sasti kar sake." },
+                { title: "Shaitaan", year: 2024, director: "Vikas Bahl", cast: "Ajay Devgn, R. Madhavan", rating: "85%", desc: "Ek ajnabi family ke ghar aata hai aur unki beti ko kaala jaadoo se control kar leta hai." },
+                { title: "OMG 2", year: 2023, director: "Amit Rai", cast: "Akshay Kumar, Pankaj Tripathi", rating: "85%", desc: "Ek pita apne bete ke liye sex education ki maang karte hue court jata hai." },
+                { title: "Drishyam 2", year: 2022, director: "Abhishek Pathak", cast: "Ajay Devgn, Tabu", rating: "92%", desc: "Saat saal baad, Vijay Salgaonkar ka parivar phir se musibat mein hai." },
+                { title: "Ram Setu", year: 2022, director: "Abhishek Sharma", cast: "Akshay Kumar", rating: "72%", desc: "Ek archaeologist Ram Setu ki sachai pata lagane ke liye mission par jata hai." },
+                { title: "Tanhaji", year: 2020, director: "Om Raut", cast: "Ajay Devgn, Saif Ali Khan", rating: "89%", desc: "Chhatrapati Shivaji Maharaj ka subedar Tanhaji, Kondhana kila wapas lene ke liye ladta hai." },
+                { title: "Hera Pheri", year: 2000, director: "Priyadarshan", cast: "Akshay Kumar, Suniel Shetty", rating: "94%", desc: "Babu Bhaiya, Raju aur Shyam! Wrong number se shuru hui kahani." },
+                { title: "Singham", year: 2011, director: "Rohit Shetty", cast: "Ajay Devgn, Kajal Aggarwal", rating: "82%", desc: "Bajirao Singham, ek imaandaar police afsar, Goa ke ek powerful don se takkar leta hai." },
+                { title: "Rowdy Rathore", year: 2012, director: "Prabhu Deva", cast: "Akshay Kumar, Sonakshi Sinha", rating: "76%", desc: "Ek chor ek bahadur police officer ki beti ki dekhbhal karne par majboor ho jata hai." }
+            ],
+            "IMDb Top Picks": [
+                { title: "12th Fail", year: 2023, director: "Vidhu Vinod Chopra", cast: "Vikrant Massey, Medha Shankar", rating: "8.7", desc: "IPS Manoj Kumar Sharma ki asli sangharsh gatha." },
+                { title: "Nayakan", year: 1987, director: "Mani Ratnam", cast: "Kamal Haasan", rating: "8.6", desc: "Ek aam aadmi Mumbai ka don Velu Naicker banta hai." },
+                { title: "Gol Maal", year: 1979, director: "Hrishikesh Mukherjee", cast: "Amol Palekar, Utpal Dutt", rating: "8.5", desc: "Ramprasad ko apni naukri bachane ke liye apne nakli judwa bhai Lakshman ko lana padta hai." },
+                { title: "Manichithrathazhu", year: 1993, director: "Fazil", cast: "Mohanlal, Shobana", rating: "8.7", desc: "Ek purani haveli mein bhoot ka saaya. Bhool Bhulaiyaa ki original inspiration." },
+                { title: "777 Charlie", year: 2022, director: "Kiranraj K", cast: "Rakshit Shetty", rating: "8.7", desc: "Ek akela aadmi aur ek kutte ki emotional road trip." },
+                { title: "Rocketry: The Nambi Effect", year: 2022, director: "R. Madhavan", cast: "R. Madhavan", rating: "8.6", desc: "ISRO scientist Nambi Narayanan ki jasooli ke jhoothe ilzaam aur sangharsh ki kahani." },
+                { title: "Kaithi", year: 2019, director: "Lokesh Kanagaraj", cast: "Karthi", rating: "8.4", desc: "Ek qaidi apne beti se milne ja raha hai, lekin police ki madad karne ke liye drug mafia se ladta hai." },
+                { title: "Jai Bhim", year: 2021, director: "T.J. Gnanavel", cast: "Suriya, Lijomol Jose", rating: "8.6", desc: "Ek wakeel ek adivasi mahila ko nyay dilane ke liye system se ladta hai." },
+                { title: "Gangs of Wasseypur", year: 2012, director: "Anurag Kashyap", cast: "Manoj Bajpayee, Nawazuddin Siddiqui", rating: "8.2", desc: "Dhanbad ke coal mafia ki teen pushton ki khooni kahani." },
+                { title: "Mahanati", year: 2018, director: "Nag Ashwin", cast: "Keerthy Suresh, Dulquer Salmaan", rating: "8.4", desc: "Legendary actress Savitri ki zindagi ka utaar-chadaav." },
+                { title: "Vikram Vedha", year: 2017, director: "Pushkar-Gayathri", cast: "R. Madhavan, Vijay Sethupathi", rating: "8.2", desc: "Ek police wala aur ek gangster ke beech ki morality ki jung." },
+                { title: "Sarpatta Parambarai", year: 2021, director: "Pa. Ranjith", cast: "Arya", rating: "8.5", desc: "1970s mein boxing clans ke beech ki izzat ki ladai." }
+            ],
+            "Telugu Blockbusters": [
+                { title: "Mayabazar", year: 1957, director: "K.V. Reddy", cast: "N.T. Rama Rao, Savitri", rating: "9.1", desc: "Mahabharat katha par aadharit ek visual masterpiece." },
+                { title: "C/o Kancharapalem", year: 2018, director: "Venkatesh Maha", cast: "Subba Rao, Radha Bessy", rating: "8.8", desc: "Ek chote se gaon ki chaar alag-alag prem kahaniyan jo dil ko chu leti hain." },
+                { title: "Jersey", year: 2019, director: "Gowtam Tinnanuri", cast: "Nani, Shraddha Srinath", rating: "8.5", desc: "Ek cricketer jo apne bete ki khwahish puri karne ke liye 36 saal ki umar mein wapas maidan mein utarta hai." },
+                { title: "Mahanati", year: 2018, director: "Nag Ashwin", cast: "Keerthy Suresh, Dulquer Salmaan", rating: "8.4", desc: "Legendary actress Savitri ki zindagi ka utaar-chadaav aur unka stardom." },
+                { title: "Rangasthalam", year: 2018, director: "Sukumar", cast: "Ram Charan, Samantha Ruth Prabhu", rating: "8.2", desc: "Chitti Babu, jo sun nahi sakta, apne gaon ko corrupt president se bachane ke liye ladta hai." },
+                { title: "Baahubali 2", year: 2017, director: "S.S. Rajamouli", cast: "Prabhas, Rana Daggubati", rating: "8.2", desc: "Kattappa ne Baahubali ko kyun maara? Is sawal ka jawab aur Mahishmati ka anjaam." },
+                { title: "Sita Ramam", year: 2022, director: "Hanu Raghavapudi", cast: "Dulquer Salmaan, Mrunal Thakur", rating: "8.5", desc: "Ek fauji Ram ko Sita se chitthiyan milti hain. Ye pyaar ki kahani border aur dharm ki diwaron se pare hai." },
+                { title: "Pokiri", year: 2006, director: "Puri Jagannadh", cast: "Mahesh Babu, Ileana D'Cruz", rating: "8.0", desc: "Pandu, ek ruthless gangster, jo police aur land mafia ke beech phasa hai." },
+                { title: "RRR", year: 2022, director: "S.S. Rajamouli", cast: "NTR Jr., Ram Charan", rating: "7.8", desc: "Do mahan krantikari angrezon ke khilaf ladne ke liye ek saath aate hain. Dosti aur action ki misaal." }
+            ]
+        };
+
+        const NEW_RELEASES = [
+            { title: "Baby John", year: 2024, director: "Kalees", cast: "Varun Dhawan, Keerthy Suresh", rating: "New", desc: "Christmas 2024 release. Varun Dhawan action mode mein. Atlee produced." },
+            { title: "Vanvaas", year: 2024, director: "Anil Sharma", cast: "Nana Patekar, Utkarsh Sharma", rating: "New", desc: "Gadar ke director ki nayi emotional family drama. December release." },
+            { title: "Agni", year: 2024, director: "Rahul Dholakia", cast: "Pratik Gandhi, Divyenndu", rating: "New", desc: "Firefighters ki zindagi par bani film. Amazon Prime original." },
+            { title: "Zero Se Restart", year: 2024, director: "Vidhu Vinod Chopra", cast: "Vikrant Massey", rating: "New", desc: "12th Fail ke making ki kahani aur usse judi ansuni baatein." }
+        ];
+
+        // --- 2. STATE VARIABLES ---
+        let currentStep = 'genre-select'; // genre-select, loading, result
+        let selectedGenre = null;
+        let selectedMovie = null;
+        let history = [];
+        let db = JSON.parse(JSON.stringify(MOVIE_DATABASE)); // Deep copy
+        let isDataLoaded = false;
+        let isLoadingData = false;
+
+        // --- 3. DOM ELEMENTS ---
+        const contentArea = document.getElementById('content-area');
+        const headerSubtitle = document.getElementById('header-subtitle');
+
+        // --- 4. LOGIC & FUNCTIONS ---
+
+        // Get Random Movie Logic
+        function getRandomMovie(genreKey, currentMovieTitle = null) {
+            const movies = db[genreKey];
+            if (!movies) return null;
+            
+            // Filter seen movies
+            let availableMovies = movies.filter(m => !history.includes(m.title));
+            
+            // If all seen, reset for this session but avoid immediate repeat
+            if (availableMovies.length === 0) {
+                availableMovies = movies.filter(m => m.title !== currentMovieTitle);
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableMovies.length);
+            return availableMovies[randomIndex];
+        }
+
+        // Render Functions
+        function render() {
+            contentArea.innerHTML = ''; // Clear content
+
+            // Update Header Subtitle
+            if (currentStep === 'genre-select') {
+                headerSubtitle.textContent = isDataLoaded ? "2025 CALENDAR LOADED" : "AKSHAY, AJAY & 2024 HITS";
+            } else {
+                headerSubtitle.textContent = `${selectedGenre || ''} SPECIAL`;
+            }
+
+            // Screen 1: Genre Selection
+            if (currentStep === 'genre-select') {
+                const listContainer = document.createElement('div');
+                listContainer.className = "flex flex-col flex-1 overflow-hidden";
+                
+                const gridDiv = document.createElement('div');
+                gridDiv.className = "grid grid-cols-2 gap-3 animate-fade-in content-start mb-4 overflow-y-auto pr-1 custom-scrollbar shrink-0";
+
+                Object.keys(db).forEach(genre => {
+                    const btn = document.createElement('button');
+                    const isNew = genre === '2025 Blockbusters' || genre === '2024 Hits' || genre === '2023 Blockbusters' || genre === '2022 Hits';
+                    const isTop = genre === 'IMDb Top Picks' || genre === 'Telugu Blockbusters';
+                    
+                    let bgClass = 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-rose-500/50';
+                    if (isNew) bgClass = 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/50 hover:border-amber-400 col-span-2';
+                    if (isTop) bgClass = 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/50 hover:border-emerald-400 col-span-2';
+
+                    btn.className = `group relative overflow-hidden p-4 rounded-xl border transition-all duration-300 text-left shrink-0 ${bgClass}`;
+                    
+                    let gradientClass = 'from-rose-500/0 to-rose-500/0 group-hover:from-rose-500/10 group-hover:to-orange-500/10';
+                    if (isNew) gradientClass = 'from-amber-500/10 to-orange-500/10';
+                    if (isTop) gradientClass = 'from-emerald-500/10 to-teal-500/10';
+
+                    let icon = '';
+                    if (isNew) icon = '<i data-lucide="star" class="w-5 h-5 text-amber-400 fill-amber-400 animate-pulse"></i>';
+                    else if (isTop) icon = '<i data-lucide="trophy" class="w-5 h-5 text-emerald-400 fill-emerald-400"></i>';
+
+                    btn.innerHTML = `
+                        <div class="absolute inset-0 bg-gradient-to-r transition-all duration-300 ${gradientClass}"></div>
+                        <div class="flex items-center justify-between relative z-10">
+                            <span class="font-bold text-lg transition-colors ${isNew ? 'text-amber-300 group-hover:text-amber-200' : isTop ? 'text-emerald-300 group-hover:text-emerald-200' : 'text-slate-200 group-hover:text-white'}">
+                                ${genre}
+                            </span>
+                            ${icon}
+                        </div>
+                        ${(!isNew && !isTop) ? '<i data-lucide="chevron-right" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all"></i>' : ''}
+                    `;
+                    btn.onclick = () => handleGenreSelect(genre);
+                    gridDiv.appendChild(btn);
+                });
+
+                listContainer.appendChild(gridDiv);
+
+                // Load Data Button / Status
+                if (!isDataLoaded) {
+                    const loadBtn = document.createElement('button');
+                    loadBtn.className = "mt-auto w-full py-3 px-4 rounded-xl border border-slate-600 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all flex items-center justify-center space-x-2 text-sm font-medium group shrink-0";
+                    loadBtn.onclick = fetchImdbData;
+                    
+                    if (isLoadingData) {
+                        loadBtn.innerHTML = `
+                            <div class="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span>Adding Upcoming Movies...</span>
+                        `;
+                        loadBtn.disabled = true;
+                    } else {
+                        loadBtn.innerHTML = `
+                            <i data-lucide="download-cloud" class="w-4 h-4 group-hover:text-sky-400"></i>
+                            <span>Load New & Upcoming</span>
+                        `;
+                    }
+                    listContainer.appendChild(loadBtn);
+                } else {
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = "mt-auto w-full py-2 px-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 flex items-center justify-center space-x-2 text-sm font-medium animate-fade-in shrink-0";
+                    statusDiv.innerHTML = `
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span>Baby John & Vanvaas Added</span>
+                    `;
+                    listContainer.appendChild(statusDiv);
+                }
+
+                contentArea.appendChild(listContainer);
+            }
+
+            // Screen 2: Loading
+            else if (currentStep === 'loading') {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = "absolute inset-0 flex flex-col items-center justify-center p-8 animate-fade-in z-20 bg-slate-900/50 backdrop-blur-sm rounded-3xl";
+                loadingDiv.innerHTML = `
+                    <div class="w-12 h-12 border-4 border-slate-700 border-t-rose-500 rounded-full animate-spin mb-4"></div>
+                    <p class="text-slate-300 font-medium animate-pulse">Finding best movie...</p>
+                `;
+                contentArea.appendChild(loadingDiv);
+            }
+
+            // Screen 3: Result
+            else if (currentStep === 'result' && selectedMovie) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = "flex flex-col h-full animate-slide-up";
+
+                // Generate Gradient Class based on title length
+                const gradients = [
+                    'from-red-500 to-orange-500',
+                    'from-fuchsia-600 to-purple-600',
+                    'from-blue-500 to-cyan-500',
+                    'from-emerald-500 to-teal-500',
+                    'from-rose-500 to-pink-500',
+                    'from-amber-500 to-orange-500',
+                    'from-indigo-500 to-blue-500',
+                ];
+                const gradientClass = gradients[selectedMovie.title.length % gradients.length];
+                const isNew = selectedMovie.year >= 2024 || selectedMovie.rating === 'Exp' || selectedMovie.rating === 'New';
+
+                resultDiv.innerHTML = `
+                    <!-- Poster Card -->
+                    <div class="w-full aspect-[16/9] rounded-2xl bg-gradient-to-br ${gradientClass} mb-6 shadow-lg relative overflow-hidden group flex items-center justify-center flex-shrink-0">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+                        <i data-lucide="film" class="w-32 h-32 text-white/20 absolute -right-8 -bottom-8 rotate-12"></i>
+                        
+                        ${isNew ? '<div class="absolute top-3 right-3 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-lg">NEW</div>' : ''}
+
+                        <div class="text-center p-4 relative z-10">
+                            <h2 class="text-3xl font-black text-white drop-shadow-md leading-tight mb-2">
+                                ${selectedMovie.title.toUpperCase()}
+                            </h2>
+                            <div class="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-white/90 text-sm font-bold border border-white/20">
+                                <i data-lucide="star" class="w-3 h-3 fill-yellow-400 text-yellow-400"></i>
+                                <span>${selectedMovie.rating}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="space-y-4 mb-6 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                        <div class="flex items-center space-x-4 text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                            <div class="flex items-center space-x-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                <span>${selectedMovie.year}</span>
+                            </div>
+                            <div class="w-1 h-1 rounded-full bg-slate-600"></div>
+                            <div class="flex items-center space-x-1">
+                                <i data-lucide="video" class="w-3 h-3"></i>
+                                <span>${selectedMovie.director}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-2 text-sm text-slate-300">
+                            <i data-lucide="users" class="w-4 h-4 text-rose-400 mt-0.5 flex-shrink-0"></i>
+                            <span class="leading-snug">
+                                <span class="text-rose-400 font-medium">Cast: </span>
+                                ${selectedMovie.cast}
+                            </span>
+                        </div>
+
+                        <div class="bg-slate-700/30 rounded-xl p-4 border border-slate-700/50">
+                            <p class="text-slate-200 text-sm leading-relaxed font-medium">
+                                "${selectedMovie.desc}"
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="grid grid-cols-2 gap-3 mt-auto shrink-0">
+                        <button onclick="handlePickAgain()" class="flex items-center justify-center space-x-2 p-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>AUR DIKHAO</span>
+                        </button>
+                        <button onclick="handleReset()" class="flex items-center justify-center space-x-2 p-3 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-bold text-sm shadow-lg shadow-rose-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                            <i data-lucide="clapperboard" class="w-4 h-4"></i>
+                            <span>NAYA GENRE</span>
+                        </button>
+                    </div>
+                `;
+                contentArea.appendChild(resultDiv);
+            }
+
+            // Re-initialize Icons after rendering new DOM
+            lucide.createIcons();
+        }
+
+        // Actions
+        function handleGenreSelect(genre) {
+            selectedGenre = genre;
+            currentStep = 'loading';
+            render();
+
+            setTimeout(() => {
+                const movie = getRandomMovie(genre);
+                if (movie) {
+                    selectedMovie = movie;
+                    history.push(movie.title);
+                    currentStep = 'result';
+                } else {
+                    currentStep = 'genre-select'; // Should not happen usually
+                }
+                render();
+            }, 500); // 0.5s delay
+        }
+
+        function handleReset() {
+            selectedGenre = null;
+            selectedMovie = null;
+            currentStep = 'genre-select';
+            render();
+        }
+
+        function handlePickAgain() {
+            currentStep = 'loading';
+            render();
+
+            setTimeout(() => {
+                const movie = getRandomMovie(selectedGenre, selectedMovie.title);
+                if (movie) {
+                    selectedMovie = movie;
+                    history.push(movie.title);
+                    currentStep = 'result';
+                }
+                render();
+            }, 300);
+        }
+
+        function fetchImdbData() {
+            isLoadingData = true;
+            render(); // show loading spinner
+
+            setTimeout(() => {
+                // Add new releases to DB
+                db['Late 2024 New'] = NEW_RELEASES;
+                isDataLoaded = true;
+                isLoadingData = false;
+                render();
+            }, 1200);
+        }
+
+        // Initial Render
+        render();
+
+    </script>
+</body>
+</html>
