@@ -23,12 +23,12 @@
             background-color: #f1f5f9;
             background-image: linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px);
             background-size: 20px 20px;
-            overflow: auto; /* Allow scrolling if card is too big */
+            overflow: hidden; /* Handled by scaler */
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            padding: 20px;
+            padding: 10px; 
         }
 
         /* --- The Card --- */
@@ -42,7 +42,7 @@
             overflow: hidden;
             transform-origin: center;
             touch-action: none;
-            flex-shrink: 0; /* Prevent shrinking in flex container */
+            flex-shrink: 0; 
         }
         .card-stage.portrait { width: 378px; height: 600px; }
 
@@ -96,22 +96,36 @@
 
         /* --- RESPONSIVE LAYOUT --- */
         @media (max-width: 768px) {
-            .app-layout { flex-direction: column; }
-            .sidebar-tools { order: 2; width: 100%; height: auto; min-height: 200px; border-right: none; border-top: 1px solid #e2e8f0; }
-            .main-canvas { order: 1; flex: 1; min-height: 50vh; overflow: hidden; } /* Ensure canvas area is scrollable/scalable */
-            /* Properties panel mobile view */
+            .app-layout { flex-direction: column; height: calc(100vh - 50px); }
+            .sidebar-tools { order: 2; width: 100%; height: auto; min-height: 120px; border-right: none; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+            .sidebar-tools .tools-content { display: none; } 
+            .sidebar-tools .quick-tools { display: grid !important; }
+            
+            .main-canvas { order: 1; flex: 1; min-height: 40vh; overflow: hidden; } 
+            
             .sidebar-props { 
                 position: fixed; 
                 bottom: 0; 
                 left: 0; 
                 width: 100%; 
-                height: 60vh; 
+                height: 50vh; 
                 z-index: 100; 
                 transform: translateY(100%); 
-                transition: transform 0.3s; 
-                box-shadow: 0 -4px 20px rgba(0,0,0,0.1); 
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.15); 
+                border-top-left-radius: 16px;
+                border-top-right-radius: 16px;
+                display: flex;
+                flex-direction: column;
             }
             .sidebar-props.open { transform: translateY(0); }
+            
+            .mobile-overlay {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 90;
+                display: none;
+            }
+            .mobile-overlay.active { display: block; }
         }
 
         /* --- PRINT CSS --- */
@@ -155,6 +169,7 @@
 <body class="bg-white h-screen flex flex-col text-slate-800">
 
     <input type="file" id="global-img-input" class="hidden" accept="image/*">
+    <div id="mobile-overlay" class="mobile-overlay md:hidden" onclick="closeProps()"></div>
 
     <!-- Navbar -->
     <nav class="bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between z-50 shrink-0">
@@ -162,6 +177,16 @@
             <div class="bg-blue-600 p-1.5 rounded-lg text-white"><i data-lucide="id-card" class="w-5 h-5"></i></div>
             <span class="font-bold text-lg hidden sm:inline">ID Studio</span>
         </div>
+        
+        <div class="flex items-center gap-2 mr-auto ml-4">
+            <button onclick="undo()" id="btn-undo" class="p-1.5 hover:bg-slate-100 rounded disabled:opacity-30 text-slate-600" title="Undo (Ctrl+Z)" disabled>
+                <i data-lucide="undo-2" class="w-4 h-4"></i>
+            </button>
+            <button onclick="redo()" id="btn-redo" class="p-1.5 hover:bg-slate-100 rounded disabled:opacity-30 text-slate-600" title="Redo (Ctrl+Y)" disabled>
+                <i data-lucide="redo-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+
         <div class="flex gap-2">
             <button onclick="addToQueue()" class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700">
                 <i data-lucide="plus" class="w-3 h-3"></i> <span class="hidden sm:inline">Add</span>
@@ -176,39 +201,54 @@
         
         <!-- LEFT: Templates & Tools -->
         <div class="sidebar-tools w-72 bg-white border-r border-slate-200 flex flex-col z-30">
-            <div class="flex border-b border-slate-100">
+            
+            <!-- Tabs for Desktop -->
+            <div class="hidden md:flex border-b border-slate-100">
                 <button onclick="switchTab('templates')" class="flex-1 py-3 text-xs font-bold text-slate-600 border-b-2 border-blue-600 bg-blue-50" id="tab-templates">Templates</button>
                 <button onclick="switchTab('queue')" class="flex-1 py-3 text-xs font-bold text-slate-400 hover:text-slate-600" id="tab-queue">Print Queue</button>
             </div>
 
-            <!-- Templates Tab -->
-            <div id="panel-templates" class="flex-1 flex flex-col overflow-hidden">
+            <!-- Templates Tab (Desktop) -->
+            <div id="panel-templates" class="tools-content flex-1 flex flex-col overflow-hidden md:flex">
                 <div class="p-3 overflow-y-auto grid grid-cols-2 gap-2">
                     <!-- Injected via JS -->
                 </div>
             </div>
 
             <!-- Queue Tab -->
-            <div id="panel-queue" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div id="panel-queue" class="tools-content hidden flex-1 flex flex-col overflow-hidden">
                 <div id="queue-list" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
                 <div class="p-2 border-t">
                     <button onclick="clearQueue()" class="w-full py-2 text-xs text-red-500 border border-red-200 rounded hover:bg-red-50">Clear All</button>
                 </div>
             </div>
 
-            <!-- Bottom Tools -->
-            <div class="p-3 border-t border-slate-100 bg-slate-50 grid grid-cols-4 gap-1">
-                <button onclick="addNewText()" class="flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="type" class="w-4 h-4"></i><span class="text-[9px]">Text</span></button>
+            <!-- Bottom Tools (Always Visible, Mobile Optimized) -->
+            <div class="quick-tools p-2 border-t border-slate-100 bg-slate-50 grid grid-cols-4 gap-1">
+                <button onclick="addNewText()" class="flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="type" class="w-4 h-4"></i><span class="text-[9px] mt-1">Text</span></button>
                 <label class="flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500 cursor-pointer">
-                    <input type="file" class="hidden" onchange="addNewImage(event)"><i data-lucide="image" class="w-4 h-4"></i><span class="text-[9px]">Img</span>
+                    <input type="file" class="hidden" onchange="addNewImage(event)"><i data-lucide="image" class="w-4 h-4"></i><span class="text-[9px] mt-1">Img</span>
                 </label>
-                <button onclick="addShape('rect')" class="flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="square" class="w-4 h-4"></i><span class="text-[9px]">Box</span></button>
-                <button onclick="addNewBarcode()" class="flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="scan-barcode" class="w-4 h-4"></i><span class="text-[9px]">Code</span></button>
+                <button onclick="addShape('rect')" class="flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="square" class="w-4 h-4"></i><span class="text-[9px] mt-1">Box</span></button>
+                <!-- Mobile Template Toggle -->
+                <button onclick="toggleMobileTemplates()" class="md:hidden flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="layout-template" class="w-4 h-4"></i><span class="text-[9px] mt-1">Tpl</span></button>
+                <!-- Desktop Code Btn -->
+                <button onclick="addNewBarcode()" class="hidden md:flex flex-col items-center p-2 bg-white border rounded hover:border-blue-500"><i data-lucide="scan-barcode" class="w-4 h-4"></i><span class="text-[9px] mt-1">Code</span></button>
+            </div>
+            
+            <!-- Mobile Template Drawer (Hidden by default) -->
+            <div id="mobile-templates" class="md:hidden hidden absolute bottom-16 left-0 w-full bg-white border-t p-2 h-40 overflow-y-auto grid grid-cols-3 gap-2 shadow-lg z-50">
+               <!-- Templates injected here for mobile -->
             </div>
         </div>
 
         <!-- CENTER: Canvas -->
         <div class="main-canvas flex-1 bg-slate-100 relative flex flex-col overflow-hidden">
+            <!-- Edit Button for Mobile (Floating) -->
+            <button id="mobile-edit-btn" onclick="openProps()" class="md:hidden absolute bottom-4 right-4 z-20 bg-blue-600 text-white p-3 rounded-full shadow-lg hidden">
+                <i data-lucide="edit-3" class="w-5 h-5"></i>
+            </button>
+
             <div class="absolute top-2 left-2 z-10 bg-white/80 px-2 py-1 rounded text-[10px] shadow backdrop-blur">
                 Scale: <span id="scale-val">100%</span>
             </div>
@@ -226,7 +266,7 @@
                     <button onclick="changeLayer('up')" class="p-1 hover:bg-white rounded"><i data-lucide="arrow-up" class="w-4 h-4"></i></button>
                     <button onclick="changeLayer('down')" class="p-1 hover:bg-white rounded"><i data-lucide="arrow-down" class="w-4 h-4"></i></button>
                     <button onclick="deleteSelected()" class="p-1 text-red-500 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    <button onclick="closeProps()" class="md:hidden p-1 ml-2"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    <button onclick="closeProps()" class="md:hidden p-1 ml-2 text-slate-500 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
             </div>
 
@@ -240,12 +280,20 @@
                 <div id="text-inputs" class="hidden space-y-3">
                     <textarea id="prop-text" class="w-full text-sm p-2 border rounded" rows="2" oninput="updateElement('text')"></textarea>
                     <div class="flex gap-2">
-                        <input type="number" id="prop-size" class="w-16 text-sm p-1 border rounded" oninput="updateElement('size')">
-                        <input type="color" id="prop-color" class="w-8 h-8 p-0 border-0 rounded cursor-pointer" oninput="updateElement('color')">
-                        <div class="flex-1 flex justify-end gap-1">
-                            <button onclick="toggleStyle('bold')" class="p-1 border rounded hover:bg-slate-50"><b>B</b></button>
-                            <button onclick="updateElement('align', 'center')" class="p-1 border rounded hover:bg-slate-50"><i data-lucide="align-center" class="w-4 h-4"></i></button>
+                        <div class="flex-1">
+                            <label class="text-[9px] uppercase font-bold text-slate-400">Size</label>
+                            <input type="number" id="prop-size" class="w-full text-sm p-1 border rounded" oninput="updateElement('size')">
                         </div>
+                        <div>
+                            <label class="text-[9px] uppercase font-bold text-slate-400">Color</label>
+                            <input type="color" id="prop-color" class="w-8 h-8 p-0 border-0 rounded cursor-pointer block mt-1" oninput="updateElement('color')">
+                        </div>
+                    </div>
+                    <div class="flex justify-between gap-1">
+                         <button onclick="toggleStyle('bold')" class="flex-1 p-1 border rounded hover:bg-slate-50 font-bold text-xs">B</button>
+                         <button onclick="updateElement('align', 'left')" class="flex-1 p-1 border rounded hover:bg-slate-50"><i data-lucide="align-left" class="w-3 h-3 mx-auto"></i></button>
+                         <button onclick="updateElement('align', 'center')" class="flex-1 p-1 border rounded hover:bg-slate-50"><i data-lucide="align-center" class="w-3 h-3 mx-auto"></i></button>
+                         <button onclick="updateElement('align', 'right')" class="flex-1 p-1 border rounded hover:bg-slate-50"><i data-lucide="align-right" class="w-3 h-3 mx-auto"></i></button>
                     </div>
                 </div>
 
@@ -254,8 +302,8 @@
                     <button onclick="triggerReplace()" id="btn-replace" class="w-full py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-xs font-bold">Replace Image</button>
                     
                     <div class="flex items-center justify-between">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Fill</label>
-                        <input type="color" id="prop-fill" class="w-6 h-6 border-0 p-0 rounded cursor-pointer" oninput="updateElement('bg')">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Fill Color</label>
+                        <input type="color" id="prop-fill" class="w-8 h-8 border-0 p-0 rounded cursor-pointer" oninput="updateElement('bg')">
                     </div>
                     
                     <div>
@@ -266,8 +314,8 @@
                     <div>
                         <label class="text-[10px] font-bold text-slate-400 uppercase">Border</label>
                         <div class="flex gap-2">
-                            <input type="number" id="prop-border-w" class="w-12 text-sm p-1 border rounded" placeholder="0" oninput="updateElement('border')">
-                            <input type="color" id="prop-border-c" class="w-6 h-6 border-0 p-0 rounded cursor-pointer self-center" oninput="updateElement('border')">
+                            <input type="number" id="prop-border-w" class="w-12 text-sm p-1 border rounded" placeholder="Width" oninput="updateElement('border')">
+                            <input type="color" id="prop-border-c" class="w-8 h-8 border-0 p-0 rounded cursor-pointer self-center" oninput="updateElement('border')">
                         </div>
                     </div>
                 </div>
@@ -295,10 +343,70 @@
         const card = document.getElementById('card');
         const imgInput = document.getElementById('global-img-input');
 
-        // --- TEMPLATES (Based on User Images) ---
+        // --- UNDO/REDO STATE ---
+        let history = [];
+        let historyIndex = -1;
+        let isUndoing = false;
+
+        function saveState() {
+            if (isUndoing) return; 
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            const state = {
+                html: card.innerHTML,
+                className: card.className,
+                width: card.style.width,
+                height: card.style.height
+            };
+            history.push(state);
+            historyIndex++;
+            updateUndoRedoUI();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                isUndoing = true;
+                historyIndex--;
+                restoreState(history[historyIndex]);
+                isUndoing = false;
+                updateUndoRedoUI();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                isUndoing = true;
+                historyIndex++;
+                restoreState(history[historyIndex]);
+                isUndoing = false;
+                updateUndoRedoUI();
+            }
+        }
+
+        function restoreState(state) {
+            card.innerHTML = state.html;
+            card.className = state.className;
+            card.style.width = state.width;
+            card.style.height = state.height;
+            Array.from(card.children).forEach(el => {
+                el.addEventListener('mousedown', (e) => { e.stopPropagation(); selectElement(el); });
+                el.addEventListener('touchstart', (e) => { e.stopPropagation(); selectElement(el); });
+            });
+            deselectAll(); 
+        }
+
+        function updateUndoRedoUI() {
+            document.getElementById('btn-undo').disabled = historyIndex <= 0;
+            document.getElementById('btn-redo').disabled = historyIndex >= history.length - 1;
+            document.getElementById('btn-undo').style.opacity = historyIndex <= 0 ? 0.3 : 1;
+            document.getElementById('btn-redo').style.opacity = historyIndex >= history.length - 1 ? 0.3 : 1;
+        }
+
+        // --- TEMPLATES ---
         const TEMPLATES = [
             {
-                id: 't1_red', name: 'Ginyard Red', portrait: true, elements: [
+                id: 'red_curved', name: 'Ginyard Red', portrait: true, elements: [
                     { type: 'shape', bg: '#450a0a', w: '100%', h: '100%', x: 0, y: 0, z: 1 },
                     { type: 'shape', bg: '#ffffff', w: '100%', h: '450px', x: 0, y: 150, z: 2, clip: 'polygon(0 15%, 100% 0, 100% 100%, 0 85%)' },
                     { type: 'text', text: 'GINYARD', size: 28, color: '#fff', bold: true, x: 110, y: 40, z: 10 },
@@ -311,7 +419,7 @@
                 ]
             },
             {
-                id: 't2_blue', name: 'Brocelle State', portrait: false, elements: [
+                id: 'blue_map', name: 'Brocelle Blue', portrait: false, elements: [
                     { type: 'shape', bg: '#ffffff', w: '100%', h: '100%', x: 0, y: 0, z: 1 },
                     { type: 'shape', bg: '#0f172a', w: '100%', h: '60px', x: 0, y: 0, z: 2 },
                     { type: 'shape', bg: '#0f172a', w: '100%', h: '40px', x: 0, y: 338, z: 2 },
@@ -325,7 +433,7 @@
                 ]
             },
             {
-                id: 't3_green', name: 'Salford Student', portrait: false, elements: [
+                id: 'green_salford', name: 'Salford Green', portrait: false, elements: [
                     { type: 'shape', bg: '#f0fdf4', w: '100%', h: '100%', x: 0, y: 0, z: 1 },
                     { type: 'shape', bg: '#064e3b', w: '280px', h: '60px', x: 0, y: 40, z: 2, rounded: '0 30px 30px 0' },
                     { type: 'text', text: 'STUDENT ID CARD', size: 22, color: '#fff', bold: true, x: 20, y: 55, z: 10 },
@@ -338,7 +446,7 @@
                 ]
             },
             {
-                id: 't4_wave', name: 'Studio Wave', portrait: true, elements: [
+                id: 'blue_wave', name: 'Studio Wave', portrait: true, elements: [
                     { type: 'shape', bg: '#fff', w: '100%', h: '100%', x: 0, y: 0, z: 1 },
                     { type: 'shape', bg: '#3b82f6', w: '100%', h: '120px', x: 0, y: 0, z: 2, clip: 'ellipse(100% 80% at 50% 0%)' },
                     { type: 'shape', bg: '#1e3a8a', w: '100%', h: '100px', x: 0, y: 500, z: 2, clip: 'ellipse(100% 100% at 50% 100%)' },
@@ -355,9 +463,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             renderTemplatesList();
-            loadTemplate('t1_red');
+            loadTemplate('red_curved');
             setupInteract();
             setupAutoResize();
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
+            });
             
             imgInput.addEventListener('change', (e) => {
                 if(e.target.files && e.target.files[0] && selectedEl) {
@@ -365,6 +479,7 @@
                     reader.onload = (evt) => {
                         const img = selectedEl.querySelector('img');
                         if(img) img.src = evt.target.result;
+                        saveState(); 
                     };
                     reader.readAsDataURL(e.target.files[0]);
                 }
@@ -377,14 +492,15 @@
             const resize = () => {
                 const wrapper = document.getElementById('canvas-wrapper');
                 const stage = document.getElementById('card');
-                const padding = 20; // Slightly less padding for mobile
+                const padding = 20; 
                 
+                if (!wrapper.clientWidth) return;
+
                 const availW = wrapper.clientWidth - padding;
                 const availH = wrapper.clientHeight - padding;
                 const cardW = stage.offsetWidth;
                 const cardH = stage.offsetHeight;
                 
-                // Calculate scale to fit
                 const scale = Math.min(availW / cardW, availH / cardH, 1);
                 
                 stage.style.transform = `scale(${scale})`;
@@ -398,21 +514,35 @@
         // --- LOGIC ---
         function renderTemplatesList() {
             const grid = document.getElementById('panel-templates').children[0];
+            const mobGrid = document.getElementById('mobile-templates');
+            
             grid.innerHTML = '';
-            TEMPLATES.forEach(tpl => {
+            mobGrid.innerHTML = '';
+            
+            const createBtn = (tpl) => {
                 const btn = document.createElement('button');
                 btn.className = 'flex flex-col items-center p-2 border rounded hover:border-blue-500 bg-white shadow-sm';
                 btn.onclick = () => loadTemplate(tpl.id);
-                // Simple CSS Preview
                 const isP = tpl.portrait;
-                const aspect = isP ? 'w-8 h-12' : 'w-12 h-8';
+                const aspect = isP ? 'w-6 h-8' : 'w-8 h-6';
                 const bg = tpl.elements[0]?.bg || '#eee';
-                btn.innerHTML = `
-                    <div class="${aspect} rounded border mb-1" style="background:${bg}"></div>
-                    <span class="text-[10px] font-bold text-slate-600">${tpl.name}</span>
-                `;
-                grid.appendChild(btn);
+                btn.innerHTML = `<div class="${aspect} rounded border mb-1" style="background:${bg}"></div><span class="text-[9px] font-bold text-slate-600 truncate w-full">${tpl.name}</span>`;
+                return btn;
+            }
+
+            TEMPLATES.forEach(tpl => {
+                grid.appendChild(createBtn(tpl));
+                mobGrid.appendChild(createBtn(tpl).cloneNode(true));
             });
+            
+            Array.from(mobGrid.children).forEach((btn, i) => {
+                btn.onclick = () => { loadTemplate(TEMPLATES[i].id); toggleMobileTemplates(); };
+            });
+        }
+
+        function toggleMobileTemplates() {
+            const el = document.getElementById('mobile-templates');
+            el.classList.toggle('hidden');
         }
 
         function switchTab(tab) {
@@ -429,7 +559,7 @@
             card.className = tpl.portrait ? 'card-stage portrait bg-white shadow-2xl' : 'card-stage bg-white shadow-2xl';
             tpl.elements.forEach(data => createElement(data));
             deselectAll();
-            // Force resize update
+            history = []; historyIndex = -1; saveState();
             setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
         }
 
@@ -444,7 +574,6 @@
             el.dataset.y = y;
             el.style.zIndex = data.z || zIndexCounter++;
 
-            // Size
             if(data.w) el.style.width = data.w;
             if(data.h) el.style.height = data.h;
 
@@ -505,7 +634,6 @@
                 img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(val)}`;
                 img.style.objectFit = 'contain';
             } else {
-                // Use JsBarcode
                 const canvas = document.createElement('canvas');
                 JsBarcode(canvas, val, { format: "CODE128", displayValue: false, margin: 0 });
                 img.src = canvas.toDataURL();
@@ -517,24 +645,30 @@
         function setupInteract() {
             interact('.element')
                 .draggable({
-                    listeners: { move(e) {
-                        const t = e.target;
-                        const x = (parseFloat(t.dataset.x)||0) + e.dx;
-                        const y = (parseFloat(t.dataset.y)||0) + e.dy;
-                        t.style.transform = `translate(${x}px, ${y}px)`;
-                        t.dataset.x = x; t.dataset.y = y;
-                        if(t !== selectedEl) selectElement(t);
-                    }},
+                    listeners: { 
+                        move(e) {
+                            const t = e.target;
+                            const x = (parseFloat(t.dataset.x)||0) + e.dx;
+                            const y = (parseFloat(t.dataset.y)||0) + e.dy;
+                            t.style.transform = `translate(${x}px, ${y}px)`;
+                            t.dataset.x = x; t.dataset.y = y;
+                            if(t !== selectedEl) selectElement(t);
+                        },
+                        end(e) { saveState(); }
+                    },
                     modifiers: [ interact.modifiers.restrictRect({ restriction: 'parent', endOnly: false }) ]
                 })
                 .resizable({
                     edges: { left: false, right: true, bottom: true, top: false },
-                    listeners: { move(e) {
-                        const t = e.target;
-                        if(t.dataset.type === 'text') return;
-                        t.style.width = e.rect.width + 'px';
-                        t.style.height = e.rect.height + 'px';
-                    }}
+                    listeners: { 
+                        move(e) {
+                            const t = e.target;
+                            if(t.dataset.type === 'text') return;
+                            t.style.width = e.rect.width + 'px';
+                            t.style.height = e.rect.height + 'px';
+                        },
+                        end(e) { saveState(); }
+                    }
                 });
         }
 
@@ -588,12 +722,18 @@
             if(selectedEl) selectedEl.classList.remove('selected');
             selectedEl = null;
             document.getElementById('prop-panel').classList.remove('open');
+            document.getElementById('mobile-overlay').classList.remove('active');
             document.getElementById('empty-state').style.display = 'flex';
             document.getElementById('controls').style.display = 'none';
         }
 
         function closeProps() {
             document.getElementById('prop-panel').classList.remove('open');
+            document.getElementById('mobile-overlay').classList.remove('active');
+        }
+        
+        function openProps() {
+            if(selectedEl) document.getElementById('prop-panel').classList.add('open');
         }
 
         // --- UPDATES ---
@@ -624,18 +764,27 @@
                 selectedEl.dataset.value = document.getElementById('prop-code').value;
                 renderCode(selectedEl);
             }
+            
+            // Add listeners for saveState on blur only once
+            // Handled globally below
         }
+        
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('change', saveState);
+        });
 
         function setCodeType(t) {
             if(selectedEl && selectedEl.dataset.type === 'code') {
                 selectedEl.dataset.codeType = t;
                 renderCode(selectedEl);
+                saveState();
             }
         }
 
         function toggleStyle(s) {
             if(!selectedEl) return;
             if(s === 'bold') selectedEl.style.fontWeight = selectedEl.style.fontWeight === '700' ? '400' : '700';
+            saveState();
         }
 
         function changeLayer(dir) {
@@ -643,28 +792,35 @@
             let z = parseInt(selectedEl.style.zIndex) || 100;
             if(dir === 'up') z++; else z--;
             selectedEl.style.zIndex = z;
+            saveState();
         }
 
         function deleteSelected() {
-            if(selectedEl) { selectedEl.remove(); deselectAll(); }
+            if(selectedEl) { selectedEl.remove(); deselectAll(); saveState(); }
         }
 
         // --- ADDERS ---
         function addNewText() {
             createElement({ type: 'text', text: 'New Text', x: 50, y: 50, size: 24, color: '#000' });
+            saveState();
         }
         function addNewBarcode() {
             createElement({ type: 'barcode', value: '123456', x: 50, y: 150, w: '200px', h: '60px' });
+            saveState();
         }
         function addShape(t) {
             const d = { type: 'shape', x: 50, y: 50, w: '100px', h: '100px', bg: '#3b82f6' };
             if(t === 'circle') d.rounded = '50%';
             createElement(d);
+            saveState();
         }
         function addNewImage(e) {
             if(e.target.files[0]) {
                 const reader = new FileReader();
-                reader.onload = (evt) => createElement({ type: 'image', src: evt.target.result, w: '150px', h: '150px', x: 50, y: 50 });
+                reader.onload = (evt) => {
+                    createElement({ type: 'image', src: evt.target.result, w: '150px', h: '150px', x: 50, y: 50 });
+                    saveState();
+                };
                 reader.readAsDataURL(e.target.files[0]);
             }
             e.target.value = '';
