@@ -117,8 +117,8 @@
             padding: 100px 20px;
             position: relative;
             
-            /* AI Image as Background Banner */
-            /* Default for Desktop */
+            /* AI Image as Background Banner - Assuming this is also in assets/images or root? 
+               Keeping it in root as per your last successful instruction, or update path if moved */
             background: linear-gradient(rgba(5, 5, 5, 0.75), rgba(5, 5, 5, 0.85)), 
                         url('assets/images/banner.png');
             background-size: cover;
@@ -411,7 +411,7 @@
                 Using the ORIGINAL Photo for the Profile Circle 
             -->
             <img 
-                src="assets/images/prifle.jpeg" 
+                src="1737800704026.jpeg" 
                 alt="Er Karim" 
                 class="profile-img"
                 onerror="this.onerror=null; this.src='assets/images/profile.jpeg?fit=crop&w=300&h=300';"
@@ -425,7 +425,7 @@
         <div class="hero-btns">
             <a href="#work" class="btn btn-primary">View Projects</a>
             <!-- Added WhatsApp Button in Hero -->
-            <a href="https://wa.me/+9176311154144" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+            <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
         </div>
     </section>
 
@@ -532,12 +532,12 @@
                 
                 <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
                     <a href="mailto:technicalkrimullah@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
-                    <a href="https://wa.me/+917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
+                    <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
                 </div>
 
                 <!-- Updated Social Links -->
                 <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px;">
-                    <a href="https://wa.me/+917631115414" target="_blank" class="social-btn wa"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://wa.me/917631115414" target="_blank" class="social-btn wa"><i class="fab fa-whatsapp"></i></a>
                     <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" class="social-btn in"><i class="fab fa-linkedin-in"></i></a>
                     <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" class="social-btn fb"><i class="fab fa-facebook-f"></i></a>
                 </div>
@@ -550,7 +550,7 @@
     </footer>
 
     <!-- Floating WhatsApp Button -->
-    <a href="https://wa.me/+917631115414" class="whatsapp-float" target="_blank">
+    <a href="https://wa.me/917631115414" class="whatsapp-float" target="_blank">
         <i class="fab fa-whatsapp"></i>
     </a>
 
@@ -573,23 +573,22 @@
         }
 
         // Data for Projects
-        // Maine yahan 'image' property add kar di hai.
-        // Aapko bas isi naam se photo save karni hai folder mein.
+        // PATH UPDATED: Now pointing to assets/images/ folder
         const projects = [
             { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"], image: "assets/images/1.png" },
             { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"], image: "assets/images/2.png" },
             { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"], image: "assets/images/3.png" },
             { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"], image: "assets/images/4.png" },
-            { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"], image: "assets/images/5.png" },
-            { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"], image: "assets/images/6.png" },
-            { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"], image: "assets/images/6.png" },
-            { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Org"], image: "assets/images/7.png" },
-            { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"], image: "assets/images/8.png" },
-            { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"], image: "assets/images/9.png" },
-            { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"], image: "10.png" },
-            { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"], image: "assets/images/11.png" },
-            { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"], image: "assets/images/12.png" },
-            { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"], image: "sweetalk.png" }
+            { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"], image: "assets/images/pinesnutrition.png" },
+            { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"], image: "assets/images/ictea.png" },
+            { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"], image: "assets/images/crossworks.png" },
+            { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Org"], image: "assets/images/bgms.png" },
+            { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"], image: "assets/images/ikigai.png" },
+            { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"], image: "assets/images/anuragtraders.png" },
+            { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"], image: "assets/images/maasinme.png" },
+            { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"], image: "assets/images/blueways.png" },
+            { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"], image: "assets/images/karishmakannan.png" },
+            { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"], image: "assets/images/sweetalk.png" }
         ];
 
         const container = document.getElementById('portfolio-container');
@@ -597,8 +596,6 @@
         projects.forEach((proj, index) => {
             const tagsHtml = proj.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
-            // Yahan hum aapki local image use kar rahe hain (proj.image)
-            // Agar image nahi mili, to fallback mein placeholder dikhega
             const html = `
                 <div class="project-card">
                     <div class="project-img-container">
