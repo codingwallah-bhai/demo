@@ -112,11 +112,12 @@
             position: relative;
             
             /* AI Image as Background Banner */
-            background: linear-gradient(rgba(5, 5, 5, 0.85), rgba(5, 5, 5, 0.9)), 
+            /* Default for Desktop */
+            background: linear-gradient(rgba(5, 5, 5, 0.75), rgba(5, 5, 5, 0.85)), 
                         url('assets/images/banner.png');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed; /* Parallax Effect */
+            background-attachment: fixed; /* Parallax Effect on Desktop */
             background-repeat: no-repeat;
         }
 
@@ -176,7 +177,7 @@
 
         .hero p {
             font-size: 1.2rem;
-            color: #d0d0d0; /* Slightly lighter for readability over banner */
+            color: #e0e0e0; /* Made slightly brighter */
             max-width: 600px;
             margin-bottom: 40px;
             animation: fadeIn 1s ease-out 0.6s backwards;
@@ -340,6 +341,19 @@
             .stats-bar { gap: 30px; }
             .portfolio-grid { grid-template-columns: 1fr; }
             .whatsapp-float { width: 50px; height: 50px; font-size: 28px; bottom: 20px; right: 20px; }
+            
+            /* --- MOBILE FIX for Hero Background --- */
+            .hero {
+                /* On Mobile, remove fixed to allow image to show properly */
+                background-attachment: scroll !important; 
+                /* Center Top to focus on faces or main content */
+                background-position: center center !important; 
+                /* Slightly lighter gradient on mobile to make image visible */
+                background: linear-gradient(rgba(5, 5, 5, 0.65), rgba(5, 5, 5, 0.75)), 
+                            url('Gemini_Generated_Image_k7hhi2k7hhi2k7hh.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+            }
         }
     </style>
 </head>
