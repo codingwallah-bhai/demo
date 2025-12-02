@@ -1,1 +1,727 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project HYDRA - OSINT Framework</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* General body styling for a dark, techy look */
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0d0d0d; /* Very dark background */
+            color: #00ff41; /* Neon green text */
+        }
+        /* Styling for the main window container, giving it a terminal feel */
+        .hydra-window {
+            background-color: rgba(0, 20, 0, 0.8); /* Semi-transparent dark green */
+            border: 2px solid #00ff41; /* Neon green border */
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.4); /* Glow effect */
+            backdrop-filter: blur(5px); /* Blurry background effect */
+        }
+        /* Header styling for the window title bar */
+        .hydra-header {
+            background-color: #00ff41; /* Neon green background */
+            color: #0d0d0d; /* Dark text for contrast */
+            text-shadow: 0 0 5px #0d0d0d; /* Slight text shadow */
+        }
+        /* Styling for action buttons */
+        .hydra-btn {
+            background-color: #00ff41; /* Neon green background */
+            color: #0d0d0d; /* Dark text */
+            border: 2px solid #00ff41; /* Matching border */
+            transition: all 0.3s ease; /* Smooth transition on hover */
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5); /* Button glow */
+        }
+        /* Hover effect for buttons */
+        .hydra-btn:hover {
+            background-color: #0d0d0d; /* Dark background on hover */
+            color: #00ff41; /* Neon green text on hover */
+        }
+        /* Styling for category titles within the results section */
+        .category-title {
+            color: #00ff41; /* Neon green text */
+            text-shadow: 0 0 8px #00ff41; /* Stronger glow for titles */
+            border-image: linear-gradient(to right, #00ff41, transparent) 1; /* Gradient border for emphasis */
+        }
+        /* Styling for individual link cards */
+        .link-card {
+            background-color: rgba(0, 40, 10, 0.6); /* Slightly darker green semi-transparent */
+            border: 1px solid rgba(0, 255, 65, 0.3); /* Subtle green border */
+            transition: all 0.2s ease; /* Smooth transition on hover */
+        }
+        /* Hover effect for link cards */
+        .link-card:hover {
+            background-color: rgba(0, 255, 65, 0.2); /* Lighter green semi-transparent on hover */
+            border-color: #00ff41; /* Solid neon green border on hover */
+        }
+        /* Styling for the link name within a card */
+        .link-name {
+            color: #ffffff; /* White text for better readability */
+        }
+        /* Styling for the link description within a card */
+        .link-desc {
+            color: #a3a3a3; /* Greyish text for descriptions */
+        }
+        /* Styling for the system log output area */
+        #system-log {
+            background-color: #000; /* Pure black background */
+            border: 1px solid #00ff41; /* Neon green border */
+            height: 150px; /* Fixed height for scrollability */
+            font-size: 0.8rem; /* Smaller font for log messages */
+            white-space: pre-wrap; /* Preserves whitespace and wraps text */
+            word-break: break-all; /* Breaks words if necessary to fit */
+        }
+        /* Scanlines overlay for a retro CRT effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.4) 50%); /* Horizontal lines */
+            background-size: 100% 4px; /* Size of each scanline */
+            animation: scan 10s linear infinite; /* Animation for scanline movement */
+            pointer-events: none; /* Allows clicks to pass through */
+            opacity: 0.4; /* Semi-transparent */
+        }
+        /* Keyframe animation for scanline movement */
+        @keyframes scan {
+            from { background-position: 0 0; }
+            to { background-position: 0 -40px; }
+        }
+        /* Styling for image preview */
+        #image-preview-container {
+            border: 1px dashed #00ff41;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.5); /* Slightly darker background */
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        #image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+        }
+        .help-text {
+            font-size: 0.75rem; /* text-xs */
+            color: #a3a3a3; /* gray-400 */
+            margin-top: 0.25rem; /* mt-1 */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="scanlines"></div>
+    <div class="w-full max-w-5xl mx-auto hydra-window rounded-lg overflow-hidden">
+        <div class="hydra-header p-3 flex items-center justify-center">
+            <p class="text-center font-bold text-xl">[> PROJECT HYDRA: DEEP OSINT FRAMEWORK <]</p>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Primary Query Input -->
+                <div class="md:col-span-1">
+                    <label for="primary-query" class="block mb-2 font-bold text-lg">>> PRIMARY_QUERY (नाम, ईमेल, आदि):</label>
+                    <input type="text" id="primary-query" class="w-full px-4 py-2 bg-[#000] border-2 border-[#00ff41] rounded-md text-lg text-[#00ff41] focus:outline-none focus:ring-2 focus:ring-[#00ff41]" placeholder="कोई भी सामान्य टेक्स्ट...">
+                </div>
+                <!-- Phone Number Input -->
+                <div class="md:col-span-1">
+                    <label for="phone-number" class="block mb-2 font-bold text-lg">>> PHONE_NUMBER:</label>
+                    <input type="tel" id="phone-number" class="w-full px-4 py-2 bg-[#000] border-2 border-[#00ff41] rounded-md text-lg text-[#00ff41] focus:outline-none focus:ring-2 focus:ring-[#00ff41]" placeholder="फ़ोन नंबर दर्ज करें...">
+                </div>
+                <!-- Address/Location Input -->
+                <div class="md:col-span-1">
+                    <label for="address-location" class="block mb-2 font-bold text-lg">>> ADDRESS_LOCATION (शहर, राज्य, ज़िला):</label>
+                    <input type="text" id="address-location" class="w-full px-4 py-2 bg-[#000] border-2 border-[#00ff41] rounded-md text-lg text-[#00ff41] focus:outline-none focus:ring-2 focus:ring-[#00ff41]" placeholder="शहर, राज्य, ज़िला, पिन कोड...">
+                </div>
+                <!-- Image URL Input -->
+                <div class="md:col-span-1">
+                    <label for="image-url" class="block mb-2 font-bold text-lg">>> IMAGE_URL (रिवर्स इमेज सर्च के लिए):</label>
+                    <input type="url" id="image-url" class="w-full px-4 py-2 bg-[#000] border-2 border-[#00ff41] rounded-md text-lg text-[#00ff41] focus:outline-none focus:ring-2 focus:ring-[#00ff41]" placeholder="इमेज का सार्वजनिक URL डालें (जैसे imgur.com/image.jpg)">
+                </div>
+                <!-- Local Image Upload Input -->
+                <div class="md:col-span-1">
+                    <label for="local-image-upload" class="block mb-2 font-bold text-lg">>> लोकल फाइल से इमेज अपलोड करें:</label>
+                    <input type="file" id="local-image-upload" accept="image/*" class="w-full px-4 py-2 bg-[#000] border-2 border-[#00ff41] rounded-md text-lg text-[#00ff41] focus:outline-none focus:ring-2 focus:ring-[#00ff41] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#00ff41] file:text-[#0d0d0d] hover:file:bg-[#0d0d0d] hover:file:text-[#00ff41]">
+                    <p class="help-text">**ध्यान दें:** यह केवल इमेज प्रीव्यू के लिए है। रिवर्स इमेज सर्च के लिए ऊपर 'IMAGE_URL' बॉक्स में इमेज का **सार्वजनिक URL** पेस्ट करें। ब्राउज़र सुरक्षा के कारण लोकल फाइलें सीधे बाहरी सेवाओं पर अपलोड नहीं की जा सकतीं।</p>
+                </div>
+                <!-- Image Preview Area -->
+                <div class="md:col-span-1">
+                    <label class="block mb-2 font-bold text-lg">>> इमेज प्रीव्यू:</label>
+                    <div id="image-preview-container" class="w-full rounded-md">
+                        <img id="image-preview" src="" alt="इमेज प्रीव्यू" class="hidden">
+                        <p id="no-image-text" class="text-gray-500 text-sm">कोई इमेज नहीं चुनी गई।</p>
+                    </div>
+                </div>
+
+                <!-- Execute Scan Button -->
+                <div class="md:col-span-2 flex items-end">
+                    <button id="lookup-btn" class="w-full hydra-btn font-bold py-3 px-4 rounded-lg text-lg">
+                        [ EXECUTE_SCAN ]
+                    </button>
+                </div>
+            </div>
+           
+            <!-- System Log -->
+            <div class="mb-6">
+                 <label class="block mb-2 font-bold text-lg">>> SYSTEM_LOG:</label>
+                 <div id="system-log" class="p-2 rounded-md overflow-y-auto"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden">
+                <!-- Links will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const lookupBtn = document.getElementById('lookup-btn');
+        const primaryQueryInput = document.getElementById('primary-query');
+        const phoneNumberInput = document.getElementById('phone-number');
+        const addressLocationInput = document.getElementById('address-location');
+        const imageUrlInput = document.getElementById('image-url');
+        const localImageUploadInput = document.getElementById('local-image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const noImageText = document.getElementById('no-image-text');
+        const resultsSection = document.getElementById('results-section');
+        const systemLog = document.getElementById('system-log');
+
+        // Initialize Tone.js Synth for sound effects
+        const synth = new Tone.Synth({
+            oscillator: { type: "sine" }, // A simple sine wave for a clean sound
+            envelope: {
+                attack: 0.005, // Very short attack
+                decay: 0.1,   // Quick decay
+                sustain: 0.0, // No sustain
+                release: 0.1  // Short release
+            }
+        }).toDestination();
+
+        // Function to play a sound
+        function playScanSound() {
+            synth.triggerAttackRelease("C5", "8n"); // Play C5 note for an 8th note duration
+        }
+
+        // Function to generate the Bihar Government dork string
+        function generateBiharGovtDorkString() {
+            const biharDomains = [
+                "102.bihar.gov.in", "7nishchay-yuvaupmission.bihar.gov.in", "zppurnea.bihar.gov.in",
+                "zp.bihar.gov.in", "xln.bihar.gov.in", "www.zp.bihar.gov.in", "www.xln.bihar.gov.in",
+                "www.wrd.bihar.gov.in", "www.webmail.bihar.gov.in", "www.wcdc.bihar.gov.in",
+                "www.wamis.bihar.gov.in", "www.walmi.bihar.gov.in", "www.vsk.bihar.gov.in",
+                "www.vidyabodh.bihar.gov.in", "www.vidhansabha.bihar.gov.in", "www.vidhanparishad.bihar.gov.in",
+                "www.vajranaad.bihar.gov.in", "www.vaishalipolice.bihar.gov.in", "www.udhdgis.bihar.gov.in",
+                "www.uateproc2.bihar.gov.in", "www.trenibandhan.bihar.gov.in", "www.trafficregulation.bihar.gov.in",
+                "www.thanaatmanirbharfund.bihar.gov.in", "www.thalassemiaregistry.bihar.gov.in", "www.swcs.bihar.gov.in",
+                "www.swasth.bihar.gov.in", "www.supaulabhilekhagar.bihar.gov.in", "www.stf.bihar.gov.in",
+                "www.state.bihar.gov.in", "www.sspmis.bihar.gov.in", "www.socialauditsociety.bihar.gov.in",
+                "www.sksvs.bihar.gov.in", "www.sitamarhipolice.bihar.gov.in", "www.sitamarahipolice.bihar.gov.in",
+                "www.shsbrecruitment.bihar.gov.in", "www.shs.bihar.gov.in", "www.shs06.bihar.gov.in",
+                "www.shs03.bihar.gov.in", "www.shs02.bihar.gov.in", "www.shs01.bihar.gov.in",
+                "www.sheoharpolice.bihar.gov.in", "www.sevasamadhan.bihar.gov.in", "www.serviceplus.bihar.gov.in",
+                "www.serviceonline.bihar.gov.in", "www.sec.bihar.gov.in", "www.sec2021.bihar.gov.in",
+                "www.sec1.bihar.gov.in", "www.scrb.bihar.gov.in", "www.scpsrecruitment.bihar.gov.in",
+                "www.scm.bihar.gov.in", "www.scert.bihar.gov.in", "www.sbteonline.bihar.gov.in",
+                "www.sbtelms.bihar.gov.in", "www.sbte.bihar.gov.in", "www.sbmbihar.bihar.gov.in",
+                "www.saranpolice.bihar.gov.in", "www.sanjeevani.bihar.gov.in", "www.samikshabsss.bihar.gov.in",
+                "www.sambal.bihar.gov.in", "www.saksham.bihar.gov.in", "www.sainikkalyan.bihar.gov.in",
+                "www.sahajty.bihar.gov.in", "www.sahajtaknikyojna.bihar.gov.in", "www.rtpsonline.bihar.gov.in",
+                "www.rtps.bihar.gov.in", "www.row.bihar.gov.in", "www.rohtaspolice.bihar.gov.in",
+                "www.ri.bihar.gov.in", "www.rera.bihar.gov.in", "www.reat.bihar.gov.in",
+                "www.rconline.bihar.gov.in", "www.rcms.bihar.gov.in", "www.rbsk.bihar.gov.in",
+                "www.rajgirzoosafari.bihar.gov.in", "www.rajbhasha.bihar.gov.in", "www.racms.bihar.gov.in",
+                "www.purneapolice.bihar.gov.in", "www.policewelfare.bihar.gov.in", "www.police.bihar.gov.in",
+                "www.pmisbstdc.bihar.gov.in", "www.pmisbsbccl.bihar.gov.in", "www.pmisbpbcc.bihar.gov.in",
+                "www.pmisbcd.bihar.gov.in", "www.pmcptax.bihar.gov.in", "www.pmc.bihar.gov.in",
+                "www.pmaa.bihar.gov.in", "www.pinddaangaya.bihar.gov.in", "www.pdsquest.bihar.gov.in",
+                "www.pcpndt.bihar.gov.in", "www.patnaswm.bihar.gov.in", "www.patnaswm-api.bihar.gov.in",
+                "www.participant-art.bihar.gov.in", "www.parimarjanplus.bihar.gov.in", "www.parimarjan.bihar.gov.in",
+                "www.organizer-art.bihar.gov.in", "www.onlinedbtagriservice.bihar.gov.in", "www.onlinebpsc.bihar.gov.in",
+                "www.oldprm.bihar.gov.in", "www.nptriveniganj.bihar.gov.in", "www.nibandhan.bihar.gov.in",
+                "www.nccdtebj.bihar.gov.in", "www.naturesafarirajgir.bihar.gov.in", "www.naginaktibirdsanctuary.bihar.gov.in",
+                "www.nagarseva.bihar.gov.in", "www.motiharipolice.bihar.gov.in", "www.modules.brdshrms.bihar.gov.in",
+                "www.misdairy.bihar.gov.in", "www.mausamsewa.bihar.gov.in", "www.mausamseva.bihar.gov.in",
+                "www.mahadalit.bihar.gov.in", "www.magadhdivision.bihar.gov.in", "www.lokshikayat.bihar.gov.in",
+                "www.loksamvad.bihar.gov.in", "www.landconversion.bihar.gov.in", "www.land.bihar.gov.in",
+                "www.laeo.bihar.gov.in", "www.laco.bihar.gov.in", "www.kuladhipati.bihar.gov.in",
+                "www.khelpuraskar.bihar.gov.in", "www.kc.bihar.gov.in", "www.jehanabadpolice.bihar.gov.in",
+                "www.jbsydbt.bihar.gov.in", "www.jamuipolice.bihar.gov.in", "www.jaankari.bihar.gov.in",
+                "www.itstartup.bihar.gov.in", "www.invapiswc2.bihar.gov.in", "www.hrms.bihar.gov.in",
+                "www.hrms-uat.bihar.gov.in", "www.hrms-testapi.bihar.gov.in", "www.horticulture.bihar.gov.in",
+                "www.home.bihar.gov.in", "www.hmis.bihar.gov.in", "www.gstprime.bihar.gov.in",
+                "www.gpmsbmsicl.bihar.gov.in", "www.gopalganjpolice.bihar.gov.in", "www.gisbiada.bihar.gov.in",
+                "www.forestonline.bihar.gov.in", "www.fisheries.bihar.gov.in", "www.firenoc.bihar.gov.in",
+                "www.fiori.bihar.gov.in", "www.film.bihar.gov.in", "www.esuvidha.bihar.gov.in",
+                "www.ess.bihar.gov.in", "www.eshakti.bihar.gov.in", "www.eproc.bihar.gov.in",
+                "www.eproc2.bihar.gov.in", "www.eprisons.bihar.gov.in", "www.eposservice.bihar.gov.in",
+                "www.epos.bihar.gov.in", "www.epds.bihar.gov.in", "www.epar.bihar.gov.in",
+                "www.eofficedemo.bihar.gov.in", "www.eoffice.bihar.gov.in", "www.enibandhan.bihar.gov.in",
+                "www.emutation.bihar.gov.in", "www.emapi.bihar.gov.in", "www.elecon.bihar.gov.in",
+                "www.ekycnibandhan.bihar.gov.in", "www.ekamaan.bihar.gov.in", "www.ehrms.bihar.gov.in",
+                "www.egramkachari.bihar.gov.in", "www.edrive.bihar.gov.in", "www.eadvtprd.bihar.gov.in",
+                "www.e-vikas.bihar.gov.in", "www.e-statistics.bihar.gov.in", "www.e-receipt.bihar.gov.in",
+                "www.e-gpf.bihar.gov.in", "www.e-bhawan.bihar.gov.in", "www.dwr.bihar.gov.in",
+                "www.dse.bihar.gov.in", "www.driverkalyanyojna.bihar.gov.in", "www.drishti.bihar.gov.in",
+                "www.dms.bihar.gov.in", "www.dmdvc.bihar.gov.in", "www.dlrs.bihar.gov.in",
+                "www.dit.bihar.gov.in", "www.desktopvc.bihar.gov.in", "www.demo.eproc.bihar.gov.in",
+                "www.dbtagriculture.bihar.gov.in", "www.dashboard.bihar.gov.in", "www.darbhangapolice.bihar.gov.in",
+                "www.dairy.bihar.gov.in", "www.cwcjjbrecruitment.bihar.gov.in", "www.covidportal.bihar.gov.in",
+                "www.covid19health.bihar.gov.in", "www.covid19app.bihar.gov.in", "www.covid19.bihar.gov.in",
+                "www.cmsonline.bihar.gov.in", "www.cmsmoodle.bihar.gov.in", "www.cmo.bihar.gov.in",
+                "www.cm.bihar.gov.in", "www.cleanair.bihar.gov.in", "www.civildefence.bihar.gov.in",
+                "www.chakra.bihar.gov.in", "www.chakbandi.bihar.gov.in", "www.cgm.rera.bihar.gov.in",
+                "www.cfms2uat.bihar.gov.in", "www.cdapatna.bihar.gov.in", "www.ccms.bihar.gov.in",
+                "www.bwds.bihar.gov.in", "www.bvm.bihar.gov.in", "www.buxarpolice.bihar.gov.in",
+                "www.btsc.bihar.gov.in", "www.bswanvc.bihar.gov.in", "www.bswan.bihar.gov.in",
+                "www.bswa.bihar.gov.in", "www.bsusc.bihar.gov.in", "www.bstdc.bihar.gov.in",
+                "www.bstbpc.bihar.gov.in", "www.bssc.bihar.gov.in", "www.bsrdcl.bihar.gov.in",
+                "www.bspgcl.bihar.gov.in", "www.bspcb.bihar.gov.in", "www.bspb.bihar.gov.in",
+                "www.bsna.bihar.gov.in", "www.bshb.bihar.gov.in", "www.bsefcl.bihar.gov.in",
+                "www.bsedchrm.bihar.gov.in", "www.bsedcerp.bihar.gov.in", "www.bsedc.bihar.gov.in",
+                "www.bsea.bihar.gov.in", "www.bsdm.bihar.gov.in", "www.bsbcpdcorporation.bihar.gov.in",
+                "www.bsbccl.bihar.gov.in", "www.bsbb.bihar.gov.in", "www.brpnnltally.bihar.gov.in",
+                "www.brpnnlmis.bihar.gov.in", "www.brdstree.bihar.gov.in", "www.brdshrms.bihar.gov.in",
+                "www.brds.bihar.gov.in", "www.brbn.bihar.gov.in", "www.bpssc.bihar.gov.in",
+                "www.bpsm.bihar.gov.in", "www.bpbcc.bihar.gov.in", "www.bpa.bihar.gov.in",
+                "www.borrecordroom.bihar.gov.in", "www.borpdra.bihar.gov.in", "www.borexam.bihar.gov.in",
+                "www.boradmin.bihar.gov.in", "www.bor-case.bihar.gov.in", "www.bocwscheme.bihar.gov.in",
+                "www.bocw.bihar.gov.in", "www.boardofrevenue.bihar.gov.in", "www.bnkm.bihar.gov.in",
+                "www.bmvm.bihar.gov.in", "www.bmsk.bihar.gov.in", "www.bmsicl.bihar.gov.in",
+                "www.blp.bihar.gov.in", "www.blka.bihar.gov.in", "www.blaqrms.bihar.gov.in",
+                "www.biswass.bihar.gov.in", "www.bipard.bihar.gov.in", "www.biharregd.bihar.gov.in",
+                "www.biharrcdroadmaintenance.bihar.gov.in", "www.biharpolicedg.bihar.gov.in", "www.biharfoundation.bihar.gov.in",
+                "www.biharboardonline.bihar.gov.in", "www.biharbhumi.bihar.gov.in", "www.bihar.gov.in",
+                "www.bihanapi.bihar.gov.in", "www.bihanagri.bihar.gov.in", "www.bhy.bihar.gov.in",
+                "www.bhunaksha.bihar.gov.in", "www.bhumijankari.bihar.gov.in", "www.bhulagan.bihar.gov.in",
+                "www.bhuabhilekh.bihar.gov.in", "www.bhrc.bihar.gov.in", "www.bhojpurpolice.bihar.gov.in",
+                "www.bgwa.bihar.gov.in", "www.bgsys.bihar.gov.in", "www.begusaraipolice.bihar.gov.in",
+                "www.bcop.bihar.gov.in", "www.bceceboardapl.bihar.gov.in", "www.bceceboard.bihar.gov.in",
+                "www.bcdbooking.bihar.gov.in", "www.bbas.bihar.gov.in", "www.bavas.bihar.gov.in",
+                "www.barabarcavetourism.bihar.gov.in", "www.badvauth.bihar.gov.in", "www.baafauth.bihar.gov.in",
+                "www.baafapi.bihar.gov.in", "www.baaf.bihar.gov.in", "www.baaf2.bihar.gov.in",
+                "www.ayush.bihar.gov.in", "www.automap.bihar.gov.in", "www.archives.bihar.gov.in",
+                "www.api2vajranaad.bihar.gov.in", "www.api1vajranaad.bihar.gov.in", "www.anmmch.bihar.gov.in",
+                "www.alcotest.bihar.gov.in", "www.admin.landconversion.bihar.gov.in", "www.accidentclaim.bihar.gov.in",
+                "www.abc.bihar.gov.in", "www.102.bihar.gov.in", "www.7nishchay-yuvaupmission.bihar.gov.in",
+                "wrd.bihar.gov.in", "webmail.bihar.gov.in", "wcdc.bihar.gov.in",
+                "wamis.bihar.gov.in", "walmi.bihar.gov.in", "vsk.bihar.gov.in",
+                "vltsportal.bihar.gov.in", "vlts.bihar.gov.in", "vidyabodh.bihar.gov.in",
+                "vidhansabha.bihar.gov.in", "vidhanparishad.bihar.gov.in", "videogk.bihar.gov.in",
+                "vajranaad.bihar.gov.in", "vaishalipolice.bihar.gov.in", "udyamiuser.bihar.gov.in",
+                "udyamiinspection.bihar.gov.in", "udyamiadmin.bihar.gov.in", "udyami.bihar.gov.in",
+                "udhdmis.bihar.gov.in", "udhdgis.bihar.gov.in", "udhdcgrc.bihar.gov.in",
+                "uateproc2.bihar.gov.in", "trenibandhan.bihar.gov.in", "trafficregulation.bihar.gov.in",
+                "thanaatmanirbharfund.bihar.gov.in", "thalassemiaregistry.bihar.gov.in", "test2.bihar.gov.in",
+                "test1.bihar.gov.in", "swcs.bihar.gov.in", "swc.bihar.gov.in",
+                "swc2.bihar.gov.in", "swasth.bihar.gov.in", "supaulabhilekhagar.bihar.gov.in",
+                "studentvcs.bihar.gov.in", "stream.bihar.gov.in", "stf.bihar.gov.in",
+                "statsnccdtebj.bihar.gov.in", "stategovt.bihar.gov.in", "state.bihar.gov.in",
+                "startup.bihar.gov.in", "sspmis.bihar.gov.in", "socialauditsociety.bihar.gov.in",
+                "sksvs.bihar.gov.in", "sitamarhipolice.bihar.gov.in", "sitamarahipolice.bihar.gov.in",
+                "sip.bihar.gov.in", "shsbrecruitment.bihar.gov.in", "shs.bihar.gov.in",
+                "shs06.bihar.gov.in", "shs03.bihar.gov.in", "shs02.bihar.gov.in",
+                "shs01.bihar.gov.in", "sheoharpolice.bihar.gov.in", "sevasamadhan.bihar.gov.in",
+                "serviceplus.bihar.gov.in", "serviceonline.bihar.gov.in", "sec.bihar.gov.in",
+                "sec2021.bihar.gov.in", "sec1.bihar.gov.in", "scstpmsonline.bihar.gov.in",
+                "scrb.bihar.gov.in", "scpsrecruitment.bihar.gov.in", "scm.bihar.gov.in",
+                "scert.bihar.gov.in", "sbteonline.bihar.gov.in", "sbtelms.bihar.gov.in",
+                "sbte.bihar.gov.in", "sbmbihar.bihar.gov.in", "saranpolice.bihar.gov.in",
+                "sanjeevani.bihar.gov.in", "samikshabsss.bihar.gov.in", "sambal.bihar.gov.in",
+                "saksham.bihar.gov.in", "sainikkalyan.bihar.gov.in", "sahajty.bihar.gov.in",
+                "sahajtaknikyojna.bihar.gov.in", "rvpn.7nishchay-yuvaupmission.bihar.gov.in", "rtpsonline.bihar.gov.in",
+                "rtps.bihar.gov.in", "rpad2v2.bihar.gov.in", "rpad2v1.bihar.gov.in",
+                "rpad2.bihar.gov.in", "rpad1v2.bihar.gov.in", "rpad1v1.bihar.gov.in",
+                "rpad1.bihar.gov.in", "row.bihar.gov.in", "rohtaspolice.bihar.gov.in",
+                "ri.bihar.gov.in", "rera.bihar.gov.in", "registry.bihar.gov.in",
+                "reat.bihar.gov.in", "rconline.bihar.gov.in", "rcms.bihar.gov.in",
+                "rbsk.bihar.gov.in", "rajgirzoosafari.bihar.gov.in", "rajbhasha.bihar.gov.in",
+                "racms.bihar.gov.in", "purneapolice.bihar.gov.in", "portal.mseva.bihar.gov.in",
+                "policewelfare.bihar.gov.in", "police.bihar.gov.in", "pmsonline.bihar.gov.in",
+                "pmisbstdc.bihar.gov.in", "pmisbseidc.bihar.gov.in", "pmisbsbccl.bihar.gov.in",
+                "pmisbpbcc.bihar.gov.in", "pmisbcd.bihar.gov.in", "pmcptax.bihar.gov.in",
+                "pmc.bihar.gov.in", "pmaa.bihar.gov.in", "pinddaangaya.bihar.gov.in",
+                "pdsquest.bihar.gov.in", "pcpndt.bihar.gov.in", "patrachar.bihar.gov.in",
+                "patnaswm.bihar.gov.in", "patnaswm-api.bihar.gov.in", "participant-art.bihar.gov.in",
+                "parivahan.bihar.gov.in", "parimarjanplus.bihar.gov.in", "parimarjan.bihar.gov.in",
+                "organizer-art.bihar.gov.in", "onlinedbtagriservice.bihar.gov.in", "onlinebpsc.bihar.gov.in",
+                "oldprm.bihar.gov.in", "nptriveniganj.bihar.gov.in", "nibandhan.bihar.gov.in",
+                "nccdtebj.bihar.gov.in", "naturesafarirajgir.bihar.gov.in", "naginaktibirdsanctuary.bihar.gov.in",
+                "nagarseva.bihar.gov.in", "mwrd-tubewell.bihar.gov.in", "mseva.bihar.gov.in",
+                "motiharipolice.bihar.gov.in", "monitornccdtebj.bihar.gov.in", "modules.brdshrms.bihar.gov.in",
+                "mnssbyreport.bihar.gov.in", "mmarry.user.bihar.gov.in", "mmarry.admin.bihar.gov.in",
+                "misfisheries.bihar.gov.in", "misdairy.bihar.gov.in", "minorirrigation.bihar.gov.in",
+                "mausamsewa.bihar.gov.in", "mausamseva.bihar.gov.in", "makhana.bihar.gov.in",
+                "mail.bihar.gov.in", "mahadalit.bihar.gov.in", "magadhdivision.bihar.gov.in",
+                "lokshikayat.bihar.gov.in", "loksamvad.bihar.gov.in", "legacy.bihar.gov.in",
+                "landconversion.bihar.gov.in", "land.bihar.gov.in", "laghuudyami.bihar.gov.in",
+                "laeo.bihar.gov.in", "laco.bihar.gov.in", "kuladhipati.bihar.gov.in",
+                "ksdsu.bihar.gov.in", "khelpuraskar.bihar.gov.in", "khanansoft.bihar.gov.in",
+                "kc.bihar.gov.in", "jehanabadpolice.bihar.gov.in", "jbsydbt.bihar.gov.in",
+                "jamuipolice.bihar.gov.in", "jaljeevanhariyali.bihar.gov.in", "jaankari.bihar.gov.in",
+                "itstartup.bihar.gov.in", "invapiswc2.bihar.gov.in", "instpmsonline.bihar.gov.in",
+                "hrmsmuzaffarpurhsakra.bihar.gov.in", "hrmsmuzaffarpurdh.bihar.gov.in", "hrms.bihar.gov.in",
+                "hrms-uat.bihar.gov.in", "hrms-testprod.bihar.gov.in", "hrms-testapi.bihar.gov.in",
+                "horticulture.bihar.gov.in", "home.bihar.gov.in", "hms.bihar.gov.in",
+                "hmis.bihar.gov.in", "hitcovid.bihar.gov.in", "handloomandsericulture.bihar.gov.in",
+                "gstprime.bihar.gov.in", "gpmsbmsicl.bihar.gov.in", "gp.bihar.gov.in",
+                "gopalganjpolice.bihar.gov.in", "gisbiada.bihar.gov.in", "gad-ospr.bihar.gov.in",
+                "forestrycorporation.bihar.gov.in", "forestonline.bihar.gov.in", "fisheries.bihar.gov.in",
+                "firenoc.bihar.gov.in", "fiori.bihar.gov.in", "film.bihar.gov.in",
+                "esuvidha.bihar.gov.in", "ess.bihar.gov.in", "eproc.bihar.gov.in",
+                "eproc2.bihar.gov.in", "eprisons.bihar.gov.in", "eposservice.bihar.gov.in",
+                "epos.bihar.gov.in", "epds.bihar.gov.in", "epar.bihar.gov.in",
+                "eofficedemo.bihar.gov.in", "eoffice.bihar.gov.in", "enibandhan.bihar.gov.in",
+                "emutation.bihar.gov.in", "emapi.bihar.gov.in", "electricalinspectorate.bihar.gov.in",
+                "elecon.bihar.gov.in", "ele.bihar.gov.in", "ekycnibandhan.bihar.gov.in",
+                "ekamaan.bihar.gov.in", "ehrms.bihar.gov.in", "ehospital.bihar.gov.in",
+                "egramkachari.bihar.gov.in", "edu-command.bihar.gov.in", "edu-bpsc.bihar.gov.in",
+                "edrive.bihar.gov.in", "eadvtprd.bihar.gov.in", "e-vikas.bihar.gov.in",
+                "e-statistics.bihar.gov.in", "e-receipt.bihar.gov.in", "e-gpf.bihar.gov.in",
+                "e-bhawan.bihar.gov.in", "dwr.bihar.gov.in", "dst.bihar.gov.in",
+                "dse.bihar.gov.in", "driverkalyanyojna.bihar.gov.in", "drishti.bihar.gov.in",
+                "dns4.bihar.gov.in", "dns3.bihar.gov.in", "dns2.bihar.gov.in",
+                "dns1.bihar.gov.in", "dms.bihar.gov.in", "dmdvc.bihar.gov.in",
+                "dlrs.bihar.gov.in", "dit.bihar.gov.in", "desktopvc.bihar.gov.in",
+                "demo.eproc.bihar.gov.in", "dbtagriculture.bihar.gov.in", "dashboard.bihar.gov.in",
+                "darbhangapolice.bihar.gov.in", "dairy.bihar.gov.in", "cwpi.bihar.gov.in",
+                "cwcjjbrecruitment.bihar.gov.in", "csbc.bihar.gov.in", "covidportal.bihar.gov.in",
+                "covid19health.bihar.gov.in", "covid19app.bihar.gov.in", "covid19.bihar.gov.in",
+                "collegevcs.bihar.gov.in", "cmsonline.bihar.gov.in", "cmsmoodle.bihar.gov.in",
+                "cmo.bihar.gov.in", "cm.bihar.gov.in", "cloud.bihar.gov.in",
+                "cleanair.bihar.gov.in", "civildefence.bihar.gov.in", "chakra.bihar.gov.in",
+                "chakbandi.bihar.gov.in", "cgm.rera.bihar.gov.in", "cfms2uat.bihar.gov.in",
+                "ceo.bihar.gov.in", "cdapatna.bihar.gov.in", "cctexam.bihar.gov.in",
+                "ccs.bihar.gov.in", "ccms.bihar.gov.in", "bwds.bihar.gov.in",
+                "bvm.bihar.gov.in", "buxarpolice.bihar.gov.in", "btsc.bihar.gov.in",
+                "bswanvc.bihar.gov.in", "bswan.bihar.gov.in", "bswa.bihar.gov.in",
+                "bsusc.bihar.gov.in", "bstdc.bihar.gov.in", "bstbpc.bihar.gov.in",
+                "bssc.bihar.gov.in", "bsrdcl.bihar.gov.in", "bspgcl.bihar.gov.in",
+                "bspcb.bihar.gov.in", "bspb.bihar.gov.in", "bsna.bihar.gov.in",
+                "bshb.bihar.gov.in", "bsefcl.bihar.gov.in", "bsedchrm.bihar.gov.in",
+                "bsedcerp.bihar.gov.in", "bsedcerp2.bihar.gov.in", "bsedc.bihar.gov.in",
+                "bsea.bihar.gov.in", "bsdm.bihar.gov.in", "bsbreligioustrust.bihar.gov.in",
+                "bsbcpdcorporation.bihar.gov.in", "bsbccl.bihar.gov.in", "bsbb.bihar.gov.in",
+                "brpnnltally.bihar.gov.in", "brpnnlmis.bihar.gov.in", "brpnnl.bihar.gov.in",
+                "brdstree.bihar.gov.in", "brdshrms.bihar.gov.in", "brds.bihar.gov.in",
+                "brbn.bihar.gov.in", "bpssc.bihar.gov.in", "bpsm.bihar.gov.in",
+                "bpbcc.bihar.gov.in", "bpa.bihar.gov.in", "borrecordroom.bihar.gov.in",
+                "borpdra.bihar.gov.in", "borexam.bihar.gov.in", "borexam1.bihar.gov.in",
+                "boradmin.bihar.gov.in", "bor-case.bihar.gov.in", "bocwscheme.bihar.gov.in",
+                "bocw.bihar.gov.in", "boardofrevenue.bihar.gov.in", "bnkm.bihar.gov.in",
+                "bmvm.bihar.gov.in", "bmsk.bihar.gov.in", "bmsicl.bihar.gov.in",
+                "blp.bihar.gov.in", "blka.bihar.gov.in", "blaqrms.bihar.gov.in",
+                "biswass.bihar.gov.in", "bipardcctexam.bihar.gov.in", "bipard.bihar.gov.in",
+                "biharregd.bihar.gov.in", "biharrcdroadmaintenance.bihar.gov.in", "biharpolicedg.bihar.gov.in",
+                "biharfoundation.bihar.gov.in", "biharboardonline.bihar.gov.in", "biharbhumi.bihar.gov.in",
+                "bihanapi.bihar.gov.in", "bihanagri.bihar.gov.in", "bica.bihar.gov.in",
+                "biada.bihar.gov.in", "biada1.bihar.gov.in", "bhy.bihar.gov.in",
+                "bhunaksha.bihar.gov.in", "bhumijankari.bihar.gov.in", "bhulagan.bihar.gov.in",
+                "bhuabhilekh.bihar.gov.in", "bhrc.bihar.gov.in", "bhojpurpolice.bihar.gov.in",
+                "bgwa.bihar.gov.in", "bgsys.bihar.gov.in", "bepclots.bihar.gov.in",
+                "begusaraipolice.bihar.gov.in", "bcop.bihar.gov.in", "bcims.bihar.gov.in",
+                "bceceboardapl.bihar.gov.in", "bceceboard.bihar.gov.in", "bcdbooking.bihar.gov.in",
+                "bbas.bihar.gov.in", "bavas.bihar.gov.in", "barhnp.bihar.gov.in",
+                "barabarcavetourism.bihar.gov.in", "badvauth.bihar.gov.in", "baafauth.bihar.gov.in",
+                "baafapi.bihar.gov.in", "baaf.bihar.gov.in", "baaf2.bihar.gov.in",
+                "ayush.bihar.gov.in", "automap.bihar.gov.in", "autodiscover.bihar.gov.in",
+                "archives.bihar.gov.in", "appnccdtebj.bihar.gov.in", "api2vajranaad.bihar.gov.in",
+                "api1vajranaad.bihar.gov.in", "anmol.bihar.gov.in", "anmmch.bihar.gov.in",
+                "alcotest.bihar.gov.in", "adminvcs.bihar.gov.in", "admin.landconversion.bihar.gov.in",
+                "admapiswc2.bihar.gov.in", "accidentclaim.bihar.gov.in", "abc.bihar.gov.in"
+            ];
+            let dorkString = '';
+            biharDomains.forEach((domain, index) => {
+                dorkString += `site:${domain}`;
+                if (index < biharDomains.length - 1) {
+                    dorkString += ' OR ';
+                }
+            });
+            return dorkString;
+        }
+
+        // Global variable to store the Bihar Government dork string
+        const BIHAR_GOVT_DORK = generateBiharGovtDorkString();
+
+        // Define OSINT sources categorized by level.
+        // Each source has a name, description, and a URL template.
+        // The URL templates use placeholders:
+        // - ${query}: The combined or primary user input (encoded for URL safety)
+        // - ${phone}: The phone number input (encoded)
+        // - ${address}: The address/location input (encoded)
+        // - ${image_url}: The image URL input (encoded)
+        // - ${clean_phone}: Phone number with special characters removed (encoded)
+        // - ${clean_address}: Address with special characters removed (encoded)
+        const sources = {
+            "LEVEL 1: Automated Surface Reconnaissance (स्वचालित सतह टोही)": [
+                { type: 'general', name: 'Google Search', desc: 'मानक वेब खोज इंडेक्स।', url: 'https://www.google.com/search?q="${query}"' },
+                { type: 'general', name: 'Yandex Search', desc: 'वैकल्पिक खोज इंजन, विभिन्न इंडेक्सिंग के लिए उपयोगी।', url: 'https://yandex.com/search/?text="${query}"' },
+                { type: 'general', name: 'DuckDuckGo Search', desc: 'गोपनीयता-केंद्रित खोज इंजन।', url: 'https://duckduckgo.com/?q="${query}"' },
+                { type: 'general', name: 'Startpage Search', desc: 'बेहतर गोपनीयता के साथ Google परिणाम।', url: 'https://www.startpage.com/do/dsearch?query="${query}"' },
+                { type: 'phone', name: 'Truecaller (Google Dork)', desc: 'Google के माध्यम से Truecaller पर उल्लेख खोजें।', url: 'https://www.google.com/search?q=site:truecaller.com "${phone}"' },
+                { type: 'phone', name: 'Phonebook.cz', desc: 'वैश्विक सार्वजनिक फ़ोन निर्देशिका/नाम खोज।', url: 'https://phonebook.cz/${clean_phone}' },
+                { type: 'general', name: 'Wayback Machine', desc: 'संग्रहित वेब पेज, URL या डोमेन के लिए ऐतिहासिक डेटा खोजें।', url: 'https://web.archive.org/web/*/${query}' },
+                { type: 'general', name: 'Google Site Search (Advanced)', desc: 'किसी विशिष्ट साइट पर क्वेरी खोजें (उदाहरण: site:example.com "query")।', url: 'https://www.google.com/search?q=site:${query_site} "${query_main}"' }, // Requires separate parsing for query_site, query_main
+                { type: 'general', name: 'Google Filetype Search (PDF/DOCX/XLSX)', desc: 'किसी विशिष्ट फ़ाइल प्रकार (PDF, DOCX, XLSX) में क्वेरी खोजें।', url: 'https://www.google.com/search?q="${query}" filetype:pdf OR filetype:docx OR filetype:xlsx' },
+                { type: 'general', name: 'Google Inurl Search', desc: 'URL में विशिष्ट शब्द वाले पेज खोजें (जैसे login, admin, backup)।', url: 'https://www.google.com/search?q=inurl:"${query}"' },
+                { type: 'general', name: 'Google Intitle Search', desc: 'टाइटल में विशिष्ट शब्द वाले पेज खोजें (जैसे "Confidential", "Report")।', url: 'https://www.google.com/search?q=intitle:"${query}"' },
+                { type: 'general', name: 'Google Intext Search', desc: 'पृष्ठ के टेक्स्ट में विशिष्ट शब्द खोजें (जैसे "password", "username")।', url: 'https://www.google.com/search?q=intext:"${query}"' },
+                { type: 'general', name: 'Google Related Search', desc: 'समान सामग्री वाली वेबसाइटें खोजें।', url: 'https://www.google.com/search?q=related:${query}' },
+                { type: 'general', name: 'Google Allintext Search', desc: 'पृष्ठ के टेक्स्ट में सभी शब्दों का उपयोग करके खोजें।', url: 'https://www.google.com/search?q=allintext:"${query}"' }
+            ],
+            "LEVEL 2: Social & Human Intelligence (HUMINT) (सामाजिक और मानव बुद्धिमत्ता)": [
+                { type: 'general', name: 'Facebook Search', desc: 'सार्वजनिक प्रोफ़ाइल, पोस्ट और पेज।', url: 'https://www.facebook.com/search/top/?q="${query}"' },
+                { type: 'general', name: 'LinkedIn Search (Dork)', desc: 'Google के माध्यम से पेशेवर नेटवर्क खोजें।', url: 'https://www.google.com/search?q=site:linkedin.com/in "${query}"' },
+                { type: 'general', name: 'Twitter Search', desc: 'सार्वजनिक ट्वीट और उपयोगकर्ता प्रोफ़ाइल।', url: 'https://twitter.com/search?q="${query}"' },
+                { type: 'general', name: 'Instagram Search (Dork)', desc: 'Google के माध्यम से सार्वजनिक Instagram प्रोफ़ाइल/उल्लेख खोजें।', url: 'https://www.google.com/search?q=site:instagram.com "${query}"' },
+                { type: 'phone', name: 'WhatsApp', desc: 'wa.me लिंक के माध्यम से प्रोफ़ाइल की जाँच करें।', url: 'https://wa.me/${clean_phone}' },
+                { type: 'general', name: 'Telegram Public Channels', desc: 'Telegram चैनलों में सार्वजनिक उल्लेख खोजें।', url: 'https://t.me/s/${clean_query}' },
+                { type: 'general', name: 'WhatsMyName', desc: 'कई साइटों पर उपयोगकर्ता नाम जांचें।', url: 'https://whatsmyname.app/?q=${query}' },
+                { type: 'general', name: 'Reddit Search (Dork)', desc: 'Google के माध्यम से Reddit पर चर्चाएँ और उल्लेख खोजें।', url: 'https://www.google.com/search?q=site:reddit.com "${query}"' },
+                { type: 'general', name: 'Facebook Group Search (Dork)', desc: 'Google के माध्यम से Facebook Groups में खोजें।', url: 'https://www.google.com/search?q=site:facebook.com/groups "${query}"' },
+                { type: 'general', name: 'Social Media Mentions (Google)', desc: 'प्रमुख सोशल मीडिया साइटों पर उल्लेख खोजें।', url: 'https://www.google.com/search?q=(${query}) site:twitter.com OR site:facebook.com OR site:instagram.com OR site:linkedin.com' },
+                { type: 'general', name: 'TikTok Search', desc: 'TikTok पर सार्वजनिक वीडियो और प्रोफ़ाइल खोजें।', url: 'https://www.tiktok.com/search?q=${query}' },
+                { type: 'general', name: 'YouTube Search', desc: 'YouTube पर वीडियो और चैनल खोजें।', url: 'https://www.youtube.com/results?search_query=${query}' },
+                { type: 'general', name: 'Pinterest Search', desc: 'Pinterest पर इमेज और बोर्ड खोजें।', url: 'https://www.pinterest.com/search/pins/?q=${query}' }
+            ],
+            "LEVEL 3: Deep Web & Data Breach Analysis (डीप वेब और डेटा उल्लंघन विश्लेषण)": [
+                { type: 'general', name: 'IntelX.io', desc: 'लीक हुए डेटाबेस और डार्कनेट संग्रह।', url: 'https://intelx.io/?s=${query}' },
+                { type: 'general', name: 'DeHashed', desc: 'ईमेल, उपयोगकर्ता नाम, पासवर्ड के लिए उल्लंघनों को स्कैन करता है।', url: 'https://www.dehashed.com/search?query=${query}' },
+                { type: 'general', name: 'HaveIBeenPwned (Dork)', desc: 'Google के माध्यम से उल्लंघन उल्लेखों की जाँच करें (ईमेल/उपयोगकर्ता नाम केंद्रित)।', url: 'https://www.google.com/search?q=site:haveibeenpwned.com "${query}"' },
+                { type: 'general', name: 'Pastebin/Text Sharing Dork', desc: 'सार्वजनिक टेक्स्ट-शेयरिंग साइटों पर उल्लेख खोजें।', url: 'https://www.google.com/search?q=(site:pastebin.com OR site:rentry.co OR site:pastes.io OR site:throwbin.io) "${query}"' },
+                { type: 'general', name: 'Ahmia (Darknet Search)', desc: '.onion साइटों को खोजें (Tor Browser आवश्यक)।', url: 'https://ahmia.fi/search/?q="${query}"' },
+                { type: 'general', name: 'Indian Company Director Search', desc: 'नाम, CIN, या अन्य टेक्स्ट द्वारा भारतीय कंपनी पंजीकरण डेटा के विरुद्ध जाँच करें।', url: 'https://www.zaubacorp.com/user-search?search=${query}' },
+                { type: 'general', name: 'GitHub Dork (Sensitive Data)', desc: 'GitHub पर कोड रिपॉजिटरी में संवेदनशील जानकारी (उदाहरण: API keys, passwords) खोजें।', url: 'https://www.google.com/search?q=site:github.com "${query}" (password OR api_key OR credentials OR token) -issue' },
+                { type: 'general', name: 'Google Cache Dork', desc: 'Google के कैश किए गए पेजों में जानकारी खोजें, जो मूल रूप से हटाए गए हों।', url: 'https://www.google.com/search?q=cache:${query}' },
+                { type: 'general', name: 'DarkSearch.io', desc: 'डार्कनेट सर्च इंजन।', url: 'https://darksearch.io/search?q=${query}' },
+                { type: 'general', name: 'Exploit-DB Search', desc: 'सुरक्षा कमजोरियों और एक्सप्लॉइट्स में क्वेरी खोजें।', url: 'https://www.exploit-db.com/search?q=${query}' }
+            ],
+            "LEVEL 4: Technical & Government Records (तकनीकी और सरकारी रिकॉर्ड)": [
+                { type: 'general', name: 'Shodan.io', desc: 'इंटरनेट से जुड़े डिवाइस (IoT) या कंपनी की संपत्तियां खोजें।', url: 'https://www.shodan.io/search?query=${query}' },
+                { type: 'general', name: 'Indian Govt. Domains (Dork)', desc: 'सभी भारतीय सरकारी साइटों (.gov.in, .nic.in) पर खोजें।', url: 'https://www.google.com/search?q=site:.gov.in OR site:.nic.in "${query}"' },
+                { type: 'general', name: 'Bihar Govt. Domains (Specific)', desc: 'बिहार सरकार की विशेष साइटों पर खोजें।', url: 'https://www.google.com/search?q=(${BIHAR_GOVT_DORK}) "${query}"' },
+                { type: 'general', name: 'Indian Court Records (Dork)', desc: 'भारतीय कानूनी दस्तावेजों में खोजें।', url: 'https://www.google.com/search?q=site:indiankanoon.org OR site:casemine.com "${query}"' },
+                { type: 'general', name: 'WHOIS Lookup (Dork)', desc: 'क्वेरी का उल्लेख करने वाले डोमेन पंजीकरण रिकॉर्ड खोजें।', url: 'https://www.google.com/search?q=inurl:"whois" "${query}"' },
+                { type: 'general', name: 'Crypto Address Dork', desc: 'क्वेरी से जुड़े क्रिप्टोक्यूरेंसी पतों के लिंक खोजें।', url: 'https://www.google.com/search?q="${query}" "BTC Address" OR "ETH Address" OR "wallet"' },
+                { type: 'general', name: 'Indian Election Commission (Dork)', desc: 'भारतीय चुनाव आयोग की साइटों पर सार्वजनिक चुनावी डेटा खोजें।', url: 'https://www.google.com/search?q=site:eci.gov.in OR site:ceodelhi.gov.in "${query}"' },
+                { type: 'general', name: 'Govt. Employee Directory Dork', desc: 'सरकारी कर्मचारी निर्देशिकाओं में जानकारी खोजें।', url: 'https://www.google.com/search?q=site:.gov.in inurl:directory OR inurl:employees "${query}"' },
+                { type: 'address', name: 'Google Maps Search (Address)', desc: 'Google Maps पर पता खोजें।', url: 'https://www.google.com/maps/search/${address}' },
+                { type: 'general', name: 'Censys Search', desc: 'खुले पोर्ट और कॉन्फ़िगरेशन के लिए इंटरनेट पर डिवाइस, होस्ट और सर्टिफिकेट खोजें।', url: 'https://search.censys.io/search?query=${query}' },
+                { type: 'general', name: 'ZoomEye Search', desc: 'IP एड्रेस, डोमेन और होस्टनाम पर आधारित साइबर स्पेस सर्च इंजन।', url: 'https://www.zoomeye.org/search?q=${query}' }
+            ],
+            "LEVEL 5: Google Ecosystem Deep Dive (Google इकोसिस्टम में गहराई से खोज)": [
+                { type: 'general', name: 'Google Photos (Dork)', desc: 'सार्वजनिक Google Photos एल्बम/उल्लेख खोजें।', url: 'https://www.google.com/search?q=site:photos.google.com "${query}"' },
+                { type: 'general', name: 'Google Drive (Dork)', desc: 'सार्वजनिक Google Drive/Docs फ़ाइलें खोजें।', url: 'https://www.google.com/search?q=site:drive.google.com OR site:docs.google.com "${query}"' },
+                { type: 'general', name: 'Google Calendar (Dork)', desc: 'सार्वजनिक Google Calendar इवेंट खोजें।', url: 'https://www.google.com/search?q=site:calendar.google.com inurl:event "${query}"' },
+                { type: 'general', name: 'Google Maps Reviews (Dork)', desc: 'Google Maps पर की गई समीक्षाएँ खोजें।', url: 'https://www.google.com/search?q=site:google.com/maps/contrib/ "${query}"' },
+                { type: 'general', name: 'Google Groups (Dork)', desc: 'सार्वजनिक Google Groups चर्चाएँ खोजें।', url: 'https://www.google.com/search?q=site:groups.google.com "${query}"' },
+                { type: 'general', name: 'Public Contact Files (Dork)', desc: 'इंटरनेट पर VCF/CSV संपर्क फ़ाइलें खोजें।', url: 'https://www.google.com/search?q=filetype:vcf OR filetype:csv intext:"${query}"'},
+                { type: 'general', name: 'Google Spreadsheets Dork', desc: 'सार्वजनिक Google Sheets में संवेदनशील डेटा खोजें।', url: 'https://www.google.com/search?q=site:docs.google.com ext:xlsx OR ext:csv inurl:pub "${query}"' },
+                { type: 'general', name: 'Google Alerts Creation (External)', desc: 'Google Alerts बनाने के लिए एक लिंक जो आपकी क्वेरी को ट्रैक करेगा।', url: 'https://www.google.com/alerts#${query}' }
+            ],
+            "LEVEL 6: Image-Based Reconnaissance (इमेज-आधारित टोही)": [
+                { type: 'image', name: 'Google Reverse Image Search', desc: 'Google Images पर URL के माध्यम से इमेज खोजें।', url: 'https://images.google.com/searchbyimage?image_url=${image_url}' },
+                { type: 'image', name: 'Yandex Reverse Image Search', desc: 'Yandex Images पर URL के माध्यम से इमेज खोजें (अक्सर Google से अलग परिणाम)।', url: 'https://yandex.com/images/search?url=${image_url}&rpt=imageview' },
+                { type: 'image', name: 'TinEye Reverse Image Search', desc: 'TinEye पर URL के माध्यम से इमेज खोजें।', url: 'https://tineye.com/search?url=${image_url}' },
+                { type: 'image', name: 'Bing Visual Search', desc: 'Bing पर URL के माध्यम से इमेज खोजें।', url: 'https://www.bing.com/images/search?q=imgurl:${image_url}&view=detailv2&iss=sbi' }
+            ]
+        };
+           
+        // Helper function for creating a delay (sleep)
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Function to log messages to the system log with a typing animation
+        async function logMessage(message, speed = 20) {
+            const date = new Date();
+            const timestamp = `[${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}]`; // Format timestamp
+            systemLog.innerHTML += `${timestamp} >> `; // Add timestamp
+            for(let i = 0; i < message.length; i++) {
+                systemLog.innerHTML += message[i]; // Add character by character
+                systemLog.scrollTop = systemLog.scrollHeight; // Scroll to bottom
+                await sleep(speed); // Pause for typing effect
+            }
+            systemLog.innerHTML += '\n'; // Add newline after message
+            systemLog.scrollTop = systemLog.scrollHeight; // Ensure log stays scrolled to bottom
+        }
+
+        // Event listener for local image file selection
+        localImageUploadInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    noImageText.classList.add('hidden');
+                    logMessage(`लोकल इमेज अपलोड की गई: "${file.name}"। (Local image uploaded: "${file.name}".)`, 15);
+                    // The permanent help text below the input field already clarifies the public URL requirement
+                };
+                reader.readAsDataURL(file); // Read the file as a Data URL
+            } else {
+                imagePreview.src = "";
+                imagePreview.classList.add('hidden');
+                noImageText.classList.remove('hidden');
+                logMessage("कोई लोकल इमेज नहीं चुनी गई। (No local image selected.)", 15);
+            }
+        });
+
+
+        // Main function to execute the OSINT scan
+        async function executeScan() {
+            playScanSound(); // Play sound when scan starts
+            lookupBtn.disabled = true; // Disable button during scan
+            lookupBtn.innerText = "[ SCANNING... ]"; // Change button text
+            resultsSection.innerHTML = ''; // Clear previous results
+            resultsSection.classList.add('hidden'); // Hide results section initially
+            systemLog.innerHTML = ''; // Clear system log
+
+            const rawPrimaryQuery = primaryQueryInput.value.trim();
+            const rawPhoneNumber = phoneNumberInput.value.trim();
+            const rawAddressLocation = addressLocationInput.value.trim();
+            const rawImageUrl = imageUrlInput.value.trim(); // URL from input box
+
+            // Check if at least one input field is filled
+            if (!rawPrimaryQuery && !rawPhoneNumber && !rawAddressLocation && !rawImageUrl) {
+                await logMessage("CRITICAL_ERROR: कृपया कम से कम एक खोज क्वेरी दर्ज करें। (Please enter at least one search query.)", 10);
+                lookupBtn.disabled = false;
+                lookupBtn.innerText = "[ EXECUTE_SCAN ]";
+                return;
+            }
+            
+            await logMessage("Initializing HYDRA framework...");
+            await sleep(200);
+            await logMessage("Generating multi-vector attack surface...");
+            await sleep(500);
+
+            // Combine all text queries into a single 'query' for general dorks
+            let combinedQuery = [];
+            if (rawPrimaryQuery) combinedQuery.push(rawPrimaryQuery);
+            if (rawPhoneNumber) combinedQuery.push(rawPhoneNumber);
+            if (rawAddressLocation) combinedQuery.push(rawAddressLocation);
+            const finalQuery = combinedQuery.join(' ').trim(); // Combine with space
+            const encodedQuery = encodeURIComponent(finalQuery);
+            // cleanQuery will be used for platforms that require very clean inputs (e.g., Telegram handles, Phonebook.cz)
+            const cleanQuery = encodeURIComponent(finalQuery.replace(/[\+\s\-\(\)\/\\]/g, ''));
+
+            // Encode individual inputs for specific links
+            const encodedPhone = encodeURIComponent(rawPhoneNumber);
+            const cleanPhone = encodeURIComponent(rawPhoneNumber.replace(/[\+\s\-\(\)]/g, ''));
+            const encodedAddress = encodeURIComponent(rawAddressLocation);
+            const cleanAddress = encodeURIComponent(rawAddressLocation.replace(/[\+\s\-\(\)\/\\]/g, ''));
+            const encodedImageUrl = encodeURIComponent(rawImageUrl);
+
+            // Iterate through each category of sources
+            for (const category in sources) {
+                const currentCategorySources = sources[category];
+                // Filter sources based on input type and if the corresponding input has data
+                const relevantSources = currentCategorySources.filter(source => {
+                    if (source.type === 'general' && finalQuery) return true;
+                    if (source.type === 'phone' && rawPhoneNumber) return true;
+                    if (source.type === 'address' && rawAddressLocation) return true;
+                    if (source.type === 'image' && rawImageUrl) return true; // Only if image URL is provided
+                    return false;
+                });
+
+                if (relevantSources.length > 0) {
+                    await logMessage(`${category} के लिए क्वेरी बना रहे हैं...`, 15);
+                   
+                    // Create category title element
+                    const categoryTitle = document.createElement('h3');
+                    categoryTitle.className = 'category-title text-xl font-bold mb-4 mt-6 pb-2 border-b-2';
+                    categoryTitle.textContent = `// ${category}`;
+                    resultsSection.appendChild(categoryTitle);
+
+                    // Create a grid for links within the category
+                    const grid = document.createElement('div');
+                    grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+                   
+                    // Iterate through each relevant source within the current category
+                    relevantSources.forEach(source => {
+                        let finalUrl = source.url;
+                        if (source.type === 'general') {
+                            finalUrl = finalUrl.replace('${query}', encodedQuery);
+                            finalUrl = finalUrl.replace('${clean_query}', cleanQuery);
+                            // Handle specific dork placeholders if present
+                            if (finalUrl.includes('${query_site}')) {
+                                // Example: if user enters "site:example.com keyword"
+                                const parts = finalQuery.split('site:');
+                                if (parts.length > 1) {
+                                    const siteAndKeyword = parts[1].split(' ');
+                                    finalUrl = finalUrl.replace('${query_site}', encodeURIComponent(siteAndKeyword[0]));
+                                    finalUrl = finalUrl.replace('${query_main}', encodeURIComponent(siteAndKeyword.slice(1).join(' ')));
+                                } else {
+                                    finalUrl = finalUrl.replace('${query_site}', '');
+                                    finalUrl = finalUrl.replace('${query_main}', encodedQuery);
+                                }
+                            }
+                        } else if (source.type === 'phone') {
+                            finalUrl = finalUrl.replace('${phone}', encodedPhone);
+                            finalUrl = finalUrl.replace('${clean_phone}', cleanPhone);
+                        } else if (source.type === 'address') {
+                            finalUrl = finalUrl.replace('${address}', encodedAddress);
+                            finalUrl = finalUrl.replace('${clean_address}', cleanAddress);
+                        } else if (source.type === 'image') {
+                            finalUrl = finalUrl.replace('${image_url}', encodedImageUrl);
+                        }
+                       
+                        // Create the link card element
+                        const linkCard = document.createElement('a');
+                        linkCard.href = finalUrl; // Set the generated URL
+                        linkCard.target = '_blank'; // Open in new tab
+                        linkCard.rel = 'noopener noreferrer'; // Security best practice
+                        linkCard.className = 'block w-full link-card p-3 rounded-md';
+                       
+                        // Create name and description elements for the link card
+                        const name = document.createElement('p');
+                        name.className = 'font-bold link-name text-lg';
+                        name.textContent = `[+] ${source.name}`;
+
+                        const desc = document.createElement('p');
+                        desc.className = 'text-sm link-desc mt-1';
+                        desc.textContent = source.desc;
+
+                        // Append elements to the link card and then to the grid
+                        linkCard.appendChild(name);
+                        linkCard.appendChild(desc);
+                        grid.appendChild(linkCard);
+                    });
+                    resultsSection.appendChild(grid); // Add the grid of links to the results section
+                    await sleep(250); // Small delay between categories
+                }
+            }
+
+            await logMessage("सभी स्कैन वेक्टर उत्पन्न हो गए हैं। उपयोगकर्ता क्रिया का इंतजार है। (All scan vectors generated. Awaiting user action.)", 10);
+            await logMessage("शुभ शिकार। (Happy hunting.)", 50);
+
+            resultsSection.classList.remove('hidden'); // Show the results section
+            lookupBtn.disabled = false; // Re-enable the button
+            lookupBtn.innerText = "[ EXECUTE_SCAN ]"; // Reset button text
+        }
+
+        // Add event listeners
+        lookupBtn.addEventListener('click', executeScan); // On button click
+        // Add event listeners for Enter key on all input fields
+        primaryQueryInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') { executeScan(); }
+        });
+        phoneNumberInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') { executeScan(); }
+        });
+        addressLocationInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') { executeScan(); }
+        });
+        imageUrlInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') { executeScan(); }
+        });
+    </script>
+</body>
+</html>
