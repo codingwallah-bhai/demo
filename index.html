@@ -573,35 +573,41 @@
         }
 
         // Data for Projects
+        // Maine yahan 'image' property add kar di hai.
+        // Aapko bas isi naam se photo save karni hai folder mein.
         const projects = [
-            { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"] },
-            { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"] },
-            { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"] },
-            { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"] },
-            { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"] },
-            { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"] },
-            { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"] },
-            { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Org"] },
-            { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"] },
-            { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"] },
-            { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"] },
-            { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"] },
-            { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"] },
-            { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"] }
+            { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"], image: "1.png" },
+            { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"], image: "2.png" },
+            { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"], image: "3.png" },
+            { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"], image: "4.png" },
+            { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"], image: "5.png" },
+            { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"], image: "ictea.png" },
+            { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"], image: "6.png" },
+            { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Org"], image: "7.png" },
+            { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"], image: "8.png" },
+            { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"], image: "9.png" },
+            { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"], image: "10.png" },
+            { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"], image: "11.png" },
+            { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"], image: "12.png" },
+            { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"], image: "sweetalk.png" }
         ];
 
         const container = document.getElementById('portfolio-container');
 
         projects.forEach((proj, index) => {
-            const seed = proj.name.replace(/\s/g, ''); 
-            const imgUrl = `https://picsum.photos/seed/${seed}/600/400`;
-
             const tagsHtml = proj.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
+            // Yahan hum aapki local image use kar rahe hain (proj.image)
+            // Agar image nahi mili, to fallback mein placeholder dikhega
             const html = `
                 <div class="project-card">
                     <div class="project-img-container">
-                        <img src="${imgUrl}" alt="${proj.name}" loading="lazy">
+                        <img 
+                            src="${proj.image}" 
+                            alt="${proj.name}" 
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400/111/00f3ff?text=${proj.name.replace(' ', '+')}';"
+                        >
                     </div>
                     <div class="project-info">
                         <div class="project-tags">${tagsHtml}</div>
