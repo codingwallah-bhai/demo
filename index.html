@@ -72,6 +72,7 @@
             align-items: center;
             z-index: 1000;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            height: 80px; /* Fixed height for better calculation */
         }
 
         .logo {
@@ -98,7 +99,12 @@
 
         .nav-items a:hover { color: var(--primary-accent); text-shadow: 0 0 10px var(--primary-accent); }
         
-        .mobile-menu-btn { display: none; font-size: 1.5rem; cursor: pointer; }
+        .mobile-menu-btn { 
+            display: none; 
+            font-size: 1.8rem; 
+            cursor: pointer; 
+            color: var(--text-main);
+        }
 
         /* --- Hero Section with Background Banner --- */
         .hero {
@@ -336,12 +342,37 @@
         /* --- Responsive --- */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.8rem; }
-            .nav-items { display: none; }
             .mobile-menu-btn { display: block; }
             .stats-bar { gap: 30px; }
             .portfolio-grid { grid-template-columns: 1fr; }
             .whatsapp-float { width: 50px; height: 50px; font-size: 28px; bottom: 20px; right: 20px; }
             
+            /* --- MOBILE MENU FIX --- */
+            .nav-items {
+                display: none; /* Hidden by default */
+                flex-direction: column;
+                position: absolute;
+                top: 80px; /* Below navbar */
+                left: 0;
+                width: 100%;
+                background: rgba(5, 5, 5, 0.98);
+                padding: 30px 0;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* This class is toggled via JS */
+            .nav-items.active {
+                display: flex;
+            }
+
+            .nav-items a {
+                padding: 15px 0;
+                font-size: 1.2rem;
+                display: block;
+            }
+
             /* --- MOBILE FIX for Hero Background --- */
             .hero {
                 /* On Mobile, remove fixed to allow image to show properly */
@@ -361,13 +392,16 @@
 
     <nav>
         <div class="logo">Er<span>Karim</span></div>
-        <div class="nav-items">
-            <a href="#about">About</a>
-            <a href="#services">Services</a>
-            <a href="#work">Projects</a>
-            <a href="#contact">Contact</a>
+        <div class="nav-items" id="navItems">
+            <a href="#about" onclick="toggleMenu()">About</a>
+            <a href="#services" onclick="toggleMenu()">Services</a>
+            <a href="#work" onclick="toggleMenu()">Projects</a>
+            <a href="#contact" onclick="toggleMenu()">Contact</a>
         </div>
-        <div class="mobile-menu-btn"><i class="fas fa-bars"></i></div>
+        <!-- Mobile Menu Toggle Button -->
+        <div class="mobile-menu-btn" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
     </nav>
 
     <section class="hero" id="about">
@@ -521,6 +555,23 @@
     </a>
 
     <script>
+        // --- MOBILE MENU LOGIC ---
+        function toggleMenu() {
+            const nav = document.getElementById('navItems');
+            const btn = document.querySelector('.mobile-menu-btn i');
+            
+            nav.classList.toggle('active');
+            
+            // Change Icon
+            if(nav.classList.contains('active')) {
+                btn.classList.remove('fa-bars');
+                btn.classList.add('fa-times');
+            } else {
+                btn.classList.remove('fa-times');
+                btn.classList.add('fa-bars');
+            }
+        }
+
         // Data for Projects
         const projects = [
             { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"] },
