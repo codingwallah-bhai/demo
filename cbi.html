@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CBI Internal System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #000;
+        }
+        
+        @media (max-width: 640px) {
+            .hud-title { font-size: 1.2rem; }
+            .hud-stat-val { font-size: 1rem !important; }
+            .hide-on-mobile { display: none; }
+        }
+
+        .browser-frame {
+            height: 100%;
+            width: 100%;
+            border: none;
+            background-color: #f0f0f0; /* Slight gray to see if frame loads */
+        }
+        
+        #surveillanceOverlay {
+            background-color: rgba(10, 15, 20, 0.98);
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .hud-text {
+            color: #00ff41;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+        }
+
+        .hud-border {
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: #00ff41;
+            opacity: 0.5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .blink { animation: blinker 0.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        .grid-map {
+            background: 
+                linear-gradient(transparent 95%, rgba(0, 255, 65, 0.2) 50%),
+                linear-gradient(90deg, transparent 95%, rgba(0, 255, 65, 0.2) 50%);
+            background-size: 30px 30px;
+        }
+        
+        /* Toast Notification */
+        #copyToast {
+            transition: transform 0.3s ease-in-out, opacity 0.3s;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="h-[60px] bg-gray-900 border-b border-green-900 flex items-center justify-between px-3 md:px-6 shadow-lg z-50 shrink-0">
+        <div class="flex items-center space-x-2 md:space-x-3">
+            <!-- CBI Logo Placeholder -->
+            <div class="bg-yellow-600 rounded-full w-8 h-8 flex items-center justify-center text-white text-xs font-bold border border-yellow-400">
+                CBI
+            </div>
+            <h1 class="text-lg md:text-xl font-bold tracking-wider text-white">CENTRAL BUREAU <span class="text-xs text-green-600 font-normal block md:inline md:ml-2">INTELLIGENCE UNIT</span></h1>
+        </div>
+
+        <!-- Fake Address Bar with CBI.GOV.IN -->
+        <div class="hidden md:flex flex-1 mx-4 lg:mx-12 bg-gray-100 rounded px-3 py-1.5 items-center text-gray-800 text-sm border-b-2 border-gray-300 shadow-inner">
+            <i class="fa-solid fa-lock mr-2 text-green-600"></i>
+            <span class="truncate font-sans font-medium">https://cbi.gov.in/secure/intel/tracking-system/v4</span>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleSurveillance()" class="bg-blue-900 hover:bg-blue-800 text-blue-100 border border-blue-500 px-3 py-1.5 rounded text-xs md:text-sm font-bold tracking-wider flex items-center shadow-lg">
+                <i class="fa-solid fa-radar mr-1.5"></i>
+                <span class="hidden sm:inline">NEW TRACE</span>
+                <span class="sm:hidden">TRACE</span>
+            </button>
+            
+            <!-- Fallback button if iframe fails -->
+            <a href="https://proxyearth.org/" target="_blank" class="text-gray-400 hover:text-white px-2 transition" title="Open in New Tab">
+                <i class="fa-solid fa-external-link-alt"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow relative w-full overflow-hidden bg-gray-200">
+        
+        <!-- Error Message Background (Visible if iframe fails transparently) -->
+        <div class="absolute inset-0 flex items-center justify-center text-gray-500 z-0">
+            <div class="text-center">
+                <p class="mb-2">Establishing Connection...</p>
+                <p class="text-xs">If the interface does not load, use the External Link button above.</p>
+            </div>
+        </div>
+
+        <!-- The Website Iframe -->
+        <iframe 
+            id="cbiFrame" 
+            src="" 
+            class="browser-frame absolute inset-0 z-0"
+            allowfullscreen 
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        ></iframe>
+
+        <!-- Surveillance Overlay -->
+        <div id="surveillanceOverlay" class="absolute inset-0 z-40 flex flex-col p-2 md:p-4 transition-opacity duration-1000">
+            
+            <button onclick="toggleSurveillance()" class="absolute top-4 right-4 text-green-700 hover:text-green-500 z-50">
+                <i class="fa-solid fa-minus border border-green-800 p-1"></i>
+            </button>
+
+            <!-- 1. INPUT SCREEN -->
+            <div id="inputScreen" class="flex-1 flex flex-col items-center justify-center animate-fadeIn">
+                <div class="w-full max-w-md bg-black/90 hud-border p-6 md:p-8 rounded relative overflow-hidden">
+                    <div class="scan-line"></div>
+                    
+                    <div class="text-center mb-6">
+                        <div class="inline-block border-2 border-green-600 rounded-full p-4 mb-4">
+                             <i class="fa-solid fa-user-secret text-4xl text-green-600"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl hud-text font-bold tracking-[0.1em] mb-1">CBI DATABASE</h2>
+                        <p class="text-green-700 text-xs tracking-widest">ENTER SUSPECT MOBILE NUMBER</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <i class="fa-solid fa-keyboard absolute left-3 top-3.5 text-green-700"></i>
+                            <input type="tel" id="targetNumber" placeholder="+91 XXXXX XXXXX" 
+                                class="w-full bg-gray-900/50 border border-green-800 text-green-400 py-3 pl-10 pr-4 rounded font-mono text-lg focus:outline-none focus:border-green-500 focus:shadow-[0_0_15px_rgba(0,255,65,0.2)] placeholder-green-900 transition-all">
+                        </div>
+                        
+                        <button onclick="startSequence()" 
+                            class="w-full bg-green-900/30 hover:bg-green-800/50 text-green-400 border border-green-600 py-3 rounded font-bold tracking-[0.15em] transition-all hover:shadow-[0_0_20px_rgba(0,255,65,0.3)] active:scale-95 group">
+                            <i class="fa-solid fa-search-location mr-2 group-hover:animate-pulse"></i>
+                            LOCATE TARGET
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between text-[10px] text-green-800 font-mono">
+                        <span>AUTH: LEVEL-5</span>
+                        <span>SERVER: NEW DELHI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. SIMULATION SCREEN -->
+            <div id="simulationScreen" class="hidden flex-1 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 overflow-hidden h-full">
+                <div class="md:col-span-4 flex flex-col gap-2 h-1/2 md:h-full">
+                    <div class="bg-black/80 hud-border p-3 shrink-0">
+                        <div class="flex justify-between items-end border-b border-green-900 pb-2 mb-2">
+                            <span class="text-xs text-green-600">TARGET_ID</span>
+                            <span id="dispNumber" class="text-lg text-green-400 font-bold">...</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                            <div>
+                                <p class="text-green-800">SIGNAL</p>
+                                <p id="dispSignal" class="text-green-400">0%</p>
+                            </div>
+                            <div>
+                                <p class="text-green-800">STATUS</p>
+                                <p id="dispStatus" class="text-yellow-500 blink">SCANNING</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-black/80 hud-border p-3 relative overflow-hidden flex flex-col">
+                        <div class="scan-line"></div>
+                        <p class="text-xs text-green-700 border-b border-green-900 mb-2">SYSTEM_LOGS</p>
+                        <div id="logConsole" class="flex-1 overflow-y-auto font-mono text-[10px] md:text-xs text-green-500 space-y-1 scrollbar-none" style="scrollbar-width: none;"></div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8 flex flex-col gap-2 h-1/2 md:h-full">
+                    <div class="flex-1 bg-black/90 hud-border relative grid-map overflow-hidden flex items-center justify-center">
+                        <div class="absolute top-2 left-2 text-[10px] bg-green-900/20 text-green-500 px-1 border border-green-800">SATELLITE_FEED</div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                            <div class="w-[200px] h-[200px] border border-green-500 rounded-full flex items-center justify-center">
+                                <div class="w-[140px] h-[140px] border border-green-500 rounded-full flex items-center justify-center">
+                                    <div class="w-[80px] h-[80px] border border-green-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="absolute w-full h-[2px] bg-gradient-to-r from-transparent to-green-500 top-1/2 left-0 origin-center animate-spin" style="animation-duration: 3s;"></div>
+
+                        <div id="targetPin" class="hidden absolute flex flex-col items-center animate-bounce">
+                            <i class="fa-solid fa-location-dot text-4xl text-red-600 drop-shadow-[0_0_10px_rgba(255,0,0,0.8)]"></i>
+                            <div class="bg-black border border-red-600 px-2 py-1 mt-1 text-[10px] text-red-500 font-bold whitespace-nowrap">
+                                TARGET FOUND
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-16 md:h-20 bg-black/80 hud-border flex justify-around items-center px-2">
+                        <div class="text-center">
+                            <p class="text-[10px] text-green-800">LATITUDE</p>
+                            <p id="latVal" class="text-sm md:text-xl text-green-400 font-mono">00.000</p>
+                        </div>
+                        <div class="h-8 w-px bg-green-900"></div>
+                        <div class="text-center">
+                            <p class="text-[10px] text-green-800">LONGITUDE</p>
+                            <p id="lonVal" class="text-sm md:text-xl text-green-400 font-mono">00.000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Copied Toast -->
+        <div id="copyToast" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-900 text-white px-4 py-2 rounded shadow-lg border border-green-500 opacity-0 pointer-events-none z-50 flex items-center">
+            <i class="fa-solid fa-check-circle mr-2 text-green-400"></i>
+            <span class="text-sm font-mono tracking-wider">COPIED: PASTE IN SEARCH BOX</span>
+        </div>
+    </main>
+
+    <script>
+        const overlay = document.getElementById('surveillanceOverlay');
+        const inputScreen = document.getElementById('inputScreen');
+        const simScreen = document.getElementById('simulationScreen');
+        const logConsole = document.getElementById('logConsole');
+        const iframe = document.getElementById('cbiFrame');
+        const copyToast = document.getElementById('copyToast');
+        
+        let simInterval;
+
+        function toggleSurveillance() {
+            if (overlay.style.display === 'none') {
+                overlay.style.display = 'flex';
+                resetScreens();
+            } else {
+                overlay.style.display = 'none';
+                clearInterval(simInterval);
+            }
+        }
+
+        function resetScreens() {
+            inputScreen.classList.remove('hidden');
+            simScreen.classList.add('hidden');
+            document.getElementById('targetNumber').value = '';
+            document.getElementById('targetPin').classList.add('hidden');
+            logConsole.innerHTML = '';
+        }
+
+        function addLog(msg, color = 'text-green-500') {
+            const div = document.createElement('div');
+            div.className = `flex items-start gap-2 ${color}`;
+            div.innerHTML = `<span class="opacity-50">></span> <span>${msg}</span>`;
+            logConsole.appendChild(div);
+            logConsole.scrollTop = logConsole.scrollHeight;
+        }
+        
+        function showToast() {
+            copyToast.style.opacity = "1";
+            copyToast.style.transform = "translate(-50%, -10px)";
+            setTimeout(() => {
+                copyToast.style.opacity = "0";
+                copyToast.style.transform = "translate(-50%, 0)";
+            }, 3000);
+        }
+
+        function startSequence() {
+            const num = document.getElementById('targetNumber').value;
+            if (!num || num.length < 5) {
+                alert("PLEASE ENTER A VALID NUMBER");
+                return;
+            }
+
+            // 1. Copy number to clipboard (Needs user gesture)
+            navigator.clipboard.writeText(num).then(() => {
+                showToast();
+            }).catch(err => console.log('Copy failed', err));
+
+            // 2. Load website IMMEDIATELY so it's ready when animation ends
+            // Removing query params to prevent 404/errors on target site
+            iframe.src = "https://proxyearth.org/";
+
+            // 3. Switch to Simulation
+            inputScreen.classList.add('hidden');
+            simScreen.classList.remove('hidden');
+            document.getElementById('dispNumber').innerText = num;
+
+            // 4. Fake Hacking Sequence
+            let progress = 0;
+            addLog("CONNECTING TO CBI SERVER...", "text-green-300");
+            addLog(`NUMBER ${num} COPIED TO CLIPBOARD`, "text-yellow-400 italic");
+            
+            simInterval = setInterval(() => {
+                progress += Math.random() * 5; // Faster simulation
+                
+                document.getElementById('latVal').innerText = (20 + Math.random()).toFixed(4);
+                document.getElementById('lonVal').innerText = (77 + Math.random()).toFixed(4);
+                document.getElementById('dispSignal').innerText = Math.min(100, Math.floor(progress)) + "%";
+
+                if(progress > 20 && progress < 25) addLog("ACCESSING TELECOM GATEWAY...");
+                if(progress > 50 && progress < 55) addLog("TRIANGULATING POSITION...", "text-yellow-400");
+                if(progress > 80 && progress < 85) addLog("DOWNLOADING MAP DATA...", "text-blue-400");
+
+                if (progress >= 100) {
+                    clearInterval(simInterval);
+                    finalizeTracking();
+                }
+            }, 100);
+        }
+
+        function finalizeTracking() {
+            document.getElementById('dispStatus').innerText = "FOUND";
+            document.getElementById('dispStatus').className = "text-red-600 font-bold animate-pulse";
+            document.getElementById('targetPin').classList.remove('hidden');
+            
+            addLog("TARGET LOCATED.", "text-red-500 font-bold");
+            addLog("OPENING SECURE MAP INTERFACE...", "text-white blink");
+
+            // Wait 1.5 seconds then show the website
+            setTimeout(() => {
+                overlay.style.transition = "opacity 0.5s ease";
+                overlay.style.opacity = "0";
+                
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    overlay.style.opacity = "1"; 
+                    resetScreens();
+                }, 500);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
