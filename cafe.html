@@ -61,7 +61,7 @@
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                         CYBER<span class="text-cyan-400">CONNECT</span>
-                        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700 font-mono">v2.3 (HTML)</span>
+                        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700 font-mono">v2.4 (HTML)</span>
                     </h1>
                     <p class="text-xs text-slate-500 font-medium">Automated Document Retrieval System</p>
                 </div>
@@ -124,9 +124,10 @@
         // --- CONFIGURATION ---
         const DEFAULT_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ5MTA5MTc4NTYsInN1YiI6Im9fNDczNjI2MDM1NjY4NzA5MjU4In0.9UY0dFJF11hqWQ1DFfp4DoLV-G66wfSTguvhoC0fhQ4";
         
+        // Updated Proxies: 'allorigins' removed as it strips headers. 'thingproxy' added.
         const PROXIES = [
             "https://corsproxy.io/?", 
-            "https://api.allorigins.win/raw?url=",
+            "https://thingproxy.freeboard.io/fetch/",
             "https://api.codetabs.com/v1/proxy?quest="
         ];
 
@@ -413,7 +414,7 @@
                     let finalUrl = baseUrl;
                     if (attempt.type === 'proxy') {
                         finalUrl = `${attempt.url}${encodeURIComponent(baseUrl)}`;
-                        addLog(`🔄 Connecting via Proxy Node...`, 'info');
+                        addLog(`🔄 Connecting via Proxy Node (${new URL(attempt.url).hostname})...`, 'info');
                     } else {
                         addLog(`⚠️ Proxies failed, trying Direct connection...`, 'warning');
                     }
@@ -475,7 +476,8 @@
                 state.status = 'error';
                 if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
                     addLog(`❌ NETWORK BLOCKED (CORS)`, 'error');
-                    addLog(`👉 Install 'Allow CORS' Chrome Extension.`, 'warning');
+                    addLog(`👉 Action Required: Browser blocked the request.`, 'warning');
+                    addLog(`👉 FIX: Install <a href="https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" target="_blank" class="text-cyan-400 underline">Allow CORS Extension</a> and enable it.`, 'info');
                 } else {
                     addLog(`❌ Error: ${error.message}`, 'error');
                 }
