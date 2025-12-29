@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CBI - Secure Tracking Portal</title>
+    <title>CBI - Secure Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #1a202c;
+            background-color: #000;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -17,146 +17,138 @@
             touch-action: pan-x pan-y;
         }
 
-        /* CONTAINER */
+        /* CONTAINER - Yeh decide karta hai kitna area dikhega */
         #mask-container {
             position: relative;
             width: 100vw;
-            height: calc(100vh - 96px); /* Subtract header height */
+            height: calc(100vh - 60px); /* Header height minus karke */
             overflow: hidden;
-            background: #fff;
+            background: #111827;
         }
 
-        /* IFRAME */
+        /* IFRAME - Target Website */
         #target-frame {
             position: absolute;
             width: 100vw;
-            height: 150vh; /* Make it very long */
+            /* Height extra rakhi hai taaki niche tak content aaye */
+            height: 150vh; 
             border: none;
             left: 0;
-            transition: top 0.3s ease;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        /* Loading Screen */
-        #loader {
+        /* BOTTOM MASK - Niche ka menu chupane ke liye kaala parda */
+        .curtain-bottom {
             position: absolute;
-            inset: 0;
-            background: #0f172a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            transition: opacity 0.5s;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px; /* Default Bottom Crop */
+            background: #111827; /* Matches background to look invisible */
+            z-index: 50;
+            border-top: 2px solid #ef4444; /* Red line for style */
+            transition: height 0.3s ease;
         }
         
-        /* Official Header Gradients */
         .header-bg {
-            background: linear-gradient(to right, #1e3a8a, #1e40af);
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
         }
         
-        .address-bar {
-            background: #0f172a;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-        }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
 
-        /* Blinking Cursor for effect */
-        .cursor-blink {
-            animation: blink 1s step-end infinite;
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
         }
-        @keyframes blink { 50% { opacity: 0; } }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+        }
+        input[type=range]:focus {
+            outline: none; 
+        }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen bg-gray-900">
 
-    <!-- Official Header Area -->
-    <header class="header-bg text-white shadow-lg z-20 shrink-0">
-        <!-- Top Strip -->
-        <div class="px-4 py-2 flex items-center justify-between border-b border-blue-400/30">
-            <div class="flex items-center gap-3">
-                <!-- Generic Emblem Icon -->
-                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-blue-900 font-bold text-xs border-2 border-white shadow-sm">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" class="w-5 h-5" alt="Emblem">
-                </div>
-                <div>
-                    <h1 class="text-xs font-bold tracking-widest uppercase text-yellow-400">Central Bureau of Investigation</h1>
-                    <p class="text-[9px] text-blue-200 tracking-wide">GOVERNMENT OF INDIA // SECURE NETWORK</p>
-                </div>
+    <!-- HEADER (Fixed) -->
+    <header class="header-bg text-white z-20 shrink-0 h-[60px] flex items-center justify-between px-4">
+        <!-- Logo Area -->
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" class="w-5 h-5 opacity-80" alt="Emblem">
             </div>
-            <div class="flex items-center gap-2">
-                <div class="px-2 py-0.5 bg-red-600 rounded text-[9px] font-bold animate-pulse">RESTRICTED</div>
+            <div class="leading-tight">
+                <h1 class="text-xs font-bold tracking-widest text-gray-100 uppercase">CBI INTELLIGENCE</h1>
+                <span class="text-[9px] text-green-500 font-mono tracking-wider">● SECURE CONNECTION</span>
             </div>
         </div>
 
-        <!-- Fake Address Bar -->
-        <div class="bg-blue-900 px-4 py-2 flex items-center gap-3">
-            <div class="flex-1 address-bar rounded h-8 flex items-center px-3 border border-blue-700/50">
-                <i data-lucide="lock" class="w-3 h-3 text-green-500 mr-2"></i>
-                <span class="text-green-500 text-[10px] font-bold mr-1">HTTPS</span>
-                <span class="font-mono text-gray-400 text-xs">://</span>
-                <span class="font-mono text-white text-xs ml-1">cbi.gov.in/internal/osint-lookup-v4</span>
-                <span class="w-1.5 h-3 bg-green-500 ml-1 cursor-blink"></span>
-            </div>
-            <button onclick="refreshFrame()" class="text-blue-300 hover:text-white transition-colors" title="Reload System">
+        <!-- Right Controls -->
+        <div class="flex items-center gap-3">
+            <button onclick="refreshFrame()" class="text-gray-400 hover:text-white transition-colors" title="Reload">
                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+            <button onclick="toggleControls()" class="p-2 bg-gray-800 rounded-full text-blue-400 hover:text-white hover:bg-blue-600 transition-all border border-gray-700">
+                <i data-lucide="settings-2" class="w-4 h-4"></i>
             </button>
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- MAIN VIEWPORT -->
     <main class="flex-1 relative bg-gray-900 overflow-hidden">
         
-        <!-- Loader -->
-        <div id="loader">
-            <div class="flex flex-col items-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" class="w-16 h-16 mb-6 opacity-80 invert">
-                <div class="w-48 h-1 bg-gray-800 rounded-full overflow-hidden mb-2">
-                    <div class="h-full bg-yellow-500 w-1/3 animate-[shimmer_2s_infinite]"></div>
-                </div>
-                <div class="text-blue-400 font-mono text-[10px] tracking-[0.2em] uppercase">Authenticating Agent...</div>
-            </div>
-        </div>
-
-        <!-- Mask Container -->
-        <div id="mask-container" class="w-full h-full relative bg-white">
+        <div id="mask-container">
+            <!-- 
+                IFRAME 
+                Top se -140px shift kiya hai taaki logo chup jaye.
+                JS se adjust hoga agar kam/zyada karna ho.
+            -->
             <iframe 
                 id="target-frame"
                 src="https://osintmynk.fun"
-                sandbox="allow-forms allow-scripts allow-same-origin"
+                sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals"
                 title="Intel Source"
                 scrolling="yes"
             ></iframe>
             
-            <!-- Bottom Blocker (Covers footer) -->
-            <div id="bottom-blocker" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 0px; background: white; z-index: 10; pointer-events: none;"></div>
+            <!-- Bottom Mask -->
+            <div id="curtain-bottom" class="curtain-bottom">
+                <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-[9px] text-gray-600 font-mono">RESTRICTED VIEW AREA</span>
+                </div>
+            </div>
         </div>
-        
-        <!-- Hidden Controls Toggle -->
-        <button id="toggle-btn" onclick="toggleControls()" class="fixed bottom-4 right-4 bg-gray-800/50 hover:bg-gray-800 text-gray-500 p-2 rounded-full backdrop-blur-sm transition-all z-50">
-            <i data-lucide="settings-2" class="w-4 h-4"></i>
-        </button>
 
-        <!-- Adjustment Panel (Hidden) -->
-        <div id="controls" class="fixed bottom-14 right-4 bg-gray-900/95 border border-gray-700 p-4 rounded-lg shadow-2xl z-50 hidden w-64 text-white">
-             <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-700">
-                <span class="text-xs font-bold text-yellow-500">DISPLAY CALIBRATION</span>
-                <button onclick="toggleControls()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>
+        <!-- SETTINGS PANEL (Hidden by default) -->
+        <div id="controls" class="fixed top-[70px] right-4 bg-gray-900/95 border border-gray-700 p-4 rounded-lg shadow-2xl z-50 hidden w-72 text-white backdrop-blur-md">
+             <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
+                <span class="text-xs font-bold text-blue-400 uppercase">View Adjustment</span>
+                <button onclick="toggleControls()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             
-            <div class="space-y-4">
+            <div class="space-y-5">
+                <!-- Top Crop Control -->
                 <div>
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                        <span>Header Mask (Top)</span>
-                        <span id="top-val">120px</span>
+                    <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
+                        <span>Hide Top (Logo/Header)</span>
+                        <span id="top-val" class="text-blue-400 font-mono">140px</span>
                     </div>
-                    <input type="range" min="0" max="300" value="120" oninput="adjustTop(this.value)" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500">
+                    <input type="range" min="0" max="400" value="140" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500 hover:accent-blue-400">
+                    <p class="text-[9px] text-gray-500 mt-1">Move right to hide more from top.</p>
                 </div>
 
+                <!-- Bottom Crop Control -->
                 <div>
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                        <span>Footer Mask (Bottom)</span>
-                        <span id="btm-val">0px</span>
+                    <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
+                        <span>Hide Bottom (Menu/Ads)</span>
+                        <span id="btm-val" class="text-red-400 font-mono">80px</span>
                     </div>
-                    <input type="range" min="0" max="300" value="0" oninput="adjustBottom(this.value)" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500">
+                    <input type="range" min="0" max="300" value="80" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500 hover:accent-red-400">
+                    <p class="text-[9px] text-gray-500 mt-1">Move right to hide more from bottom.</p>
                 </div>
             </div>
         </div>
@@ -166,49 +158,64 @@
     <script>
         lucide.createIcons();
         const frame = document.getElementById('target-frame');
-        const loader = document.getElementById('loader');
+        const cBottom = document.getElementById('curtain-bottom');
         const controls = document.getElementById('controls');
         
-        // Increased default crop to hide top banners/popups
-        const isMobile = window.innerWidth < 768;
-        // Maine yahan value badha di hai: 120px for desktop, 100px for mobile
-        const initialTop = isMobile ? 100 : 120;
-        
-        document.querySelector('input[oninput*="adjustTop"]').value = initialTop;
-        adjustTop(initialTop);
-
-        frame.onload = () => {
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }, 1500); // Thoda lamba load time realistic effect ke liye
+        // --- CONFIGURATION ---
+        // Yahan se default cutting set hoti hai
+        let settings = {
+            top: 140,    // Upar se kitna katna hai (Logo ke liye)
+            bottom: 80   // Niche se kitna chupana hai (Menu ke liye)
         };
+
+        // Mobile par thoda kam katna padta hai kabhi kabhi
+        if(window.innerWidth < 768) {
+            settings.top = 120;
+            settings.bottom = 60;
+        }
         
-        setTimeout(() => {
-            if(loader.style.display !== 'none') {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }
-        }, 5000);
+        // Initial setup
+        applySettings();
+
+        // Update slider UI values to match defaults
+        document.querySelector('input[oninput*="adjustTop"]').value = settings.top;
+        document.querySelector('input[oninput*="adjustBottom"]').value = settings.bottom;
+
+        // --- FUNCTIONS ---
 
         function toggleControls() {
-            controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
+            if(controls.style.display === 'block') {
+                controls.style.display = 'none';
+            } else {
+                controls.style.display = 'block';
+            }
         }
 
         function adjustTop(val) {
-            frame.style.top = `-${val}px`;
-            frame.style.height = `calc(150vh + ${val}px)`; // Maintain extra length
-            document.getElementById('top-val').innerText = `${val}px`;
+            settings.top = parseInt(val);
+            document.getElementById('top-val').innerText = val + 'px';
+            applySettings();
         }
 
         function adjustBottom(val) {
-            document.getElementById('bottom-blocker').style.height = `${val}px`;
-            document.getElementById('btm-val').innerText = `${val}px`;
+            settings.bottom = parseInt(val);
+            document.getElementById('btm-val').innerText = val + 'px';
+            applySettings();
+        }
+
+        function applySettings() {
+            // Logic: Iframe ko upar khiskao (negative margin) taaki header upar chala jaye
+            frame.style.top = `-${settings.top}px`;
+            
+            // Height badhao taaki niche blank space na dikhe
+            frame.style.height = `calc(100vh + ${settings.top}px)`;
+            
+            // Bottom curtain ki height set karo
+            cBottom.style.height = `${settings.bottom}px`;
         }
 
         function refreshFrame() {
-            loader.style.display = 'flex';
-            loader.style.opacity = '1';
+            // Simple iframe reload
             frame.src = frame.src;
         }
     </script>
