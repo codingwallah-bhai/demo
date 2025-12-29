@@ -131,14 +131,23 @@
             </div>
             
             <div class="space-y-5">
+                <!-- Mobile Fix Button -->
+                <div class="bg-gray-800 p-2 rounded border border-gray-600">
+                    <p class="text-[10px] text-yellow-500 font-bold mb-2 uppercase">Mobile / Login Issue?</p>
+                    <button onclick="toggleFullView()" id="fix-btn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded flex items-center justify-center gap-2 transition-colors">
+                        <i data-lucide="eye"></i>
+                        <span>SHOW HEADER (LOGIN)</span>
+                    </button>
+                    <p class="text-[9px] text-gray-400 mt-1 leading-tight">Click this to see hidden Login/Captcha, solve it, then click again to hide.</p>
+                </div>
+
                 <!-- Top Crop Control -->
                 <div>
                     <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
                         <span>Hide Top (Logo/Header)</span>
                         <span id="top-val" class="text-blue-400 font-mono">140px</span>
                     </div>
-                    <input type="range" min="0" max="400" value="140" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500 hover:accent-blue-400">
-                    <p class="text-[9px] text-gray-500 mt-1">Move right to hide more from top.</p>
+                    <input type="range" min="0" max="400" value="140" id="top-slider" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500 hover:accent-blue-400">
                 </div>
 
                 <!-- Bottom Crop Control -->
@@ -147,8 +156,7 @@
                         <span>Hide Bottom (Menu/Ads)</span>
                         <span id="btm-val" class="text-red-400 font-mono">80px</span>
                     </div>
-                    <input type="range" min="0" max="300" value="80" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500 hover:accent-red-400">
-                    <p class="text-[9px] text-gray-500 mt-1">Move right to hide more from bottom.</p>
+                    <input type="range" min="0" max="300" value="80" id="btm-slider" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500 hover:accent-red-400">
                 </div>
             </div>
         </div>
@@ -162,24 +170,25 @@
         const controls = document.getElementById('controls');
         
         // --- CONFIGURATION ---
-        // Yahan se default cutting set hoti hai
         let settings = {
-            top: 140,    // Upar se kitna katna hai (Logo ke liye)
-            bottom: 80   // Niche se kitna chupana hai (Menu ke liye)
+            top: 140,    // Default Desktop
+            bottom: 80,
+            isFullView: false
         };
 
-        // Mobile par thoda kam katna padta hai kabhi kabhi
+        // Store original values to restore after "Full View"
+        let savedSettings = { ...settings };
+
+        // Mobile Adjustment
         if(window.innerWidth < 768) {
             settings.top = 120;
             settings.bottom = 60;
+            savedSettings = { ...settings };
         }
         
         // Initial setup
+        updateSliders();
         applySettings();
-
-        // Update slider UI values to match defaults
-        document.querySelector('input[oninput*="adjustTop"]').value = settings.top;
-        document.querySelector('input[oninput*="adjustBottom"]').value = settings.bottom;
 
         // --- FUNCTIONS ---
 
@@ -191,31 +200,70 @@
             }
         }
 
-        function adjustTop(val) {
-            settings.top = parseInt(val);
-            document.getElementById('top-val').innerText = val + 'px';
+        function toggleFullView() {
+            const btn = document.getElementById('fix-btn');
+            const btnSpan = btn.querySelector('span');
+            
+            settings.isFullView = !settings.isFullView;
+
+            if (settings.isFullView) {
+                // Show Everything (Remove Cuts)
+                settings.top = 0;
+                settings.bottom = 0;
+                
+                // Update Button UI
+                btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                btnSpan.innerText = "RESTORE HIDING";
+                
+            } else {
+                // Restore Previous Cuts
+                settings.top = savedSettings.top;
+                settings.bottom = savedSettings.bottom;
+                
+                // Update Button UI
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                btnSpan.innerText = "SHOW HEADER (LOGIN)";
+            }
+
+            updateSliders();
             applySettings();
+        }
+
+        function adjustTop(val) {
+            if (!settings.isFullView) {
+                settings.top = parseInt(val);
+                savedSettings.top = parseInt(val); // Save user preference
+                document.getElementById('top-val').innerText = val + 'px';
+                applySettings();
+            }
         }
 
         function adjustBottom(val) {
-            settings.bottom = parseInt(val);
-            document.getElementById('btm-val').innerText = val + 'px';
-            applySettings();
+            if (!settings.isFullView) {
+                settings.bottom = parseInt(val);
+                savedSettings.bottom = parseInt(val); // Save user preference
+                document.getElementById('btm-val').innerText = val + 'px';
+                applySettings();
+            }
+        }
+
+        function updateSliders() {
+            document.getElementById('top-slider').value = settings.top;
+            document.getElementById('top-val').innerText = settings.top + 'px';
+            
+            document.getElementById('btm-slider').value = settings.bottom;
+            document.getElementById('btm-val').innerText = settings.bottom + 'px';
         }
 
         function applySettings() {
-            // Logic: Iframe ko upar khiskao (negative margin) taaki header upar chala jaye
             frame.style.top = `-${settings.top}px`;
-            
-            // Height badhao taaki niche blank space na dikhe
             frame.style.height = `calc(100vh + ${settings.top}px)`;
-            
-            // Bottom curtain ki height set karo
             cBottom.style.height = `${settings.bottom}px`;
         }
 
         function refreshFrame() {
-            // Simple iframe reload
             frame.src = frame.src;
         }
     </script>
