@@ -18,37 +18,47 @@
             touch-action: pan-x pan-y;
         }
 
-        /* CONTAINER - Yeh decide karta hai kitna area dikhega */
+        /* CONTAINER */
         #mask-container {
             position: relative;
             width: 100vw;
-            height: calc(100vh - 60px); /* Header height minus karke */
+            height: calc(100vh - 60px); 
             overflow: hidden;
             background: #111827;
         }
 
-        /* IFRAME - Target Website */
+        /* IFRAME WRAPPER - For Desktop Scaling on Mobile */
+        #iframe-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0; /* Scale from top-left */
+            transition: transform 0.3s ease;
+        }
+
+        /* IFRAME */
         #target-frame {
             position: absolute;
-            width: 100vw;
-            /* Height extra rakhi hai taaki niche tak content aaye */
+            /* Default to 100% for desktop, JS will change this for mobile */
+            width: 100%; 
             height: 150vh; 
             border: none;
             left: 0;
-            transition: all 0.3s ease;
             background: white;
         }
 
-        /* BOTTOM MASK - Niche ka menu chupane ke liye kaala parda */
+        /* MASKS */
         .curtain-bottom {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 80px; /* Default Bottom Crop */
-            background: #111827; /* Matches background to look invisible */
+            height: 80px; 
+            background: #111827;
             z-index: 50;
-            border-top: 2px solid #ef4444; /* Red line for style */
+            border-top: 2px solid #ef4444; 
             transition: height 0.3s ease;
         }
         
@@ -56,9 +66,6 @@
             background: #0f172a;
             border-bottom: 1px solid #1e293b;
         }
-        
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
 
         /* Range Slider Styling */
         input[type=range] {
@@ -75,20 +82,18 @@
 </head>
 <body class="flex flex-col h-screen bg-gray-900">
 
-    <!-- HEADER (Fixed) -->
+    <!-- HEADER -->
     <header class="header-bg text-white z-20 shrink-0 h-[60px] flex items-center justify-between px-4">
-        <!-- Logo Area -->
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" class="w-5 h-5 opacity-80" alt="Emblem">
             </div>
             <div class="leading-tight">
                 <h1 class="text-xs font-bold tracking-widest text-gray-100 uppercase">CBI INTELLIGENCE</h1>
-                <span class="text-[9px] text-green-500 font-mono tracking-wider">● SECURE CONNECTION</span>
+                <span class="text-[9px] text-green-500 font-mono tracking-wider">● DESKTOP SPOOF ACTIVE</span>
             </div>
         </div>
 
-        <!-- Right Controls -->
         <div class="flex items-center gap-3">
             <button onclick="refreshFrame()" class="text-gray-400 hover:text-white transition-colors" title="Reload">
                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -103,75 +108,59 @@
     <main class="flex-1 relative bg-gray-900 overflow-hidden">
         
         <div id="mask-container">
-            <!-- 
-                IFRAME 
-                Top se -140px shift kiya hai taaki logo chup jaye.
-                JS se adjust hoga agar kam/zyada karna ho.
-            -->
-            <iframe 
-                id="target-frame"
-                src="https://osintmynk.fun"
-                sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-presentation allow-orientation-lock"
-                referrerpolicy="no-referrer"
-                title="Intel Source"
-                scrolling="yes"
-            ></iframe>
+            <!-- Wrapper for scaling magic -->
+            <div id="iframe-wrapper">
+                <iframe 
+                    id="target-frame"
+                    src="https://osintmynk.fun"
+                    sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals"
+                    referrerpolicy="no-referrer"
+                    title="Intel Source"
+                    scrolling="yes"
+                ></iframe>
+            </div>
             
-            <!-- Bottom Mask -->
+            <!-- Bottom Mask (Stays fixed relative to screen) -->
             <div id="curtain-bottom" class="curtain-bottom">
                 <div class="w-full h-full flex items-center justify-center">
-                    <span class="text-[9px] text-gray-600 font-mono">RESTRICTED VIEW AREA</span>
+                    <span class="text-[9px] text-gray-600 font-mono">SECURE MASKING ACTIVE</span>
                 </div>
             </div>
         </div>
 
-        <!-- SETTINGS PANEL (Hidden by default) -->
+        <!-- SETTINGS PANEL -->
         <div id="controls" class="fixed top-[70px] right-4 bg-gray-900/95 border border-gray-700 p-4 rounded-lg shadow-2xl z-50 hidden w-72 text-white backdrop-blur-md">
              <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
-                <span class="text-xs font-bold text-blue-400 uppercase">System Config</span>
+                <span class="text-xs font-bold text-blue-400 uppercase">View Configuration</span>
                 <button onclick="toggleControls()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             
             <div class="space-y-5">
-                <!-- Login Issue Fix -->
-                <div class="bg-gray-800 p-3 rounded border border-yellow-600/50">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="alert-triangle" class="w-3 h-3 text-yellow-500"></i>
-                        <p class="text-[10px] text-yellow-500 font-bold uppercase">Login Required Error?</p>
-                    </div>
-                    <div class="space-y-2">
-                        <button onclick="window.open('https://osintmynk.fun', '_blank')" class="w-full py-2 bg-green-700 hover:bg-green-600 text-white text-[10px] font-bold rounded flex items-center justify-center gap-2 transition-colors">
-                            <i data-lucide="key"></i>
-                            <span>1. AUTHENTICATE (NEW TAB)</span>
-                        </button>
-                        <button onclick="refreshFrame()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold rounded flex items-center justify-center gap-2 transition-colors">
-                            <i data-lucide="refresh-cw"></i>
-                            <span>2. THEN REFRESH HERE</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View Toggle -->
+                <!-- Desktop Mode Toggle -->
                 <div class="bg-gray-800 p-2 rounded border border-gray-600">
-                    <button onclick="toggleFullView()" id="fix-btn" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs font-bold rounded flex items-center justify-center gap-2 transition-colors">
-                        <i data-lucide="eye"></i>
-                        <span>SHOW FULL HEADER (UNMASK)</span>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] text-gray-300 font-bold">DESKTOP SIMULATION</span>
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <p class="text-[9px] text-gray-400 mb-2">Forces website to think you are on Laptop (Fixes Login Error).</p>
+                    <button onclick="toggleDesktopMode()" id="desktop-btn" class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded transition-colors">
+                        TOGGLE DESKTOP MODE
                     </button>
                 </div>
 
-                <!-- Top Crop Control -->
+                <!-- Top Crop -->
                 <div>
                     <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
-                        <span>Hide Top (Logo/Header)</span>
+                        <span>Hide Top (Logo)</span>
                         <span id="top-val" class="text-blue-400 font-mono">140px</span>
                     </div>
                     <input type="range" min="0" max="400" value="140" id="top-slider" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500 hover:accent-blue-400">
                 </div>
 
-                <!-- Bottom Crop Control -->
+                <!-- Bottom Crop -->
                 <div>
                     <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
-                        <span>Hide Bottom (Menu/Ads)</span>
+                        <span>Hide Bottom (Menu)</span>
                         <span id="btm-val" class="text-red-400 font-mono">80px</span>
                     </div>
                     <input type="range" min="0" max="300" value="80" id="btm-slider" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500 hover:accent-red-400">
@@ -184,106 +173,135 @@
     <script>
         lucide.createIcons();
         const frame = document.getElementById('target-frame');
+        const wrapper = document.getElementById('iframe-wrapper');
         const cBottom = document.getElementById('curtain-bottom');
         const controls = document.getElementById('controls');
         
         // --- CONFIGURATION ---
         let settings = {
-            top: 140,    // Default Desktop
+            top: 140,
             bottom: 80,
-            isFullView: false
+            desktopMode: false // Will set to true if mobile detected
         };
 
-        // Store original values to restore after "Full View"
-        let savedSettings = { ...settings };
+        // Initialize sliders
+        document.getElementById('top-slider').value = settings.top;
+        document.getElementById('btm-slider').value = settings.bottom;
+        document.getElementById('top-val').innerText = settings.top + 'px';
+        document.getElementById('btm-val').innerText = settings.bottom + 'px';
 
-        // Mobile Adjustment
-        if(window.innerWidth < 768) {
-            settings.top = 120;
-            settings.bottom = 60;
-            savedSettings = { ...settings };
-        }
-        
-        // Initial setup
-        updateSliders();
-        applySettings();
-
-        // --- FUNCTIONS ---
-
-        function toggleControls() {
-            if(controls.style.display === 'block') {
-                controls.style.display = 'none';
-            } else {
-                controls.style.display = 'block';
-            }
-        }
-
-        function toggleFullView() {
-            const btn = document.getElementById('fix-btn');
-            const btnSpan = btn.querySelector('span');
+        // --- SMART MOBILE DETECTION & SCALING ---
+        function checkAndApplyDesktopMode() {
+            const screenWidth = window.innerWidth;
             
-            settings.isFullView = !settings.isFullView;
+            // Agar mobile hai (width < 768px)
+            if (screenWidth < 768) {
+                settings.desktopMode = true; // Auto-enable on mobile
+                
+                // Magic Formula: 
+                // Hum iframe ko 1200px chouda (laptop width) banayenge
+                // Aur phir use shrink karke mobile screen mein fit karenge
+                const desktopWidth = 1200; 
+                const scale = screenWidth / desktopWidth;
+                
+                // 1. Set Iframe Width to Desktop Size
+                frame.style.width = `${desktopWidth}px`;
+                frame.style.height = `200vh`; // Extra height for content
+                
+                // 2. Shrink it to fit mobile width
+                wrapper.style.transform = `scale(${scale})`;
+                
+                // 3. Adjust Wrapper Height so page isn't huge
+                wrapper.style.height = `${100 / scale}%`;
+                wrapper.style.width = `${desktopWidth}px`;
 
-            if (settings.isFullView) {
-                // Show Everything (Remove Cuts)
-                settings.top = 0;
-                settings.bottom = 0;
+                // Adjust default crop for this new scale
+                // Kyunki screen zoom out ho gayi hai, pixel values badal jayengi
+                settings.top = 180; // Scaled needs more crop usually
+                settings.bottom = 100;
                 
-                // Update Button UI
-                btn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
-                btn.classList.add('bg-green-600', 'hover:bg-green-700');
-                btnSpan.innerText = "RESTORE MASKING";
-                
+                updateButtonState(true);
             } else {
-                // Restore Previous Cuts
-                settings.top = savedSettings.top;
-                settings.bottom = savedSettings.bottom;
-                
-                // Update Button UI
-                btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
-                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                btnSpan.innerText = "SHOW FULL HEADER (UNMASK)";
+                // Laptop par normal chalega
+                settings.desktopMode = false;
+                frame.style.width = '100%';
+                wrapper.style.transform = 'none';
+                updateButtonState(false);
             }
-
-            updateSliders();
             applySettings();
         }
 
-        function adjustTop(val) {
-            if (!settings.isFullView) {
-                settings.top = parseInt(val);
-                savedSettings.top = parseInt(val); // Save user preference
-                document.getElementById('top-val').innerText = val + 'px';
-                applySettings();
+        function toggleDesktopMode() {
+            if (settings.desktopMode) {
+                // Disable (Go back to Mobile View)
+                settings.desktopMode = false;
+                frame.style.width = '100%';
+                wrapper.style.transform = 'none';
+                wrapper.style.width = '100%';
+                wrapper.style.height = '100%';
+                updateButtonState(false);
+            } else {
+                // Enable (Force Laptop View)
+                checkAndApplyDesktopMode(); // Re-trigger logic
             }
+        }
+
+        function updateButtonState(isActive) {
+            const btn = document.getElementById('desktop-btn');
+            if(isActive) {
+                btn.innerText = "MODE: DESKTOP (ACTIVE)";
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            } else {
+                btn.innerText = "MODE: MOBILE (DEFAULT)";
+                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            }
+        }
+
+        // --- NORMAL FUNCTIONS ---
+
+        function toggleControls() {
+            controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function adjustTop(val) {
+            settings.top = parseInt(val);
+            document.getElementById('top-val').innerText = val + 'px';
+            applySettings();
         }
 
         function adjustBottom(val) {
-            if (!settings.isFullView) {
-                settings.bottom = parseInt(val);
-                savedSettings.bottom = parseInt(val); // Save user preference
-                document.getElementById('btm-val').innerText = val + 'px';
-                applySettings();
-            }
-        }
-
-        function updateSliders() {
-            document.getElementById('top-slider').value = settings.top;
-            document.getElementById('top-val').innerText = settings.top + 'px';
-            
-            document.getElementById('btm-slider').value = settings.bottom;
-            document.getElementById('btm-val').innerText = settings.bottom + 'px';
+            settings.bottom = parseInt(val);
+            document.getElementById('btm-val').innerText = val + 'px';
+            applySettings();
         }
 
         function applySettings() {
+            // Apply Crop
             frame.style.top = `-${settings.top}px`;
-            frame.style.height = `calc(100vh + ${settings.top}px)`;
-            cBottom.style.height = `${settings.bottom}px`;
+            
+            // If desktop mode is ON, we need to be careful with height calculations
+            if(settings.desktopMode) {
+                // Adjust bottom mask visually
+                cBottom.style.height = `${settings.bottom}px`;
+            } else {
+                frame.style.height = `calc(100vh + ${settings.top}px)`;
+                cBottom.style.height = `${settings.bottom}px`;
+            }
         }
 
         function refreshFrame() {
             frame.src = frame.src;
         }
+
+        // Run on Load
+        checkAndApplyDesktopMode();
+        
+        // Update on Resize (Rotation etc)
+        window.addEventListener('resize', () => {
+            // Optional: Re-calculate if needed, or just let user toggle
+        });
     </script>
 </body>
 </html>
