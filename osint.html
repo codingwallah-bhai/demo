@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CBI - Secure Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -110,7 +111,8 @@
             <iframe 
                 id="target-frame"
                 src="https://osintmynk.fun"
-                sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals"
+                sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-presentation allow-orientation-lock"
+                referrerpolicy="no-referrer"
                 title="Intel Source"
                 scrolling="yes"
             ></iframe>
@@ -126,19 +128,35 @@
         <!-- SETTINGS PANEL (Hidden by default) -->
         <div id="controls" class="fixed top-[70px] right-4 bg-gray-900/95 border border-gray-700 p-4 rounded-lg shadow-2xl z-50 hidden w-72 text-white backdrop-blur-md">
              <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
-                <span class="text-xs font-bold text-blue-400 uppercase">View Adjustment</span>
+                <span class="text-xs font-bold text-blue-400 uppercase">System Config</span>
                 <button onclick="toggleControls()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             
             <div class="space-y-5">
-                <!-- Mobile Fix Button -->
+                <!-- Login Issue Fix -->
+                <div class="bg-gray-800 p-3 rounded border border-yellow-600/50">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="alert-triangle" class="w-3 h-3 text-yellow-500"></i>
+                        <p class="text-[10px] text-yellow-500 font-bold uppercase">Login Required Error?</p>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="window.open('https://osintmynk.fun', '_blank')" class="w-full py-2 bg-green-700 hover:bg-green-600 text-white text-[10px] font-bold rounded flex items-center justify-center gap-2 transition-colors">
+                            <i data-lucide="key"></i>
+                            <span>1. AUTHENTICATE (NEW TAB)</span>
+                        </button>
+                        <button onclick="refreshFrame()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold rounded flex items-center justify-center gap-2 transition-colors">
+                            <i data-lucide="refresh-cw"></i>
+                            <span>2. THEN REFRESH HERE</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- View Toggle -->
                 <div class="bg-gray-800 p-2 rounded border border-gray-600">
-                    <p class="text-[10px] text-yellow-500 font-bold mb-2 uppercase">Mobile / Login Issue?</p>
-                    <button onclick="toggleFullView()" id="fix-btn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded flex items-center justify-center gap-2 transition-colors">
+                    <button onclick="toggleFullView()" id="fix-btn" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs font-bold rounded flex items-center justify-center gap-2 transition-colors">
                         <i data-lucide="eye"></i>
-                        <span>SHOW HEADER (LOGIN)</span>
+                        <span>SHOW FULL HEADER (UNMASK)</span>
                     </button>
-                    <p class="text-[9px] text-gray-400 mt-1 leading-tight">Click this to see hidden Login/Captcha, solve it, then click again to hide.</p>
                 </div>
 
                 <!-- Top Crop Control -->
@@ -212,9 +230,9 @@
                 settings.bottom = 0;
                 
                 // Update Button UI
-                btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                btn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
                 btn.classList.add('bg-green-600', 'hover:bg-green-700');
-                btnSpan.innerText = "RESTORE HIDING";
+                btnSpan.innerText = "RESTORE MASKING";
                 
             } else {
                 // Restore Previous Cuts
@@ -222,9 +240,9 @@
                 settings.bottom = savedSettings.bottom;
                 
                 // Update Button UI
-                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
                 btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                btnSpan.innerText = "SHOW HEADER (LOGIN)";
+                btnSpan.innerText = "SHOW FULL HEADER (UNMASK)";
             }
 
             updateSliders();
