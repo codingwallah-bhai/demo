@@ -2,235 +2,187 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CBI - Intelligence Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Search - Phone Lookup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #000;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+        body { 
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
         }
-
-        /* CONTAINER */
-        #mask-container {
-            position: relative;
-            width: 100vw;
-            height: calc(100vh - 60px); 
-            overflow: hidden;
-            background: #111827;
+        #search-box {
+            backdrop-filter: blur(20px);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
         }
-
-        /* IFRAME - NO SANDBOX, DIRECT ACCESS */
-        #target-frame {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 150vh; 
+        .search-input {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+        }
+        #proxy-frame {
             border: none;
             background: white;
-            transition: top 0.3s ease;
-        }
-
-        /* MASKS (To hide Logo & Menu) */
-        .curtain-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
             width: 100%;
-            height: 80px; 
-            background: #111827;
-            z-index: 50;
-            border-top: 2px solid #ef4444; 
-            transition: height 0.3s ease;
+            height: 0;
+            transition: height 0.5s ease;
         }
-        
-        .header-bg {
-            background: #0f172a;
-            border-bottom: 1px solid #1e293b;
+        .proxy-visible { height: 80vh !important; }
+        .loading-spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
-
-        /* OVERLAY FOR CHROME FIX */
-        #chrome-fix-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(17, 24, 39, 0.98);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; }
-        input[type=range]:focus { outline: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="flex flex-col h-screen bg-gray-900">
-
+<body class="min-h-screen p-4">
+    
     <!-- HEADER -->
-    <header class="header-bg text-white z-20 shrink-0 h-[60px] flex items-center justify-between px-4">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" class="w-5 h-5 opacity-80" alt="Emblem">
+    <div class="max-w-4xl mx-auto mb-8">
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
             </div>
-            <div class="leading-tight">
-                <h1 class="text-xs font-bold tracking-widest text-gray-100 uppercase">CBI INTELLIGENCE</h1>
-                <span class="text-[9px] text-green-500 font-mono tracking-wider">● RAW MODE (NO SANDBOX)</span>
-            </div>
+            <h1 class="text-4xl font-bold text-white mb-4 drop-shadow-lg">🔍 OSINT Phone Search</h1>
+            <p class="text-xl text-white/80">Real data from osintmynk.fun - No login required!</p>
         </div>
 
-        <div class="flex items-center gap-3">
-            <button onclick="document.getElementById('target-frame').src += ''" class="text-gray-400 hover:text-white transition-colors">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            </button>
-            <button onclick="toggleControls()" class="p-2 bg-gray-800 rounded-full text-blue-400 hover:text-white transition-all border border-gray-700">
-                <i data-lucide="settings-2" class="w-4 h-4"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- MAIN VIEWPORT -->
-    <main class="flex-1 relative bg-gray-900 overflow-hidden">
-        
-        <div id="mask-container">
-            
-            <!-- CHROME FIX OVERLAY -->
-            <div id="chrome-fix-overlay">
-                <div class="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mb-4 border border-blue-500 animate-pulse">
-                    <i data-lucide="chrome" class="w-8 h-8 text-blue-400"></i>
-                </div>
-                <h2 class="text-white font-bold text-xl mb-2">CHROME PROTOCOL</h2>
-                <p class="text-gray-400 text-xs mb-8 max-w-xs leading-relaxed">
-                    Chrome blocks embedded logins. Use this One-Time Auth process to whitelist the session.
-                </p>
-                
-                <div class="flex flex-col gap-4 w-full max-w-xs">
-                    <button onclick="authenticateSession()" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95">
-                        <i data-lucide="key"></i>
-                        <span>1. UNLOCK SESSION</span>
-                    </button>
-                    
-                    <button onclick="loadDirectFrame()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95">
-                        <i data-lucide="play"></i>
-                        <span>2. LOAD FRAME</span>
-                    </button>
-                </div>
+        <!-- SEARCH BOX -->
+        <div id="search-box" class="max-w-2xl mx-auto p-8 rounded-3xl search-input shadow-2xl">
+            <div class="flex gap-4">
+                <input id="phoneInput" type="tel" placeholder="+919876543210" 
+                       class="flex-1 px-6 py-4 text-xl font-semibold rounded-2xl border-2 border-white/30 focus:border-blue-400 focus:outline-none transition-all search-input">
+                <button id="searchBtn" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-xl transform hover:-translate-y-1 transition-all">
+                    🔍 Search
+                </button>
             </div>
-
-            <!-- IFRAME (NO SANDBOX ATTRIBUTE - CRITICAL FOR CHROME) -->
-            <!-- Removing 'sandbox' treats it as a standard third-party request -->
-            <iframe 
-                id="target-frame"
-                data-src="https://osintmynk.fun"
-                referrerpolicy="no-referrer"
-                loading="eager"
-                title="Intel Source"
-                scrolling="yes"
-            ></iframe>
-            
-            <!-- Bottom Mask -->
-            <div id="curtain-bottom" class="curtain-bottom">
-                <div class="w-full h-full flex items-center justify-center">
-                    <span class="text-[9px] text-gray-600 font-mono">SECURE MASKING ACTIVE</span>
-                </div>
+            <div id="loading" class="flex items-center justify-center gap-4 mt-6 hidden">
+                <div class="loading-spinner"></div>
+                <span class="text-white font-semibold">Loading real data...</span>
             </div>
         </div>
+    </div>
 
-        <!-- SETTINGS PANEL -->
-        <div id="controls" class="fixed top-[70px] right-4 bg-gray-900/95 border border-gray-700 p-4 rounded-lg shadow-2xl z-50 hidden w-72 text-white backdrop-blur-md">
-             <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
-                <span class="text-xs font-bold text-blue-400 uppercase">Configuration</span>
-                <button onclick="toggleControls()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            
-            <div class="space-y-5">
-                <div class="bg-gray-800 p-2 rounded border border-gray-600">
-                    <p class="text-[10px] text-yellow-500 font-bold mb-2">Troubleshooting</p>
-                    <button onclick="document.getElementById('chrome-fix-overlay').style.display='flex'" class="w-full py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-[10px] rounded">
-                        Show Auth Menu
-                    </button>
-                </div>
+    <!-- RESULTS / IFRAME -->
+    <div class="max-w-6xl mx-auto">
+        <!-- WORKING PROXY IFRAME -->
+        <iframe id="proxy-frame" 
+                src="about:blank"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+                class="mx-auto rounded-3xl shadow-2xl"></iframe>
 
-                <div>
-                    <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
-                        <span>Hide Top (Logo)</span>
-                        <span id="top-val" class="text-blue-400 font-mono">140px</span>
-                    </div>
-                    <input type="range" min="0" max="400" value="140" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500">
-                </div>
-
-                <div>
-                    <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
-                        <span>Hide Bottom (Menu)</span>
-                        <span id="btm-val" class="text-red-400 font-mono">80px</span>
-                    </div>
-                    <input type="range" min="0" max="300" value="80" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500">
-                </div>
-            </div>
+        <!-- DIRECT LINKS -->
+        <div id="direct-links" class="max-w-4xl mx-auto mt-8 p-8 bg-white/10 backdrop-blur-xl rounded-3xl hidden">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">📱 Direct Results</h3>
+            <div id="link-container" class="grid md:grid-cols-2 gap-4"></div>
         </div>
-
-    </main>
+    </div>
 
     <script>
-        lucide.createIcons();
-        const frame = document.getElementById('target-frame');
-        const overlay = document.getElementById('chrome-fix-overlay');
-        const cBottom = document.getElementById('curtain-bottom');
-        const controls = document.getElementById('controls');
-        
-        // --- SETTINGS ---
-        let settings = { top: 140, bottom: 80 };
+        const phoneInput = document.getElementById('phoneInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const loading = document.getElementById('loading');
+        const proxyFrame = document.getElementById('proxy-frame');
+        const directLinks = document.getElementById('direct-links');
+        const linkContainer = document.getElementById('link-container');
 
-        // --- AUTH LOGIC ---
-        function authenticateSession() {
-            // Opens the site to establish the session in the main browser context
-            window.open('https://osintmynk.fun', 'AuthPopup', 'width=500,height=600');
-        }
+        // **3 WORKING PROXIES - Chrome safe!**
+        const PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://thingproxy.freeboard.io/fetch/',
+            'https://corsproxy.io/?'
+        ];
 
-        function loadDirectFrame() {
-            // Hides overlay and loads URL
-            overlay.style.opacity = '0';
-            setTimeout(() => { overlay.style.display = 'none'; }, 500);
+        searchBtn.addEventListener('click', searchPhone);
+        phoneInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchPhone();
+        });
+
+        async function searchPhone() {
+            const phone = phoneInput.value.trim().replace(/[^+\d-]/g, '');
             
-            // Set source now
-            frame.src = frame.getAttribute('data-src');
+            if (!phone || !phone.startsWith('+')) {
+                alert('Phone number sahi format mein daalo: +919876543210');
+                return;
+            }
+
+            // Show loading
+            loading.classList.remove('hidden');
+            searchBtn.disabled = true;
+            proxyFrame.classList.remove('proxy-visible');
+            directLinks.classList.add('hidden');
+            linkContainer.innerHTML = '';
+
+            // **METHOD 1: Try proxy iframe (Chrome safe)**
+            tryProxyIframe(phone);
         }
 
-        // --- UI FUNCTIONS ---
-        function toggleControls() {
-            controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
+        function tryProxyIframe(phone) {
+            let proxyIndex = 0;
+            
+            const tryNextProxy = () => {
+                if (proxyIndex >= PROXIES.length) {
+                    // **FALLBACK: Direct links**
+                    showDirectLinks(phone);
+                    return;
+                }
+
+                const proxyUrl = `${PROXIES[proxyIndex++]}${encodeURIComponent(`https://osintmynk.fun/search?q=${phone}`)}`;
+                
+                proxyFrame.onload = () => {
+                    proxyFrame.classList.add('proxy-visible');
+                    loading.classList.add('hidden');
+                };
+                
+                proxyFrame.onerror = () => {
+                    setTimeout(tryNextProxy, 500);
+                };
+                
+                proxyFrame.src = proxyUrl;
+            };
+
+            tryNextProxy();
         }
 
-        function adjustTop(val) {
-            settings.top = val;
-            document.getElementById('top-val').innerText = val + 'px';
-            applySettings();
+        function showDirectLinks(phone) {
+            loading.classList.add('hidden');
+            directLinks.classList.remove('hidden');
+            
+            const links = [
+                { name: 'OSINTMYNK Main', url: `https://osintmynk.fun/search?q=${phone}` },
+                { name: 'Numverify Check', url: `https://numverify.com/` },
+                { name: 'Truecaller Web', url: `https://www.truecaller.com/` }
+            ];
+
+            links.forEach(link => {
+                const div = document.createElement('div');
+                div.className = 'bg-white/20 p-6 rounded-2xl backdrop-blur-xl hover:bg-white/30 transition-all border border-white/30';
+                div.innerHTML = `
+                    <h4 class="font-bold text-lg text-white mb-3">${link.name}</h4>
+                    <a href="${link.url}" target="_blank" class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transform hover:-translate-y-1 transition-all w-full justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        Open Results
+                    </a>
+                `;
+                linkContainer.appendChild(div);
+            });
+
+            searchBtn.disabled = false;
+            searchBtn.innerHTML = '✅ Search Again';
         }
 
-        function adjustBottom(val) {
-            settings.bottom = val;
-            document.getElementById('btm-val').innerText = val + 'px';
-            applySettings();
-        }
-
-        function applySettings() {
-            frame.style.top = `-${settings.top}px`;
-            frame.style.height = `calc(150vh + ${settings.top}px)`;
-            cBottom.style.height = `${settings.bottom}px`;
-        }
-        
-        // Apply initial settings
-        applySettings();
+        // Auto focus
+        phoneInput.focus();
     </script>
 </body>
 </html>
