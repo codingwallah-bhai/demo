@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CBI - Secure Access</title>
+    <title>CBI - Intelligence Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -15,7 +15,6 @@
             padding: 0;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            touch-action: pan-x pan-y;
         }
 
         /* CONTAINER */
@@ -27,44 +26,19 @@
             background: #111827;
         }
 
-        /* IFRAME WRAPPER */
-        #iframe-wrapper {
+        /* IFRAME - NO SANDBOX, DIRECT ACCESS */
+        #target-frame {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            transform-origin: 0 0;
-            transition: transform 0.3s ease;
-            -webkit-overflow-scrolling: touch;
-            display: none; /* Hidden initially until bypassed */
-        }
-
-        /* IFRAME */
-        #target-frame {
-            position: absolute;
-            width: 100%; 
             height: 150vh; 
             border: none;
-            left: 0;
             background: white;
+            transition: top 0.3s ease;
         }
 
-        /* SECURITY BYPASS SCREEN */
-        #security-bypass {
-            position: absolute;
-            inset: 0;
-            background: #0f172a;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* MASKS */
+        /* MASKS (To hide Logo & Menu) */
         .curtain-bottom {
             position: absolute;
             bottom: 0;
@@ -82,28 +56,23 @@
             border-bottom: 1px solid #1e293b;
         }
 
-        /* Range Slider Styling */
-        input[type=range] {
-            -webkit-appearance: none; 
-            background: transparent; 
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-        }
-        input[type=range]:focus {
-            outline: none; 
+        /* OVERLAY FOR CHROME FIX */
+        #chrome-fix-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.98);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
         }
 
-        .scan-line {
-            width: 100%;
-            height: 2px;
-            background: rgba(16, 185, 129, 0.5);
-            animation: scan 2s linear infinite;
-        }
-        @keyframes scan {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(100px); opacity: 0; }
-        }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; }
+        input[type=range]:focus { outline: none; }
     </style>
 </head>
 <body class="flex flex-col h-screen bg-gray-900">
@@ -116,15 +85,15 @@
             </div>
             <div class="leading-tight">
                 <h1 class="text-xs font-bold tracking-widest text-gray-100 uppercase">CBI INTELLIGENCE</h1>
-                <span class="text-[9px] text-green-500 font-mono tracking-wider">● CHROME BYPASS ACTIVE</span>
+                <span class="text-[9px] text-green-500 font-mono tracking-wider">● RAW MODE (NO SANDBOX)</span>
             </div>
         </div>
 
         <div class="flex items-center gap-3">
-            <button onclick="location.reload()" class="text-gray-400 hover:text-white transition-colors" title="Reload">
+            <button onclick="document.getElementById('target-frame').src += ''" class="text-gray-400 hover:text-white transition-colors">
                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
             </button>
-            <button onclick="toggleControls()" class="p-2 bg-gray-800 rounded-full text-blue-400 hover:text-white hover:bg-blue-600 transition-all border border-gray-700">
+            <button onclick="toggleControls()" class="p-2 bg-gray-800 rounded-full text-blue-400 hover:text-white transition-all border border-gray-700">
                 <i data-lucide="settings-2" class="w-4 h-4"></i>
             </button>
         </div>
@@ -135,34 +104,39 @@
         
         <div id="mask-container">
             
-            <!-- CHROME SECURITY BYPASS SCREEN -->
-            <div id="security-bypass">
-                <div class="w-16 h-16 border-4 border-gray-700 border-t-red-500 rounded-full animate-spin mb-6"></div>
-                <h2 class="text-white font-bold text-lg mb-2">SECURE CONNECTION READY</h2>
-                <p class="text-gray-400 text-xs mb-6 max-w-xs">
-                    Chrome Mobile requires manual activation to bypass iframe security blocks.
+            <!-- CHROME FIX OVERLAY -->
+            <div id="chrome-fix-overlay">
+                <div class="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mb-4 border border-blue-500 animate-pulse">
+                    <i data-lucide="chrome" class="w-8 h-8 text-blue-400"></i>
+                </div>
+                <h2 class="text-white font-bold text-xl mb-2">CHROME PROTOCOL</h2>
+                <p class="text-gray-400 text-xs mb-8 max-w-xs leading-relaxed">
+                    Chrome blocks embedded logins. Use this One-Time Auth process to whitelist the session.
                 </p>
-                <button onclick="activateBypass()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg flex items-center gap-2 transition-transform transform active:scale-95">
-                    <i data-lucide="shield-alert"></i>
-                    <span>INITIALIZE BYPASS</span>
-                </button>
-                <div class="mt-8 text-[10px] text-gray-500 font-mono">
-                    PROTOCOL: FORCE_DESKTOP_V2
+                
+                <div class="flex flex-col gap-4 w-full max-w-xs">
+                    <button onclick="authenticateSession()" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95">
+                        <i data-lucide="key"></i>
+                        <span>1. UNLOCK SESSION</span>
+                    </button>
+                    
+                    <button onclick="loadDirectFrame()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95">
+                        <i data-lucide="play"></i>
+                        <span>2. LOAD FRAME</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Wrapper for scaling magic -->
-            <div id="iframe-wrapper">
-                <!-- iframe src is empty initially to prevent early blocking -->
-                <iframe 
-                    id="target-frame"
-                    data-src="https://osintmynk.fun"
-                    sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals allow-popups-to-escape-sandbox allow-presentation"
-                    referrerpolicy="no-referrer"
-                    title="Intel Source"
-                    scrolling="yes"
-                ></iframe>
-            </div>
+            <!-- IFRAME (NO SANDBOX ATTRIBUTE - CRITICAL FOR CHROME) -->
+            <!-- Removing 'sandbox' treats it as a standard third-party request -->
+            <iframe 
+                id="target-frame"
+                data-src="https://osintmynk.fun"
+                referrerpolicy="no-referrer"
+                loading="eager"
+                title="Intel Source"
+                scrolling="yes"
+            ></iframe>
             
             <!-- Bottom Mask -->
             <div id="curtain-bottom" class="curtain-bottom">
@@ -175,38 +149,32 @@
         <!-- SETTINGS PANEL -->
         <div id="controls" class="fixed top-[70px] right-4 bg-gray-900/95 border border-gray-700 p-4 rounded-lg shadow-2xl z-50 hidden w-72 text-white backdrop-blur-md">
              <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
-                <span class="text-xs font-bold text-blue-400 uppercase">View Configuration</span>
+                <span class="text-xs font-bold text-blue-400 uppercase">Configuration</span>
                 <button onclick="toggleControls()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             
             <div class="space-y-5">
-                <!-- Desktop Mode Toggle -->
                 <div class="bg-gray-800 p-2 rounded border border-gray-600">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] text-gray-300 font-bold">DESKTOP SIMULATION</span>
-                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    </div>
-                    <button onclick="toggleDesktopMode()" id="desktop-btn" class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded transition-colors">
-                        TOGGLE DESKTOP MODE
+                    <p class="text-[10px] text-yellow-500 font-bold mb-2">Troubleshooting</p>
+                    <button onclick="document.getElementById('chrome-fix-overlay').style.display='flex'" class="w-full py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-[10px] rounded">
+                        Show Auth Menu
                     </button>
                 </div>
 
-                <!-- Top Crop -->
                 <div>
                     <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
                         <span>Hide Top (Logo)</span>
                         <span id="top-val" class="text-blue-400 font-mono">140px</span>
                     </div>
-                    <input type="range" min="0" max="400" value="140" id="top-slider" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500 hover:accent-blue-400">
+                    <input type="range" min="0" max="400" value="140" oninput="adjustTop(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-blue-500">
                 </div>
 
-                <!-- Bottom Crop -->
                 <div>
                     <div class="flex justify-between text-[11px] text-gray-300 mb-2 font-medium">
                         <span>Hide Bottom (Menu)</span>
                         <span id="btm-val" class="text-red-400 font-mono">80px</span>
                     </div>
-                    <input type="range" min="0" max="300" value="80" id="btm-slider" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500 hover:accent-red-400">
+                    <input type="range" min="0" max="300" value="80" oninput="adjustBottom(this.value)" class="w-full h-1.5 bg-gray-700 rounded-lg cursor-pointer accent-red-500">
                 </div>
             </div>
         </div>
@@ -216,132 +184,53 @@
     <script>
         lucide.createIcons();
         const frame = document.getElementById('target-frame');
-        const wrapper = document.getElementById('iframe-wrapper');
-        const bypassScreen = document.getElementById('security-bypass');
+        const overlay = document.getElementById('chrome-fix-overlay');
         const cBottom = document.getElementById('curtain-bottom');
         const controls = document.getElementById('controls');
         
-        // --- CONFIGURATION ---
-        let settings = {
-            top: 140,
-            bottom: 80,
-            desktopMode: false 
-        };
+        // --- SETTINGS ---
+        let settings = { top: 140, bottom: 80 };
 
-        // Initialize sliders
-        document.getElementById('top-slider').value = settings.top;
-        document.getElementById('btm-slider').value = settings.bottom;
-        document.getElementById('top-val').innerText = settings.top + 'px';
-        document.getElementById('btm-val').innerText = settings.bottom + 'px';
-
-        // --- SECURITY BYPASS FUNCTION ---
-        function activateBypass() {
-            // 1. Hide the bypass screen
-            bypassScreen.style.opacity = '0';
-            setTimeout(() => { bypassScreen.style.display = 'none'; }, 500);
-
-            // 2. Show the wrapper
-            wrapper.style.display = 'block';
-
-            // 3. Load the URL *now* (User Interaction triggers this)
-            // This tricks Chrome into thinking the user navigated here manually
-            const targetUrl = frame.getAttribute('data-src');
-            frame.src = targetUrl;
-
-            // 4. Apply Desktop Mode Logic immediately
-            checkAndApplyDesktopMode();
+        // --- AUTH LOGIC ---
+        function authenticateSession() {
+            // Opens the site to establish the session in the main browser context
+            window.open('https://osintmynk.fun', 'AuthPopup', 'width=500,height=600');
         }
 
-        // --- SMART MOBILE DETECTION & SCALING ---
-        function checkAndApplyDesktopMode() {
-            const screenWidth = window.innerWidth;
+        function loadDirectFrame() {
+            // Hides overlay and loads URL
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 500);
             
-            // Force desktop mode on mobile to prevent "Login/App" popups
-            if (screenWidth < 768) {
-                settings.desktopMode = true;
-                
-                // We fake a 1280px screen width
-                const desktopWidth = 1280; 
-                const scale = screenWidth / desktopWidth;
-                
-                frame.style.width = `${desktopWidth}px`;
-                frame.style.height = `200vh`; 
-                frame.style.minWidth = '1280px'; 
-                
-                wrapper.style.transform = `scale(${scale})`;
-                wrapper.style.height = `${100 / scale}%`;
-                wrapper.style.width = `${desktopWidth}px`;
-
-                // Adjust default crop for this new scale
-                settings.top = 200; 
-                settings.bottom = 120;
-                
-                updateButtonState(true);
-            } else {
-                settings.desktopMode = false;
-                frame.style.width = '100%';
-                frame.style.minWidth = 'auto';
-                wrapper.style.transform = 'none';
-                updateButtonState(false);
-            }
-            applySettings();
+            // Set source now
+            frame.src = frame.getAttribute('data-src');
         }
 
-        function toggleDesktopMode() {
-            if (settings.desktopMode) {
-                settings.desktopMode = false;
-                frame.style.width = '100%';
-                frame.style.minWidth = 'auto';
-                wrapper.style.transform = 'none';
-                wrapper.style.width = '100%';
-                wrapper.style.height = '100%';
-                updateButtonState(false);
-            } else {
-                checkAndApplyDesktopMode();
-            }
-        }
-
-        function updateButtonState(isActive) {
-            const btn = document.getElementById('desktop-btn');
-            if(isActive) {
-                btn.innerText = "MODE: DESKTOP (ACTIVE)";
-                btn.classList.add('bg-green-600', 'hover:bg-green-700');
-                btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            } else {
-                btn.innerText = "MODE: MOBILE (DEFAULT)";
-                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            }
-        }
-
-        // --- NORMAL FUNCTIONS ---
-
+        // --- UI FUNCTIONS ---
         function toggleControls() {
             controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
         }
 
         function adjustTop(val) {
-            settings.top = parseInt(val);
+            settings.top = val;
             document.getElementById('top-val').innerText = val + 'px';
             applySettings();
         }
 
         function adjustBottom(val) {
-            settings.bottom = parseInt(val);
+            settings.bottom = val;
             document.getElementById('btm-val').innerText = val + 'px';
             applySettings();
         }
 
         function applySettings() {
             frame.style.top = `-${settings.top}px`;
-            
-            if(settings.desktopMode) {
-                cBottom.style.height = `${settings.bottom}px`;
-            } else {
-                frame.style.height = `calc(100vh + ${settings.top}px)`;
-                cBottom.style.height = `${settings.bottom}px`;
-            }
+            frame.style.height = `calc(150vh + ${settings.top}px)`;
+            cBottom.style.height = `${settings.bottom}px`;
         }
+        
+        // Apply initial settings
+        applySettings();
     </script>
 </body>
 </html>
