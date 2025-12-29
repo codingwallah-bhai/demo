@@ -15,7 +15,7 @@
             padding: 0;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
-            touch-action: pan-x pan-y;
+            touch-action: none; /* Disable default touch actions to prevent mobile detection hints */
         }
 
         /* CONTAINER */
@@ -36,12 +36,12 @@
             height: 100%;
             transform-origin: 0 0; /* Scale from top-left */
             transition: transform 0.3s ease;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* IFRAME */
         #target-frame {
             position: absolute;
-            /* Default to 100% for desktop, JS will change this for mobile */
             width: 100%; 
             height: 150vh; 
             border: none;
@@ -78,6 +78,23 @@
         input[type=range]:focus {
             outline: none; 
         }
+
+        /* Mobile Alert Overlay */
+        #mobile-alert {
+            display: none; /* Shown via JS on mobile */
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #eab308;
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 100;
+            text-align: center;
+            width: 90%;
+            max-width: 300px;
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen bg-gray-900">
@@ -90,7 +107,7 @@
             </div>
             <div class="leading-tight">
                 <h1 class="text-xs font-bold tracking-widest text-gray-100 uppercase">CBI INTELLIGENCE</h1>
-                <span class="text-[9px] text-green-500 font-mono tracking-wider">● DESKTOP SPOOF ACTIVE</span>
+                <span class="text-[9px] text-green-500 font-mono tracking-wider">● FORCED DESKTOP</span>
             </div>
         </div>
 
@@ -126,6 +143,16 @@
                     <span class="text-[9px] text-gray-600 font-mono">SECURE MASKING ACTIVE</span>
                 </div>
             </div>
+
+            <!-- Mobile Help Overlay -->
+            <div id="mobile-alert">
+                <div class="text-yellow-500 font-bold text-xs mb-1">STILL SEEING LOGIN?</div>
+                <div class="text-gray-300 text-[10px] mb-2">Browser detected Mobile.</div>
+                <div class="text-white text-[10px] bg-gray-800 p-1 rounded border border-gray-600">
+                    Fix: Click Browser Menu (⋮) <br> Enable <b>"Desktop Site"</b> checkbox.
+                </div>
+                <button onclick="document.getElementById('mobile-alert').style.display='none'" class="mt-2 text-[10px] text-blue-400 underline">Dismiss</button>
+            </div>
         </div>
 
         <!-- SETTINGS PANEL -->
@@ -142,7 +169,7 @@
                         <span class="text-[10px] text-gray-300 font-bold">DESKTOP SIMULATION</span>
                         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     </div>
-                    <p class="text-[9px] text-gray-400 mb-2">Forces website to think you are on Laptop (Fixes Login Error).</p>
+                    <p class="text-[9px] text-gray-400 mb-2">Forces 1280px width to bypass mobile login screens.</p>
                     <button onclick="toggleDesktopMode()" id="desktop-btn" class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded transition-colors">
                         TOGGLE DESKTOP MODE
                     </button>
@@ -176,6 +203,7 @@
         const wrapper = document.getElementById('iframe-wrapper');
         const cBottom = document.getElementById('curtain-bottom');
         const controls = document.getElementById('controls');
+        const mobileAlert = document.getElementById('mobile-alert');
         
         // --- CONFIGURATION ---
         let settings = {
@@ -198,15 +226,19 @@
             if (screenWidth < 768) {
                 settings.desktopMode = true; // Auto-enable on mobile
                 
+                // Show Helper Alert
+                mobileAlert.style.display = 'block';
+                setTimeout(() => { mobileAlert.style.display = 'none'; }, 8000); // Auto hide after 8s
+
                 // Magic Formula: 
-                // Hum iframe ko 1200px chouda (laptop width) banayenge
-                // Aur phir use shrink karke mobile screen mein fit karenge
-                const desktopWidth = 1200; 
+                // Hum iframe ko 1280px chouda (standard laptop) banayenge
+                const desktopWidth = 1280; 
                 const scale = screenWidth / desktopWidth;
                 
                 // 1. Set Iframe Width to Desktop Size
                 frame.style.width = `${desktopWidth}px`;
-                frame.style.height = `200vh`; // Extra height for content
+                frame.style.height = `200vh`; 
+                frame.style.minWidth = '1280px'; // Force strict width
                 
                 // 2. Shrink it to fit mobile width
                 wrapper.style.transform = `scale(${scale})`;
@@ -216,15 +248,15 @@
                 wrapper.style.width = `${desktopWidth}px`;
 
                 // Adjust default crop for this new scale
-                // Kyunki screen zoom out ho gayi hai, pixel values badal jayengi
-                settings.top = 180; // Scaled needs more crop usually
-                settings.bottom = 100;
+                settings.top = 200; // Scaled needs more crop
+                settings.bottom = 120;
                 
                 updateButtonState(true);
             } else {
                 // Laptop par normal chalega
                 settings.desktopMode = false;
                 frame.style.width = '100%';
+                frame.style.minWidth = 'auto';
                 wrapper.style.transform = 'none';
                 updateButtonState(false);
             }
@@ -236,6 +268,7 @@
                 // Disable (Go back to Mobile View)
                 settings.desktopMode = false;
                 frame.style.width = '100%';
+                frame.style.minWidth = 'auto';
                 wrapper.style.transform = 'none';
                 wrapper.style.width = '100%';
                 wrapper.style.height = '100%';
@@ -300,7 +333,7 @@
         
         // Update on Resize (Rotation etc)
         window.addEventListener('resize', () => {
-            // Optional: Re-calculate if needed, or just let user toggle
+            // Optional: Re-calculate if needed
         });
     </script>
 </body>
