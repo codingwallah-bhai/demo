@@ -12,14 +12,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         :root {
-            --primary-color: #0d9488;
-            --secondary-color: #111827;
-            --bg-color: #f3f4f6;
+            --primary-color: #0d9488; /* Teal 600 */
+            --secondary-color: #111827; /* Gray 900 */
+            --bg-color: #f3f4f6; /* Gray 100 */
         }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
         }
+        /* Mobile-First Bottom Navigation Style */
         .bottom-nav-bar {
             position: fixed;
             bottom: 0;
@@ -38,9 +39,9 @@
             align-items: center;
             justify-content: center;
             padding: 4px 8px;
-            color: #6b7280;
+            color: #6b7280; /* Gray 500 */
             transition: color 0.15s, transform 0.15s;
-            font-size: 10px;
+            font-size: 10px; /* Smaller font for mobile */
             font-weight: 600;
         }
         .nav-item.active {
@@ -51,8 +52,9 @@
             font-size: 1.2rem;
             margin-bottom: 2px;
         }
+        /* Adjust main content padding for bottom nav bar */
         main#content {
-            padding-bottom: 80px;
+            padding-bottom: 80px; /* Ensure space for fixed bottom nav */
         }
         .score-button {
             transition: all 0.1s;
@@ -61,12 +63,7 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .score-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
     </style>
-<base target="_blank">
 </head>
 <body>
 
@@ -74,52 +71,60 @@
 <div id="app" class="min-h-screen pt-4 pb-4 md:p-8">
     <header class="text-center mb-4 md:mb-8">
         <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800">Cricket Scoring App 🏏</h1>
+        <!-- Removed Firebase Status Bar -->
     </header>
 
     <!-- Content Area -->
     <main id="content" class="bg-white p-4 md:p-6 rounded-xl shadow-2xl min-h-[60vh]">
+        <!-- Content will be rendered here by JS -->
         <div class="flex justify-center items-center h-[50vh] text-gray-500">
             <i class="fas fa-spinner fa-spin text-2xl mr-2"></i>
-            <span class="text-lg">Loading...</span>
+            <span class="text-lg">कृपया थांबा...</span>
         </div>
     </main>
 </div>
 
-<!-- Bottom Navigation Bar -->
+<!-- Bottom Navigation Bar (Mobile-First) -->
 <div id="bottom-nav" class="bottom-nav-bar">
-    <button onclick="window.switchTab('viewer')" class="nav-item active" id="nav-viewer">
+    <button onclick="switchTab('viewer')" class="nav-item active" id="nav-viewer">
         <i class="fas fa-eye"></i>
-        <span>Viewer</span>
+        <span>दर्शक (Viewer)</span>
     </button>
-    <button onclick="window.switchTab('stats')" class="nav-item" id="nav-stats">
+    <button onclick="switchTab('stats')" class="nav-item" id="nav-stats">
         <i class="fas fa-chart-bar"></i>
-        <span>Stats</span>
+        <span>आकडेवारी (Stats)</span>
     </button>
-    <button onclick="window.switchTab('setup')" class="nav-item hidden" id="nav-setup">
+    <!-- Setup and Admin are hidden for non-logged in users -->
+    <button onclick="switchTab('setup')" class="nav-item hidden" id="nav-setup">
         <i class="fas fa-cogs"></i>
-        <span>Setup</span>
+        <span>सेटअप (Setup)</span>
     </button>
-    <button onclick="window.switchTab('admin')" class="nav-item hidden" id="nav-admin">
+    <button onclick="switchTab('admin')" class="nav-item hidden" id="nav-admin">
         <i class="fas fa-user-shield"></i>
-        <span>Admin</span>
+        <span>अ‍ॅडमिन (Admin)</span>
     </button>
-    <button onclick="window.switchTab('login')" class="nav-item" id="nav-login">
+    <button onclick="switchTab('login')" class="nav-item" id="nav-login">
         <i class="fas fa-sign-in-alt"></i>
-        <span id="auth-status">Login</span>
+        <span id="auth-status">लॉगिन (Login)</span>
     </button>
 </div>
+
+
+<!-- Modals -->
 
 <!-- Wicket Modal -->
 <div id="wicket-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4">
     <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-lg">
         <h3 class="text-xl font-bold mb-4 text-red-600"><i class="fas fa-hand-rock mr-2"></i>Select Wicket Type</h3>
-        <div id="wicket-type-buttons" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+        <div id="wicket-type-buttons" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <!-- Buttons for wicket types will be inserted here -->
+        </div>
         <div class="mt-4">
             <label for="fielder-select" class="block text-sm font-medium text-gray-700">Fielder (If Applicable):</label>
             <select id="fielder-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"></select>
         </div>
-        <button onclick="window.confirmWicket()" class="mt-6 w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition">Confirm Wicket</button>
-        <button onclick="window.hideWicketModal()" class="mt-2 w-full bg-gray-200 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-300 transition">Cancel</button>
+        <button onclick="confirmWicket()" class="mt-6 w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition">Confirm Wicket</button>
+        <button onclick="hideWicketModal()" class="mt-2 w-full bg-gray-200 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-300 transition">Cancel</button>
     </div>
 </div>
 
@@ -129,139 +134,153 @@
         <h3 class="text-xl font-bold mb-4 text-teal-600"><i class="fas fa-baseball-ball mr-2"></i>Select New Bowler</h3>
         <label for="new-bowler-select" class="block text-sm font-medium text-gray-700">Next Bowler:</label>
         <select id="new-bowler-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"></select>
-        <button onclick="window.confirmNewBowler()" class="mt-6 w-full bg-teal-600 text-white p-3 rounded-lg font-semibold hover:bg-teal-700 transition">Set Bowler</button>
+        <button onclick="confirmNewBowler()" class="mt-6 w-full bg-teal-600 text-white p-3 rounded-lg font-semibold hover:bg-teal-700 transition">Set Bowler</button>
     </div>
 </div>
 
-<!-- Initial Batsman Selection Modal -->
+<!-- NEW: Initial Batsman Selection Modal (Striker and Non-Striker) -->
 <div id="batsman-init-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4">
     <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm">
         <h3 class="text-xl font-bold mb-4 text-indigo-600"><i class="fas fa-users-line mr-2"></i>Select Openers</h3>
         <p class="text-sm text-gray-600 mb-4">Choose the two batsmen for the start of the innings.</p>
+        
         <div class="mb-4">
             <label for="striker-select" class="block text-sm font-medium text-gray-700">Striker (Facing the ball):</label>
             <select id="striker-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"></select>
         </div>
+        
         <div class="mb-4">
             <label for="nonstriker-select" class="block text-sm font-medium text-gray-700">Non-Striker:</label>
             <select id="nonstriker-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"></select>
         </div>
-        <button onclick="window.confirmInitialBatsmen()" class="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition">Confirm Batsmen</button>
+        
+        <button onclick="confirmInitialBatsmen()" class="mt-6 w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition">Confirm Batsmen</button>
     </div>
 </div>
+
 
 <!-- Message Modal -->
 <div id="message-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4">
     <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm">
-        <h3 id="message-title" class="text-xl font-bold mb-4 text-gray-800">Notification</h3>
+        <h3 id="message-title" class="text-xl font-bold mb-4 text-gray-800">सूचना (Notification) </h3>
         <p id="message-content" class="text-gray-700 mb-6"></p>
-        <button onclick="window.hideMessageModal()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition">OK</button>
+        <button onclick="window.hideMessageModal()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition">ठीक आहे (OK)</button>
     </div>
 </div>
 
 <!-- Firebase SDKs -->
 <script type="module">
-    // Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyCqo5MOtYA5nuhJ2awI0O7_Vm-Yp1rWVZw",
-        authDomain: "cricket-2b0a1.firebaseapp.com",
-        databaseURL: "https://cricket-2b0a1-default-rtdb.firebaseio.com",
-        projectId: "cricket-2b0a1",
-        storageBucket: "cricket-2b0a1.appspot.com",
-        messagingSenderId: "481266922688",
-        appId: "1:481266922688:web:3ab1a2668a72132c62e925",
-        measurementId: "G-3DHH8ZCNXV"
-    };
-
+    // Setting up Firebase Config in the script for simplicity in a single file environment
+    window.__firebase_config = JSON.stringify({
+    apiKey: "AIzaSyCqo5MOtYA5nuhJ2awI0O7_Vm-Yp1rWVZw",
+    authDomain: "cricket-2b0a1.firebaseapp.com",
+    databaseURL: "https://cricket-2b0a1-default-rtdb.firebaseio.com",
+    projectId: "cricket-2b0a1",
+    storageBucket: "cricket-2b0a1.appspot.com",
+    messagingSenderId: "481266922688",
+    appId: "1:481266922688:web:3ab1a2668a72132c62e925",
+    measurementId: "G-3DHH8ZCNXV"
+});
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // *** REALTIME DATABASE IMPORTS ***
     import { getDatabase, ref, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-    // Global Variables
+    // --- 1. Global Variables & Initialization ---
     let app, db, auth;
-    let userId = 'loading';
+    let userId = 'loading'; // Default ID
     let currentTab = 'viewer';
     let activeMatchId = null;
     let authReady = false;
-    let currentMatchFilter = 'Live';
-    let selectedWicketType = null;
-    let matchList = [];
-    let unsubscribeMatch = null;
-    let unsubscribeMatchList = null;
+    let currentMatchFilter = 'Live'; // Default filter for viewer tab
 
-    // Use a fixed app ID for database paths
-    const safeAppId = 'cricket-app-v1';
+    // Use mandatory global Canvas variables
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    // URL encode the appId since RTDB paths cannot contain characters like '.', '$', '[', ']'
+    const safeAppId = encodeURIComponent(appId).replace(/\./g, '%2E'); 
+    
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     // Default Match State Structure
     const defaultMatchState = {
         isMatchLive: false,
-        status: 'SETUP',
+        status: 'SETUP', // SETUP, LIVE, INNINGS_BREAK, FINISHED
         result: '',
         toss: { winner: null, elected: null, overs: 20, venue: 'Local Ground' },
-        currentInnings: 1,
+        currentInnings: 1, // 1 or 2
         teamA: { name: 'Team A', players: [], totalScore: 0, wickets: 0, overs: 0, target: 0, isBatting: false },
         teamB: { name: 'Team B', players: [], totalScore: 0, wickets: 0, overs: 0, target: 0, isBatting: false },
         innings1: null,
         innings2: null,
         current: {
-            battingTeamKey: null,
+            battingTeamKey: null, // 'teamA' or 'teamB'
             bowlingTeamKey: null,
-            strikerIndex: -1,
+            strikerIndex: -1, 
             nonStrikerIndex: -1,
             bowlerIndex: -1,
-            overBalls: 0,
-            ballHistory: [],
+            overBalls: 0, // balls in the current over (0 to 5)
+            ballHistory: [], // [{runs: 1, extraType: null, wicket: false, ...}]
         },
     };
     let matchState = JSON.parse(JSON.stringify(defaultMatchState));
 
-    // Database Reference Helpers
+
+    // --- 2. Firebase & Auth Setup (1) ---
+
+    // Utility function for getting correct RTDB references
     const getMatchListRef = () => ref(db, `artifacts/${safeAppId}/public/data/matches_meta`);
     const getScoreStateRef = (matchId) => ref(db, `artifacts/${safeAppId}/public/data/live_scores/${matchId}`);
     const getMatchMetaRef = (matchId) => ref(db, `artifacts/${safeAppId}/public/data/matches_meta/${matchId}`);
 
-    // Team/Player Helpers
-    const getCurrentBattingTeam = () => matchState.current.battingTeamKey ? matchState[matchState.current.battingTeamKey] : null;
-    const getCurrentBowlingTeam = () => matchState.current.bowlingTeamKey ? matchState[matchState.current.bowlingTeamKey] : null;
-    const getOpposingTeamKey = (teamKey) => teamKey === 'teamA' ? 'teamB' : 'teamA';
 
-    const getPlayerSafely = (team, index) => {
-        if (!team || index === -1 || !team.players || !team.players[index]) {
-            return { name: 'N/A (Select Player)', runs1: 0, balls1: 0, wickets1: 0, extras1: 0, fours1: 0, sixes1: 0, index: -1 };
-        }
-        return { ...team.players[index], index };
-    };
-
-    const getCurrentStriker = () => getPlayerSafely(getCurrentBattingTeam(), matchState.current.strikerIndex);
-    const getCurrentNonStriker = () => getPlayerSafely(getCurrentBattingTeam(), matchState.current.nonStrikerIndex);
-    const getCurrentBowler = () => getPlayerSafely(getCurrentBowlingTeam(), matchState.current.bowlerIndex);
-
-    const isMatchEditable = () => authReady && auth.currentUser && !auth.currentUser.isAnonymous && matchState.isMatchLive;
-
-    // Initialize Firebase
+    // Initial Firebase and Auth setup
     const setupFirebase = async () => {
         try {
+            if (Object.keys(firebaseConfig).length === 0) {
+                // document.getElementById('app-status').textContent = 'Firebase Config Missing. Score data cannot be saved.'; // Removed
+                return;
+            }
             app = initializeApp(firebaseConfig);
+            // *** RTDB Initialization ***
             db = getDatabase(app);
             auth = getAuth(app);
 
+            // Auth State Listener
             onAuthStateChanged(auth, async (user) => {
                 authReady = true;
-                userId = user ? user.uid : 'viewer';
-
+                userId = user ? user.uid : 'viewer'; 
+                
+                // Set UI status and visibility
+                
                 const isAuthenticated = user && !user.isAnonymous;
                 document.getElementById('auth-status').textContent = isAuthenticated ? 'Logout' : 'Login';
+
+                // Toggle Admin/Setup tabs visibility
                 document.getElementById('nav-setup').classList.toggle('hidden', !isAuthenticated);
                 document.getElementById('nav-admin').classList.toggle('hidden', !isAuthenticated);
-
+                
+                // Load the match list 
                 setupMatchListListener();
+                
                 renderDefaultTabContent();
+                if (currentTab === 'login') {
+                    renderAdminLogin();
+                }
             });
 
+            // Handle Authentication: Sign in anonymously for viewer access (RTDB read rules require auth != null)
             try {
-                await signInAnonymously(auth);
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
             } catch (e) {
-                console.warn("Anonymous auth failed:", e);
+                if (e.code === 'auth/custom-token-mismatch' || e.code === 'auth/invalid-custom-token') {
+                    await signInAnonymously(auth);
+                }
+                console.warn("Authentication failed, falling back to viewer mode or manual login required:", e);
             }
         } catch (error) {
             console.error("Firebase Initialization Error:", error);
@@ -269,7 +288,8 @@
         }
     };
 
-    // UI Functions
+    // --- 3. UI/Modal Functions (6 & 8) ---
+
     window.switchTab = (tabName) => {
         currentTab = tabName;
         const buttons = document.querySelectorAll('.nav-item');
@@ -284,22 +304,18 @@
         document.getElementById('message-modal').classList.remove('hidden');
     };
 
-    window.hideMessageModal = () => {
+    window.hideMessageModal = () => { 
         document.getElementById('message-modal').classList.add('hidden');
     };
+    
+    // --- Initial Batsman Selection Modal Logic ---
 
-    // Batsman Selection Modal
-    window.showBatsmanInitModal = () => {
+    const showBatsmanInitModal = () => {
         const modal = document.getElementById('batsman-init-modal');
         const strikerSelect = document.getElementById('striker-select');
         const nonStrikerSelect = document.getElementById('nonstriker-select');
         const battingTeam = getCurrentBattingTeam();
-
-        if (!battingTeam || !battingTeam.players || battingTeam.players.length < 2) {
-            showMessageModal("Error", "Not enough players in batting team.");
-            return;
-        }
-
+        
         let optionsHtml = '<option value="-1">-- Select Player --</option>';
         battingTeam.players.forEach((player, index) => {
             optionsHtml += `<option value="${index}">${player.name}</option>`;
@@ -308,6 +324,7 @@
         strikerSelect.innerHTML = optionsHtml;
         nonStrikerSelect.innerHTML = optionsHtml;
 
+        // Set initial selection to players 0 and 1 if they exist
         if (battingTeam.players.length >= 2) {
             strikerSelect.value = matchState.current.strikerIndex !== -1 ? matchState.current.strikerIndex : 0;
             nonStrikerSelect.value = matchState.current.nonStrikerIndex !== -1 ? matchState.current.nonStrikerIndex : 1;
@@ -315,7 +332,7 @@
 
         modal.classList.remove('hidden');
     };
-
+    
     window.confirmInitialBatsmen = () => {
         const strikerIndex = parseInt(document.getElementById('striker-select').value);
         const nonStrikerIndex = parseInt(document.getElementById('nonstriker-select').value);
@@ -330,6 +347,7 @@
             return;
         }
 
+        // Reset previous batting flags if necessary (important for 2nd innings)
         battingTeam.players.forEach(p => p.isBatting = false);
 
         matchState.current.strikerIndex = strikerIndex;
@@ -338,42 +356,42 @@
         battingTeam.players[nonStrikerIndex].isBatting = true;
 
         document.getElementById('batsman-init-modal').classList.add('hidden');
-
+        
+        // After setting batsmen, check if the bowler needs to be set
         if (matchState.current.bowlerIndex === -1) {
             showBowlerModal();
         } else {
             updateMatchState();
         }
     };
+    
+    // --- Wicket Modal Logic (Remains the same, auto-selection on wicket) ---
 
-    // Wicket Modal
-    window.showWicketModal = () => {
+    const showWicketModal = () => {
         const modal = document.getElementById('wicket-modal');
         const fielderSelect = document.getElementById('fielder-select');
-        const bowlingTeam = getCurrentBowlingTeam();
+        const teamKey = matchState.current.bowlingTeamKey;
+        const bowlingTeam = matchState[teamKey];
         const nonStriker = getCurrentNonStriker();
 
-        if (!bowlingTeam || !bowlingTeam.players) {
-            showMessageModal("Error", "No bowling team available.");
-            return;
-        }
-
+        // 1. Populate Fielder List (all players from bowling team, plus non-striker for run-out)
         let optionsHtml = '<option value="">-- Select Fielder --</option>';
         if (nonStriker.index !== -1) {
-            optionsHtml += `<option value="nonstriker" data-is-non-striker="true">${nonStriker.name} (Non-Striker)</option>`;
+            optionsHtml += `<option value="${nonStriker.index}" data-is-non-striker="true">${nonStriker.name} (Non-Striker)</option>`;
         }
-
+        
         bowlingTeam.players.forEach((player, index) => {
-            if (index !== matchState.current.bowlerIndex) {
+            if (index !== matchState.current.bowlerIndex) { 
                 optionsHtml += `<option value="${index}">${player.name}</option>`;
             }
         });
         fielderSelect.innerHTML = optionsHtml;
 
+        // 2. Populate Wicket Type Buttons
         const wicketTypes = ['Caught', 'Bowled', 'LBW', 'Runout', 'Stumped', 'Hit Wicket', 'Retired Hurt'];
         const wicketButtons = document.getElementById('wicket-type-buttons');
-        wicketButtons.innerHTML = wicketTypes.map(type =>
-            `<button data-type="${type}" class="p-3 bg-gray-100 rounded-lg text-gray-800 font-medium hover:bg-red-100 transition duration-150" onclick="window.selectWicketType('${type}')">${type}</button>`
+        wicketButtons.innerHTML = wicketTypes.map(type => 
+            `<button data-type="${type}" class="p-3 bg-gray-100 rounded-lg text-gray-800 font-medium hover:bg-red-100 transition duration-150" onclick="selectWicketType('${type}')">${type}</button>`
         ).join('');
 
         modal.classList.remove('hidden');
@@ -384,6 +402,7 @@
         document.getElementById('wicket-modal').classList.add('hidden');
     };
 
+    let selectedWicketType = null;
     window.selectWicketType = (type) => {
         selectedWicketType = type;
         document.querySelectorAll('#wicket-type-buttons button').forEach(btn => {
@@ -396,40 +415,42 @@
     };
 
     window.confirmWicket = () => {
-        const fielderSelect = document.getElementById('fielder-select');
-        const fielderValue = fielderSelect.value;
-        const fielderName = fielderSelect.selectedOptions[0]?.textContent;
-        const isFielderNonStriker = fielderSelect.selectedOptions[0]?.dataset.isNonStriker === 'true';
+        const fielderIndex = document.getElementById('fielder-select').value;
+        const fielderName = document.getElementById('fielder-select').selectedOptions[0]?.textContent;
+        const isRunoutOrStumped = (selectedWicketType === 'Runout' || selectedWicketType === 'Stumped');
+        const isFielderNonStriker = document.getElementById('fielder-select').selectedOptions[0]?.dataset.isNonStriker === 'true';
 
         if (!selectedWicketType) {
             showMessageModal("Error", "Please select wicket type.");
             return;
         }
 
+        // Default: Striker is out
         let playerOutIndex = matchState.current.strikerIndex;
-        if ((selectedWicketType === 'Runout' || selectedWicketType === 'Stumped') && isFielderNonStriker) {
+        let runsOnWicket = 0; 
+        
+        if (isRunoutOrStumped && isFielderNonStriker) {
             playerOutIndex = matchState.current.nonStrikerIndex;
         }
-
+        
         hideWicketModal();
-        handleWicket(selectedWicketType, playerOutIndex, fielderValue ? fielderName : null, 0);
+        handleWicket(selectedWicketType, playerOutIndex, fielderIndex ? fielderName : null, runsOnWicket);
     };
 
-    // Bowler Modal
-    window.showBowlerModal = () => {
+    // --- Bowler Modal Logic (Fixed to show all non-batsmen) ---
+
+    const showBowlerModal = () => {
         const modal = document.getElementById('bowler-modal');
         const select = document.getElementById('new-bowler-select');
         const battingTeam = getCurrentBattingTeam();
         const bowlingTeam = getCurrentBowlingTeam();
-
-        if (!bowlingTeam || !bowlingTeam.players) {
-            showMessageModal("Error", "No bowling team available.");
-            return;
-        }
-
-        let optionsHtml = '<option value="-1">-- Select Bowler --</option>';
+        
+        let optionsHtml = '';
         bowlingTeam.players.forEach((player, index) => {
-            const isCurrentBatsman = battingTeam && battingTeam.players.some(p => p.isBatting && p.name === player.name);
+            // Include all players from the bowling team
+            // We check against the batting team's current players' names to avoid selecting a batsman
+            const isCurrentBatsman = battingTeam.players.some(p => p.isBatting && p.name === player.name);
+            
             if (!isCurrentBatsman) {
                 optionsHtml += `<option value="${index}">${player.name}</option>`;
             }
@@ -442,7 +463,7 @@
         document.getElementById('bowler-modal').classList.add('hidden');
         renderDefaultTabContent();
     };
-
+    
     window.confirmNewBowler = () => {
         const newBowlerIndex = parseInt(document.getElementById('new-bowler-select').value);
         if (isNaN(newBowlerIndex) || newBowlerIndex === -1) {
@@ -451,7 +472,8 @@
         }
         hideBowlerModal();
         matchState.current.bowlerIndex = newBowlerIndex;
-
+        
+        // If batsmen are still -1 at this point, prompt for initial selection
         if (matchState.current.strikerIndex === -1 && matchState.current.nonStrikerIndex === -1) {
             showBatsmanInitModal();
         } else {
@@ -459,29 +481,59 @@
         }
     };
 
-    // Scoring Functions
+    // --- 4. Game Logic (3, 4, 5) ---
+
+    // Utility to get current teams/players
+    const getCurrentBattingTeam = () => matchState[matchState.current.battingTeamKey];
+    const getCurrentBowlingTeam = () => matchState[matchState.current.bowlingTeamKey];
+    
+    const getPlayerSafely = (team, index) => {
+        if (!team || index === -1 || !team.players || !team.players[index]) {
+            return { name: 'N/A (Select Player)', runs1: 0, balls1: 0, wickets1: 0, extras1: 0, index: -1 };
+        }
+        return team.players[index];
+    }
+    const getCurrentStriker = () => getPlayerSafely(getCurrentBattingTeam(), matchState.current.strikerIndex);
+    const getCurrentNonStriker = () => getPlayerSafely(getCurrentBattingTeam(), matchState.current.nonStrikerIndex);
+    const getCurrentBowler = () => getPlayerSafely(getCurrentBowlingTeam(), matchState.current.bowlerIndex);
+
+
+    const isMatchEditable = () => authReady && auth.currentUser && !auth.currentUser.isAnonymous && matchState.isMatchLive;
+
+    // Function to check if the match is won in the 2nd innings
+    const checkForMatchWin = (battingTeam) => {
+        if (matchState.currentInnings === 2 && battingTeam.target > 0) {
+            // Check if target is met or exceeded
+            if (battingTeam.totalScore >= battingTeam.target) {
+                declareMatchFinished();
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    // 4.1 Scoring Functions
     window.addRun = (runs, isExtra = false, extraType = null) => {
         if (!isMatchEditable()) {
             showMessageModal("Access Denied", "Please log in as Admin to update score.");
             return;
         }
-
+        
         if (matchState.current.strikerIndex === -1 || matchState.current.nonStrikerIndex === -1) {
-            showMessageModal("Setup Required", "Please select the Striker and Non-Striker.");
+             showMessageModal("Setup Required", "Please select the Striker and Non-Striker (Go to Admin tab to be prompted).");
             return;
         }
-        if (matchState.current.bowlerIndex === -1) {
-            showMessageModal("Setup Required", "Please select a Bowler.");
+         if (matchState.current.bowlerIndex === -1) {
+             showMessageModal("Setup Required", "Please select a Bowler.");
             return;
         }
+        
+        if (!matchState.current.ballHistory) { matchState.current.ballHistory = []; }
 
-        if (!matchState.current.ballHistory) {
-            matchState.current.ballHistory = [];
-        }
-
-        let ballAdded = !isExtra;
+        // Wide balls do not count as a legal ball against the over count
+        let ballAdded = !isExtra; // True for normal runs. Only NB reverses this to true later.
         if (extraType === 'NB') {
-            ballAdded = true;
+             ballAdded = true;
         }
 
         const battingTeam = getCurrentBattingTeam();
@@ -496,180 +548,81 @@
             strikerName: striker.name,
             bowlerName: bowler.name,
             inning: matchState.currentInnings,
+            // Capture current strike indexes for robust undo
             strikerIndex: matchState.current.strikerIndex,
             nonStrikerIndex: matchState.current.nonStrikerIndex,
         };
 
+        // 1. Update Score & Stats
         let runsToBatsman = 0;
         let runsToTeam = 0;
-
+        
         if (isExtra) {
-            runsToTeam += 1;
+            runsToTeam += 1; // Extra run for wide/no-ball
+            
             if (extraType === 'BY' || extraType === 'LB') {
-                runsToTeam += runs;
+                 runsToTeam += runs; 
             } else if (extraType === 'WD' || extraType === 'NB') {
-                runsToTeam += runs;
-                bowler.extras1 = (bowler.extras1 || 0) + 1;
+                 runsToTeam += runs; 
+                 bowler.extras1 = (bowler.extras1 || 0) + 1;
             }
+            
             runsToTeam += runs;
+            
         } else {
             runsToBatsman = runs;
             runsToTeam = runs;
         }
-
+        
+        // Update totals
         battingTeam.totalScore += runsToTeam;
-
+        
+        // Update striker stats (only for legal deliveries or no-balls where runs were scored off the bat)
         if (!isExtra || extraType === 'NB') {
             striker.runs1 += runsToBatsman;
-            striker.balls1 += 1;
-            if (runsToBatsman === 4) striker.fours1 = (striker.fours1 || 0) + 1;
-            if (runsToBatsman === 6) striker.sixes1 = (striker.sixes1 || 0) + 1;
+            striker.balls1 += 1; // Ball count increments on the batsman for a legal ball or no-ball
+            if (runsToBatsman === 4) striker.fours1 += 1;
+            if (runsToBatsman === 6) striker.sixes1 += 1;
         }
-
+        
+        // Update over ball count and bowler stats for legal balls
         if (ballAdded) {
             bowler.balls1 = (bowler.balls1 || 0) + 1;
             matchState.current.overBalls += 1;
-            battingTeam.overs += 0.1;
+            battingTeam.overs += 0.1; // For displaying X.Y format
         }
-
+        
+        // 2. Add to History
         ballEvent.runs = runsToTeam;
         matchState.current.ballHistory.push(ballEvent);
-
+        
+        // 3. Check for Match Win (Innings 2 only)
         if (checkForMatchWin(battingTeam)) return;
 
+        // 4. Handle Strike Rotation
+        // Rotation only happens on odd runs scored off the bat (extraType === null)
         const isOddRun = runsToTeam % 2 !== 0 && runsToTeam > 0;
-        if (isOddRun && extraType === null) {
-            rotateStrike();
+        
+        // CORRECTION: Rotation should only happen on runs off the bat (extraType === null) if odd.
+        if (isOddRun) {
+            if (extraType === null) {
+                 rotateStrike();
+            }
         }
-
+        
+        // 5. Check for Over completion
         if (matchState.current.overBalls === 6) {
             declareOverCompleted();
         } else {
+             // 6. Save State
             updateMatchState();
         }
     };
+    
+    // Utility to find the opposing team key
+    const getOpposingTeamKey = (teamKey) => teamKey === 'teamA' ? 'teamB' : 'teamA';
 
-    // Wicket Handler
-    window.handleWicket = (type, playerOutIndex, fielderName = null, runsBeforeWicket = 0) => {
-        if (!isMatchEditable()) return;
-        if (!matchState.current.ballHistory) {
-            matchState.current.ballHistory = [];
-        }
-
-        const battingTeam = getCurrentBattingTeam();
-        const playerOut = battingTeam.players[playerOutIndex];
-        const bowler = getCurrentBowler();
-        const isStrikerOut = playerOutIndex === matchState.current.strikerIndex;
-
-        const oldStrikerIndex = matchState.current.strikerIndex;
-        const oldNonStrikerIndex = matchState.current.nonStrikerIndex;
-
-        battingTeam.totalScore += runsBeforeWicket;
-        if (runsBeforeWicket > 0) {
-            playerOut.runs1 += runsBeforeWicket;
-        }
-
-        battingTeam.wickets += 1;
-        playerOut.out1 = type;
-        playerOut.isOut = true;
-        playerOut.isBatting = false;
-
-        if (checkForMatchWin(battingTeam) || battingTeam.wickets === 10) {
-            declareInningsOver();
-            return;
-        }
-
-        let nextBatsmanIndex = -1;
-        battingTeam.players.forEach((player, index) => {
-            if (!player.isOut && !player.isBatting && nextBatsmanIndex === -1) {
-                nextBatsmanIndex = index;
-            }
-        });
-
-        if (nextBatsmanIndex !== -1) {
-            if (playerOutIndex === oldStrikerIndex) {
-                matchState.current.strikerIndex = nextBatsmanIndex;
-            } else if (playerOutIndex === oldNonStrikerIndex) {
-                matchState.current.nonStrikerIndex = nextBatsmanIndex;
-            }
-            battingTeam.players[nextBatsmanIndex].isBatting = true;
-        } else {
-            matchState.current.strikerIndex = -1;
-            matchState.current.nonStrikerIndex = -1;
-        }
-
-        if (type !== 'Runout' && type !== 'Retired Hurt') {
-            bowler.wickets1 = (bowler.wickets1 || 0) + 1;
-        }
-
-        const ballAdded = (type !== 'Stumped' && type !== 'Runout');
-        const ballEvent = {
-            runs: runsBeforeWicket,
-            extraType: null,
-            ballAdded: ballAdded,
-            wicket: true,
-            wicketType: type,
-            playerOutName: playerOut.name,
-            fielderName: fielderName,
-            bowlerName: bowler.name,
-            inning: matchState.currentInnings,
-            strikerIndex: oldStrikerIndex,
-            nonStrikerIndex: oldNonStrikerIndex,
-        };
-        matchState.current.ballHistory.push(ballEvent);
-
-        if (ballAdded) {
-            bowler.balls1 = (bowler.balls1 || 0) + 1;
-            matchState.current.overBalls += 1;
-            battingTeam.overs += 0.1;
-        }
-
-        if (matchState.current.overBalls === 6) {
-            declareOverCompleted();
-        } else {
-            if (isStrikerOut && runsBeforeWicket % 2 !== 0 && runsBeforeWicket > 0) {
-                rotateStrike();
-            }
-            updateMatchState();
-        }
-    };
-
-    // Strike Control
-    window.rotateStrike = () => {
-        const temp = matchState.current.strikerIndex;
-        matchState.current.strikerIndex = matchState.current.nonStrikerIndex;
-        matchState.current.nonStrikerIndex = temp;
-        updateMatchState();
-    };
-
-    // Check for Match Win
-    const checkForMatchWin = (battingTeam) => {
-        if (matchState.currentInnings === 2 && battingTeam.target > 0) {
-            if (battingTeam.totalScore >= battingTeam.target) {
-                declareMatchFinished();
-                return true;
-            }
-        }
-        return false;
-    };
-
-    // Over Completed
-    const declareOverCompleted = () => {
-        const battingTeam = getCurrentBattingTeam();
-        battingTeam.overs = Math.floor(battingTeam.overs) + 1;
-        matchState.current.overBalls = 0;
-        rotateStrike();
-
-        if (battingTeam.overs >= matchState.toss.overs) {
-            declareInningsOver();
-            return;
-        }
-
-        updateMatchState();
-        showBowlerModal();
-    };
-
-    // Undo Function
+    // 4.7 Undo Feature (Enhanced)
     window.undoLastAction = async () => {
         if (!isMatchEditable()) {
             showMessageModal("Access Denied", "Admin login required for Undo.");
@@ -679,103 +632,251 @@
             showMessageModal("Error", "No previous action to Undo.");
             return;
         }
-
+        
+        // Pop and get the last ball event
         const lastBall = matchState.current.ballHistory.pop();
         const battingTeam = getCurrentBattingTeam();
         const bowlingTeam = getCurrentBowlingTeam();
-
+        
+        // 1. Reverse Total Score
         battingTeam.totalScore -= lastBall.runs;
 
+        // 2. Reverse Over/Ball count & Bowler stats for ball
+        
+        // Find the players who were active for this ball (using stored index)
         let playerToUndo = battingTeam.players[lastBall.strikerIndex];
         const bowler = bowlingTeam.players[matchState.current.bowlerIndex];
 
         if (lastBall.ballAdded) {
+            // Reverse the over/ball count
             if (matchState.current.overBalls === 0 && Math.floor(battingTeam.overs) > 0) {
-                battingTeam.overs = Math.floor(battingTeam.overs) - 1;
-                matchState.current.overBalls = 5;
-                rotateStrike();
+                 // Undoing a ball that completed an over: Revert over count and set balls to 5
+                 battingTeam.overs = Math.floor(battingTeam.overs) - 1;
+                 matchState.current.overBalls = 5;
+                 // Note: If an over was completed, we need to reverse the automatic strike rotation that happened at the end of declareOverCompleted
+                 rotateStrike();
             } else if (matchState.current.overBalls > 0) {
-                matchState.current.overBalls -= 1;
-                battingTeam.overs -= 0.1;
+                 matchState.current.overBalls -= 1;
+                 battingTeam.overs -= 0.1;
             }
-
+            
+            // Update Bowler's individual ball count
             if (bowler) {
                 bowler.balls1 = (bowler.balls1 || 0) - 1;
             }
         }
-
+        
+        // 3. Reverse Batsman/Bowler runs/extras 
+        
+        // Runs off the bat (runsToBatsman)
         let runsToBatsmanReversed = 0;
         if (lastBall.extraType === null || lastBall.extraType === 'NB') {
-            runsToBatsmanReversed = lastBall.runs - (lastBall.extraType ? 1 : 0);
+             // Runs to batsman calculated for non-extras or NB (where the main run count is from the bat)
+             runsToBatsmanReversed = lastBall.runs - (lastBall.extraType ? 1 : 0);
         }
-
+        
         if (playerToUndo) {
+            // Reverse batsman runs
             playerToUndo.runs1 -= runsToBatsmanReversed;
+            
+            // Reverse batsman balls/4s/6s
+            // Note: We use the old strike index stored in lastBall because the strike might have rotated on this ball!
             if (!lastBall.extraType || lastBall.extraType === 'NB') {
-                playerToUndo.balls1 -= 1;
-                if (runsToBatsmanReversed === 4) playerToUndo.fours1 = (playerToUndo.fours1 || 0) - 1;
-                if (runsToBatsmanReversed === 6) playerToUndo.sixes1 = (playerToUndo.sixes1 || 0) - 1;
+                 playerToUndo.balls1 -= 1;
+                 if (runsToBatsmanReversed === 4) playerToUndo.fours1 -= 1;
+                 if (runsToBatsmanReversed === 6) playerToUndo.sixes1 -= 1;
             }
         }
-
+        
+        // Reverse bowler extras
         if (lastBall.extraType === 'WD' || lastBall.extraType === 'NB') {
             if (bowler) {
                 bowler.extras1 = (bowler.extras1 || 0) - 1;
             }
         }
-
+        
+        // 4. Reverse Wicket/Out status 
         if (lastBall.wicket) {
             battingTeam.wickets -= 1;
             if (bowler && lastBall.wicketType !== 'Runout' && lastBall.wicketType !== 'Retired Hurt') {
                 bowler.wickets1 = (bowler.wickets1 || 0) - 1;
             }
-
+            
+            // Find player who was out based on name in history
             const playerOut = battingTeam.players.find(p => p.name === lastBall.playerOutName);
             if (playerOut) {
                 playerOut.out1 = null;
                 playerOut.isOut = false;
-                playerOut.isBatting = true;
+                playerOut.isBatting = true; 
             }
         }
-
-        const isOddRun = lastBall.runs % 2 !== 0 && lastBall.runs > 0;
+        
+        // 5. Restore Strike Position (This is the crucial fix for strike reversal)
+        
+        // First, check if a normal run rotation happened on this ball (only on odd runs off the bat, no wicket)
+        const isOddRun = totalRunsOffBall % 2 !== 0 && totalRunsOffBall > 0;
+        
         if (isOddRun && lastBall.extraType === null && !lastBall.wicket) {
-            rotateStrike();
+            // If rotation occurred, reverse it.
+             rotateStrike();
         }
 
+        // Now, restore the indices to the state *before* this ball/wicket
         matchState.current.strikerIndex = lastBall.strikerIndex;
         matchState.current.nonStrikerIndex = lastBall.nonStrikerIndex;
 
-        await updateMatchState();
-        showMessageModal("Undo Successful", "Last action has been reversed.");
+        // Force UI update
+        await updateMatchState(); // Use await to ensure DB update finishes before showing message
+        showMessageModal("Undo Successful", "मागील क्रिया यशस्वीरित्या रिव्हर्स झाली आहे. स्ट्राइक स्थिती तपासा.");
     };
 
-    // Innings Management
-    window.declareInningsOver = () => {
+
+    // 4.2 Wicket Function
+    window.handleWicket = (type, playerOutIndex, fielderName = null, runsBeforeWicket = 0) => {
+        if (!isMatchEditable()) return;
+        if (!matchState.current.ballHistory) { matchState.current.ballHistory = []; }
+
+        const battingTeam = getCurrentBattingTeam();
+        const playerOut = battingTeam.players[playerOutIndex];
+        const bowler = getCurrentBowler();
+        const isStrikerOut = playerOutIndex === matchState.current.strikerIndex;
+
+        // Save current striker/non-striker indices BEFORE any changes for robust UNDO
+        const oldStrikerIndex = matchState.current.strikerIndex;
+        const oldNonStrikerIndex = matchState.current.nonStrikerIndex;
+
+        // 1. Update Stats & Score (runs before wicket)
+        battingTeam.totalScore += runsBeforeWicket;
+        playerOut.runs1 += runsBeforeWicket;
+
+        // 2. Record Wicket
+        battingTeam.wickets += 1;
+        playerOut.out1 = type;
+        playerOut.isOut = true;
+        playerOut.isBatting = false; // Player is now out
+        
+        // 3. Check for Match Win (Innings 2 only) or All Out
+        if (checkForMatchWin(battingTeam) || battingTeam.wickets === 10) {
+            declareInningsOver();
+            return;
+        }
+
+        // --- AUTO-SELECT NEW BATSMAN LOGIC (NO MODAL) ---
+        let nextBatsmanIndex = -1;
+        // Find the next available player (index > current players and not out/not batting)
+        battingTeam.players.forEach((player, index) => {
+            if (!player.isOut && !player.isBatting && nextBatsmanIndex === -1) {
+                nextBatsmanIndex = index;
+            }
+        });
+        
+        // 4. Set the outgoing player's slot to the incoming player's index
+        if (nextBatsmanIndex !== -1) {
+            if (playerOutIndex === oldStrikerIndex) {
+                matchState.current.strikerIndex = nextBatsmanIndex;
+            } else if (playerOutIndex === oldNonStrikerIndex) {
+                matchState.current.nonStrikerIndex = nextBatsmanIndex;
+            }
+            battingTeam.players[nextBatsmanIndex].isBatting = true;
+        } else {
+             // This case means the team is all out, handled by the check above. Set to -1 for safety.
+             matchState.current.strikerIndex = -1;
+             matchState.current.nonStrikerIndex = -1;
+        }
+        // --- END AUTO-SELECT NEW BATSMAN LOGIC ---
+
+        // 5. Update Bowler Stats
+        if (type !== 'Runout' && type !== 'Retired Hurt') {
+            bowler.wickets1 = (bowler.wickets1 || 0) + 1;
+        }
+
+        // 6. Add to Ball History
+        const ballAdded = (type !== 'Stumped' && type !== 'Runout');
+        const ballEvent = {
+            runs: runsBeforeWicket, extraType: null, ballAdded: ballAdded, wicket: true,
+            wicketType: type, playerOutName: playerOut.name, fielderName: fielderName,
+            bowlerName: bowler.name, inning: matchState.currentInnings,
+            strikerIndex: oldStrikerIndex, // Store index BEFORE potential rotation/wicket fall
+            nonStrikerIndex: oldNonStrikerIndex,
+        };
+        matchState.current.ballHistory.push(ballEvent);
+
+        if (ballAdded) {
+             bowler.balls1 = (bowler.balls1 || 0) + 1;
+             matchState.current.overBalls += 1;
+             battingTeam.overs += 0.1;
+        }
+
+        // 7. Handle Over completion after wicket
+        if (matchState.current.overBalls === 6) {
+            declareOverCompleted(); 
+        } else {
+            // Strike rotation logic after wicket
+            if (isStrikerOut && runsBeforeWicket % 2 !== 0 && runsBeforeWicket > 0) {
+                 // Strike rotates to the new player (the newly arrived batsman)
+                 rotateStrike();
+            } 
+            updateMatchState();
+        }
+    };
+
+    // 4.3 Strike Control
+    window.rotateStrike = () => {
+        [matchState.current.strikerIndex, matchState.current.nonStrikerIndex] = 
+            [matchState.current.nonStrikerIndex, matchState.current.strikerIndex];
+    };
+
+    // 4.4 Over Completed
+    const declareOverCompleted = () => {
+        const battingTeam = getCurrentBattingTeam();
+        battingTeam.overs = Math.floor(battingTeam.overs) + 1; // Update total overs
+
+        matchState.current.overBalls = 0; // Reset ball count
+        rotateStrike(); // Automatic strike change at the end of the over
+
+        // Check for Win by Overs
+        if (battingTeam.overs >= matchState.toss.overs) {
+            declareInningsOver(); // Handles match finish if Innings 2, or Innings break if Innings 1
+            return;
+        }
+
+        // Prompt for new bowler
+        updateMatchState();
+        showBowlerModal();
+    };
+
+    // 4.5 Innings Management
+    const declareInningsOver = () => {
         matchState.isMatchLive = false;
+        
         const battingTeam = getCurrentBattingTeam();
 
         if (matchState.currentInnings === 2) {
+            // Match is definitely over (either by wickets, overs, or target met during scoring check)
             matchState.status = 'FINISHED';
             declareMatchFinished();
             return;
         }
 
+        // Innings 1 is over
         matchState.status = 'INNINGS_BREAK';
-
+        
+        // Save current innings data
         matchState.innings1 = {
             score: battingTeam.totalScore,
             wickets: battingTeam.wickets,
             overs: Math.floor(battingTeam.overs) + '.' + matchState.current.overBalls,
-            ballHistory: [...matchState.current.ballHistory],
-            teamPlayers: JSON.parse(JSON.stringify(battingTeam.players)),
+            ballHistory: matchState.current.ballHistory,
+            // Capture player stats at the end of Innings 1
+            teamPlayers: JSON.parse(JSON.stringify(battingTeam.players)), 
         };
-
         showMessageModal("Innings Break", `${battingTeam.name} scored ${matchState.innings1.score}/${battingTeam.wickets} in ${matchState.innings1.overs} overs. Break time!`);
-        updateMatchState();
+        
+        // Final save before innings change
+        updateMatchState(); 
 
         if (matchState.toss.overs > 0) {
-            setTimeout(startSecondInnings, 3000);
+            setTimeout(startSecondInnings, 5000);
         }
     };
 
@@ -795,26 +896,34 @@
         matchState.current.battingTeamKey = battingTeamKey;
         matchState.current.bowlingTeamKey = bowlingTeamKey;
 
+        // Reset player isBatting flags for the new batting team
         matchState[battingTeamKey].players.forEach(p => p.isBatting = false);
-
-        matchState.current.strikerIndex = -1;
+        
+        // Reset current indices and force selection
+        matchState.current.strikerIndex = -1; 
         matchState.current.nonStrikerIndex = -1;
-        matchState.current.bowlerIndex = -1;
+        matchState.current.bowlerIndex = -1; 
 
+        // Reset team score/overs
         matchState[battingTeamKey].totalScore = 0;
         matchState[battingTeamKey].wickets = 0;
         matchState[battingTeamKey].overs = 0;
         matchState[battingTeamKey].isBatting = true;
         matchState[bowlingTeamKey].isBatting = false;
-
+        
+        // Reset History
         matchState.current.ballHistory = [];
 
         showMessageModal("Innings 2 Starts", `${matchState[battingTeamKey].name} needs ${target} runs to win.`);
-        updateMatchState();
-        showBatsmanInitModal();
+        
+        updateMatchState(); // Save state
+        
+        // Force initial batsman selection
+        showBatsmanInitModal(); 
     };
 
-    // Match Finish
+
+    // 4.6 Match Finish
     const declareMatchFinished = () => {
         matchState.isMatchLive = false;
         matchState.status = 'FINISHED';
@@ -827,52 +936,62 @@
 
         if (matchState.currentInnings === 2) {
             if (battingTeam.totalScore >= target) {
+                // Win by Wickets
                 const wicketsRemaining = 10 - battingTeam.wickets;
                 resultText = `${battingTeam.name} won by ${wicketsRemaining} wickets.`;
             } else if (battingTeam.totalScore < target - 1) {
+                // Win by Runs
                 const runDifference = target - 1 - battingTeam.totalScore;
                 resultText = `${nonBattingTeam.name} won by ${runDifference} runs.`;
             } else {
+                // Tie
                 resultText = `Match Tied!`;
             }
-
-            matchState.innings2 = {
+             // Capture Innings 2 state
+             matchState.innings2 = {
                 score: battingTeam.totalScore,
                 wickets: battingTeam.wickets,
                 overs: Math.floor(battingTeam.overs) + '.' + matchState.current.overBalls,
-                ballHistory: [...matchState.current.ballHistory],
-                teamPlayers: JSON.parse(JSON.stringify(battingTeam.players)),
-            };
+                ballHistory: matchState.current.ballHistory,
+                teamPlayers: JSON.parse(JSON.stringify(battingTeam.players)), 
+             };
+        } else {
+             // Should not happen if Innings 2 rules are followed, but as fallback
+             resultText = `${nonBattingTeam.name} (Bowling Team) has set a target of ${target} runs.`;
         }
-
+        
         matchState.result = resultText;
         updateMatchState();
         showMessageModal("Match Result", resultText);
     };
 
-    // Database Functions
+
+    // --- 5. RTDB Communication (1) ---
+
+    let unsubscribeMatch = null;
+
     window.loadMatch = (matchId) => {
         if (!authReady) {
-            showMessageModal("Status", "Waiting for Firebase authentication...");
+            showMessageModal("Status", "Waiting for Firebase authentication to be ready...");
             return;
         }
         if (unsubscribeMatch) {
             unsubscribeMatch();
         }
-
+        
         activeMatchId = matchId;
         setupRealtimeListener(matchId);
-        switchTab('viewer');
+        switchTab('viewer'); 
     };
 
     const setupRealtimeListener = (matchId) => {
         if (!db) {
-            console.error("RTDB not initialized.");
+            console.error("RTDB DB not initialized.");
             return;
         }
-
+        // Optimisation: Use onValue to fetch data, which handles small updates quickly.
         const scoreRef = getScoreStateRef(matchId);
-
+        
         unsubscribeMatch = onValue(scoreRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -890,37 +1009,46 @@
                     teamA: { ...defaultMatchState.teamA, ...(data.teamA || {}) },
                     teamB: { ...defaultMatchState.teamB, ...(data.teamB || {}) }
                 };
+
+                // Optimisation: Only re-render the necessary parts based on the active tab, 
+                // but since renderDefaultTabContent handles this switch, we rely on it.
                 renderDefaultTabContent();
+                console.log("Match State Updated from DB:", matchState);
             } else {
-                matchState = JSON.parse(JSON.stringify(defaultMatchState));
+                matchState = JSON.parse(JSON.stringify(defaultMatchState)); 
                 renderDefaultTabContent();
+                console.log("No active match found or data deleted.");
             }
         }, (error) => {
             console.error("RTDB Listener Error:", error);
             showMessageModal("Real-time Error", `Issue loading data: ${error.message}`);
         });
     };
-
+    
+    // Function to delete a match
     window.deleteMatch = async () => {
         if (!isMatchEditable() || !activeMatchId) {
             showMessageModal("Access Denied", "Admin login required or no active match selected.");
             return;
         }
 
-        const confirmation = window.confirm(`Are you sure you want to permanently delete match ${activeMatchId}?`);
-
+        // We use window.confirm() here as a necessary browser interaction for destructive action
+        const confirmation = window.confirm(`Are you sure you want to permanently delete match ${activeMatchId}? This action cannot be undone.`);
+        
         if (confirmation) {
             try {
+                // Delete score data
                 await remove(getScoreStateRef(activeMatchId));
+                // Delete metadata
                 await remove(getMatchMetaRef(activeMatchId));
-
-                const deletedId = activeMatchId;
+                
+                // Reset state locally
                 activeMatchId = null;
                 matchState = JSON.parse(JSON.stringify(defaultMatchState));
                 if (unsubscribeMatch) {
                     unsubscribeMatch();
                 }
-                showMessageModal("Success", `Match ${deletedId} deleted successfully.`);
+                showMessageModal("Success", `Match ${activeMatchId} deleted successfully.`);
                 switchTab('viewer');
             } catch (error) {
                 console.error("Error deleting match:", error);
@@ -929,40 +1057,41 @@
         }
     };
 
+
+    let unsubscribeMatchList = null;
     const setupMatchListListener = () => {
         if (!db || !auth || !auth.currentUser) {
-            return;
+            return; 
         }
 
         if (unsubscribeMatchList) {
             unsubscribeMatchList();
         }
-
         const listRef = getMatchListRef();
-
+        
+        // Optimisation: Use onValue for real-time updates to the list
         unsubscribeMatchList = onValue(listRef, (snapshot) => {
             matchList = [];
             if (snapshot.exists()) {
                 snapshot.forEach(childSnapshot => {
-                    matchList.push({
-                        id: childSnapshot.key,
-                        createdAt: childSnapshot.val().createdAt || 0,
-                        ...childSnapshot.val()
-                    });
+                    // Include creation timestamp for sorting
+                    matchList.push({ id: childSnapshot.key, createdAt: childSnapshot.val().createdAt || 0, ...childSnapshot.val() });
                 });
             }
+            // Sort by createdAt descending (newest at the top)
             matchList.sort((a, b) => b.createdAt - a.createdAt);
+            // Optimisation: Re-render only the match list, not the whole tab content
             if (currentTab === 'viewer') {
-                renderMatchList();
+                 renderMatchList();
             }
         }, (error) => {
             console.error("Match List Listener Error:", error);
-            matchList = [];
-            renderMatchList();
+             matchList = [];
+             renderMatchList(); 
         });
     };
 
-    window.updateMatchState = async () => {
+    window.updateMatchState = async (onlyStatus = false) => {
         if (!activeMatchId) return;
 
         const isAuthenticationRequired = (matchState.status === 'SETUP' || matchState.isMatchLive);
@@ -975,10 +1104,10 @@
         try {
             const scoreRef = getScoreStateRef(activeMatchId);
             await set(scoreRef, matchState);
-
+            
             const metaRef = getMatchMetaRef(activeMatchId);
             const battingTeam = matchState[matchState.current.battingTeamKey] || matchState.teamA;
-
+            
             await update(metaRef, {
                 teamA: matchState.teamA.name,
                 teamB: matchState.teamB.name,
@@ -988,15 +1117,18 @@
                 venue: matchState.toss.venue,
                 toss: `${matchState.toss.winner} elected to ${matchState.toss.elected === 'BAT' ? 'Bat' : 'Bowl'}`,
                 updatedAt: Date.now(),
-                createdAt: matchState.createdAt || Date.now(),
+                createdAt: matchState.createdAt || Date.now(), // Ensure createdAt is set only once
             });
+
         } catch (error) {
             console.error("Error updating match state:", error);
             showMessageModal("Save Error", `Issue saving score: ${error.message}`);
         }
     };
 
-    // Match Setup
+
+    // --- 6. Match Setup Logic (2) ---
+
     window.startNewMatchFlow = () => {
         if (!authReady || auth.currentUser.isAnonymous) {
             showMessageModal("Access Denied", "Please log in as Admin to start a new match.");
@@ -1005,11 +1137,11 @@
 
         activeMatchId = crypto.randomUUID().substring(0, 8);
         matchState = JSON.parse(JSON.stringify(defaultMatchState));
-
+        
         matchState.teamA.players = generateDefaultPlayers('Team A');
         matchState.teamB.players = generateDefaultPlayers('Team B');
-        matchState.createdAt = Date.now();
-
+        matchState.createdAt = Date.now(); // Set creation timestamp
+        
         updateTossDropdowns();
         switchTab('setup');
     };
@@ -1020,65 +1152,51 @@
             index: i,
             isOut: false,
             isBatting: false,
-            runs1: 0,
-            balls1: 0,
-            fours1: 0,
-            sixes1: 0,
-            out1: null,
-            wickets1: 0,
-            extras1: 0,
+            runs1: 0, balls1: 0, fours1: 0, sixes1: 0, out1: null,
+            wickets1: 0, balls1: 0, extras1: 0,
         }));
     };
-
+    
     window.updateTossDropdowns = () => {
-        const teamA = document.getElementById('team-a-name')?.value || 'Team A';
-        const teamB = document.getElementById('team-b-name')?.value || 'Team B';
-
+        const teamA = document.getElementById('team-a-name').value || 'Team A';
+        const teamB = document.getElementById('team-b-name').value || 'Team B';
+        
         const winnerSelect = document.getElementById('toss-winner');
         const decisionSelect = document.getElementById('toss-decision');
-
-        if (winnerSelect) {
-            winnerSelect.innerHTML = `<option value="-1">-- Select Winner --</option>
-                <option value="${teamA}">${teamA}</option>
-                <option value="${teamB}">${teamB}</option>`;
-        }
-
-        if (decisionSelect) {
-            decisionSelect.innerHTML = `<option value="-1">-- Select Decision --</option>
-                <option value="BAT">Batting</option>
-                <option value="BOWL">Bowling</option>`;
-        }
-
+        
+        winnerSelect.innerHTML = `<option value="-1">-- Select Winner --</option>
+            <option value="${teamA}">${teamA}</option>
+            <option value="${teamB}">${teamB}</option>`;
+            
+        decisionSelect.innerHTML = `<option value="-1">-- Select Decision --</option>
+            <option value="BAT">Batting</option>
+            <option value="BOWL">Bowling</option>`;
+            
         renderPlayerInputs(teamA, teamB);
     };
-
+    
     const renderPlayerInputs = (teamA, teamB) => {
         const teamAContainer = document.getElementById('team-a-players');
         const teamBContainer = document.getElementById('team-b-players');
-
-        if (!teamAContainer || !teamBContainer) return;
-
+        
         const createPlayerList = (players, teamKey) => {
             return players.map(p => `
                 <input type="text" id="${teamKey}-player-${p.index}" value="${p.name}" class="p-2 border rounded-md w-full mb-1 text-sm bg-gray-50">
             `).join('');
         };
-
+        
         if (matchState.teamA.players.length > 0) {
             teamAContainer.innerHTML = createPlayerList(matchState.teamA.players, 'teamA');
             teamBContainer.innerHTML = createPlayerList(matchState.teamB.players, 'teamB');
         } else {
-            teamAContainer.innerHTML = generateDefaultPlayers('Team A').map((p, i) =>
-                `<input type="text" id="teamA-player-${i}" value="${p.name}" class="p-2 border rounded-md w-full mb-1 text-sm bg-gray-50">`
-            ).join('');
-            teamBContainer.innerHTML = generateDefaultPlayers('Team B').map((p, i) =>
-                `<input type="text" id="teamB-player-${i}" value="${p.name}" class="p-2 border rounded-md w-full mb-1 text-sm bg-gray-50">`
-            ).join('');
+             teamAContainer.innerHTML = generateDefaultPlayers('Team A').map((p, i) => `<input type="text" id="teamA-player-${i}" value="${p.name}" class="p-2 border rounded-md w-full mb-1 text-sm bg-gray-50">`).join('');
+             teamBContainer.innerHTML = generateDefaultPlayers('Team B').map((p, i) => `<input type="text" id="teamB-player-${i}" value="${p.name}" class="p-2 border rounded-md w-full mb-1 text-sm bg-gray-50">`).join('');
         }
     };
 
+
     window.saveMatchSetup = async () => {
-        const matchId = activeMatchId;
+        const matchId = activeMatchId; 
         const teamAName = document.getElementById('team-a-name').value;
         const teamBName = document.getElementById('team-b-name').value;
         const tossWinner = document.getElementById('toss-winner').value;
@@ -1087,27 +1205,21 @@
         const venue = document.getElementById('venue-name').value;
 
         if (!matchId || !teamAName || !teamBName || tossWinner === "-1" || tossDecision === "-1" || isNaN(overs) || overs <= 0) {
-            showMessageModal("Error", "Please fill all required fields and ensure Overs is 1 or more.");
+            showMessageModal("Error", "Please ensure a New Match is started, all team names are filled, Toss Winner/Decision is selected, and Overs is 1 or more.");
             return;
         }
 
         const getPlayersFromInputs = (teamKey, teamName) => {
             const players = [];
             for (let i = 0; i < 11; i++) {
-                const nameInput = document.getElementById(`${teamKey}-player-${i}`);
-                const name = nameInput ? nameInput.value : `${teamName} Player ${i + 1}`;
+                const name = document.getElementById(`${teamKey}-player-${i}`).value;
                 players.push({
                     name: name || `${teamName} Player ${i + 1}`,
                     index: i,
                     isOut: false,
                     isBatting: false,
-                    runs1: 0,
-                    balls1: 0,
-                    fours1: 0,
-                    sixes1: 0,
-                    out1: null,
-                    wickets1: 0,
-                    extras1: 0,
+                    runs1: 0, balls1: 0, fours1: 0, sixes1: 0, out1: null,
+                    wickets1: 0, balls1: 0, extras1: 0,
                 });
             }
             return players;
@@ -1117,22 +1229,13 @@
             ...matchState.teamA,
             name: teamAName,
             players: getPlayersFromInputs('teamA', teamAName),
-            totalScore: 0,
-            wickets: 0,
-            overs: 0,
-            target: 0,
-            isBatting: false
+            totalScore: 0, wickets: 0, overs: 0, target: 0, isBatting: false
         };
-
         matchState.teamB = {
             ...matchState.teamB,
             name: teamBName,
             players: getPlayersFromInputs('teamB', teamBName),
-            totalScore: 0,
-            wickets: 0,
-            overs: 0,
-            target: 0,
-            isBatting: false
+            totalScore: 0, wickets: 0, overs: 0, target: 0, isBatting: false
         };
 
         let battingTeamKey, bowlingTeamKey;
@@ -1153,10 +1256,12 @@
 
         matchState.current.battingTeamKey = battingTeamKey;
         matchState.current.bowlingTeamKey = bowlingTeamKey;
-        matchState.current.strikerIndex = -1;
-        matchState.current.nonStrikerIndex = -1;
-        matchState.current.bowlerIndex = -1;
-        matchState.createdAt = matchState.createdAt || Date.now();
+        
+        // Reset current indices for explicit selection
+        matchState.current.strikerIndex = -1; 
+        matchState.current.nonStrikerIndex = -1; 
+        matchState.current.bowlerIndex = -1; // Force bowler selection
+        matchState.createdAt = matchState.createdAt || Date.now(); // Ensure createdAt is set
 
         matchState[battingTeamKey].isBatting = true;
         matchState[bowlingTeamKey].isBatting = false;
@@ -1165,11 +1270,16 @@
         setupRealtimeListener(matchId);
 
         showMessageModal("Match Started!", `${tossWinner} elected to ${tossDecision === 'BAT' ? 'Bat' : 'Bowl'}. ${matchState[battingTeamKey].name} is batting!`);
+        
         switchTab('admin');
+        
+        // NEW: Show initial batsman selection modal first
         showBatsmanInitModal();
     };
 
-    // Auth Functions
+
+    // --- 7. Auth Functions (1) ---
+
     window.handleAdminLogin = async () => {
         const email = document.getElementById('admin-email').value;
         const password = document.getElementById('admin-password').value;
@@ -1181,16 +1291,16 @@
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            showMessageModal("Success", "Admin login successful.");
-            switchTab('admin');
+            showMessageModal("Success", "Admin login successful. You can now update scores.");
+            switchTab('admin'); 
         } catch (error) {
             console.error("Login Error:", error);
             let errorMessage = `Login failed: ${error.message}.`;
-
+            
             if (error.code === 'auth/invalid-credential') {
-                errorMessage = "Invalid email or password. Please check your credentials.";
+                errorMessage = "Login failed. Please check your Email and Password. (These credentials must be registered in the Firebase Console)";
             } else if (error.code === 'auth/network-request-failed') {
-                errorMessage = "Network error. Please check your internet connection.";
+                 errorMessage = "Login failed. Network error or poor connectivity. Please check your internet connection.";
             }
 
             showMessageModal("Login Error", errorMessage);
@@ -1203,8 +1313,8 @@
                 await signOut(auth);
             }
             await signInAnonymously(auth);
-
-            showMessageModal("Logout", "You have successfully logged out.");
+            
+            showMessageModal("Logout", "You have successfully logged out of Admin access.");
             switchTab('login');
         } catch (error) {
             console.error("Logout Error:", error);
@@ -1212,27 +1322,31 @@
         }
     };
 
-    // Rendering Functions
+
+    // --- 8. Rendering Functions (6) ---
+
     const renderViewerTab = () => {
         const liveMatch = matchList.find(m => m.status === 'LIVE' || m.status === 'INNINGS_BREAK');
-
+        
         if (activeMatchId || liveMatch) {
             if (!activeMatchId && liveMatch) {
                 activeMatchId = liveMatch.id;
                 setupRealtimeListener(activeMatchId);
             }
         }
-
+        
+        // Stylish Empty State for Match Viewer
         const defaultViewerHtml = `
             <div class="text-center p-10 bg-gray-50 rounded-xl shadow-inner border border-gray-200">
                 <i class="fas fa-bullhorn text-4xl text-teal-600 mb-4"></i>
                 <p class="text-xl font-bold text-gray-700">No Match Selected</p>
                 <p class="text-sm text-gray-500 mt-2">Please select a live match from the list below to view the score card.</p>
             </div>`;
-
+            
         const scoreboardHtml = activeMatchId && matchState.status !== 'SETUP'
             ? renderScoreboard(matchState)
             : defaultViewerHtml;
+
 
         return `
             <div class="space-y-6">
@@ -1243,85 +1357,92 @@
             </div>
         `;
     };
-
+    
+    // Moved renderAdminLogin out of renderDefaultTabContent
     const renderAdminLogin = () => {
         const user = auth && auth.currentUser;
         const isAuthenticated = user && !user.isAnonymous;
-
-        if (isAuthenticated) {
-            return `
-                <div class="p-8 text-center bg-green-50 rounded-lg shadow-lg">
-                    <h2 class="text-xl font-bold text-green-700 mb-4">You are currently logged in!</h2>
-                    <p class="text-lg text-gray-700">Email: ${user.email || 'Admin'}</p>
-                    <p class="text-sm text-gray-500 mt-1">User ID: ${user.uid}</p>
-                    <button onclick="window.handleAdminLogout()" class="mt-6 bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                    </button>
-                    <button onclick="window.switchTab('admin')" class="mt-6 ml-4 bg-teal-600 text-white p-3 rounded-lg font-semibold hover:bg-teal-700 transition">
-                        Go to Admin Panel
-                    </button>
-                </div>
-            `;
+        
+        if (isAuthenticated) { 
+             return `
+                 <div class="p-8 text-center bg-green-50 rounded-lg shadow-lg">
+                     <h2 class="text-xl font-bold text-green-700 mb-4">You are currently logged in!</h2>
+                     <p class="text-lg text-gray-700">Email: ${user.email || 'Admin'}</p>
+                     <p class="text-sm text-gray-500 mt-1">User ID: ${user.uid}</p>
+                     <button onclick="handleAdminLogout()" class="mt-6 bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                     </button>
+                     <button onclick="switchTab('admin')" class="mt-6 ml-4 bg-teal-600 text-white p-3 rounded-lg font-semibold hover:bg-teal-700 transition">
+                         Go to Admin Panel
+                     </button>
+                 </div>
+             `;
         }
 
         return `
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Login</h2>
             <div class="max-w-md mx-auto p-8 bg-gray-50 rounded-xl shadow-2xl space-y-4">
                 <p class="text-sm text-gray-500 mb-4">Login is required to update scores and manage matches.</p>
+                
                 <div>
                     <label for="admin-email" class="block text-sm font-medium text-gray-700">Email:</label>
                     <input id="admin-email" type="email" placeholder="admin@example.com" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
                 </div>
+                
                 <div>
                     <label for="admin-password" class="block text-sm font-medium text-gray-700">Password:</label>
                     <input id="admin-password" type="password" placeholder="••••••••" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
                 </div>
-                <button onclick="window.handleAdminLogin()" class="w-full bg-teal-600 text-white p-3 rounded-lg font-bold hover:bg-teal-700 transition shadow-md">
+                
+                <button onclick="handleAdminLogin()" class="w-full bg-teal-600 text-white p-3 rounded-lg font-bold hover:bg-teal-700 transition shadow-md">
                     <i class="fas fa-sign-in-alt mr-2"></i> Login
                 </button>
-                <p class="text-xs text-center text-gray-400 mt-4">Note: Admin user must be registered in Firebase Console.</p>
+                <p class="text-xs text-center text-gray-400 mt-4">Note: You must create an Admin user in the Firebase Console.</p>
             </div>
         `;
     };
 
+    let matchList = [];
     window.setMatchFilter = (filter) => {
         currentMatchFilter = filter;
         renderMatchList();
     };
-
+    
     const renderMatchList = () => {
         const container = document.getElementById('match-list-container');
-        if (!container) return;
+        if (!container) return; 
 
         const filterButtons = `
             <div class="flex space-x-2 mb-4 justify-center">
-                <button onclick="window.setMatchFilter('All')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'All' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">All</button>
-                <button onclick="window.setMatchFilter('Live')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'Live' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">Live</button>
-                <button onclick="window.setMatchFilter('Completed')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'Completed' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">Completed</button>
-                <button onclick="window.setMatchFilter('Upcoming')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'Upcoming' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">Upcoming</button>
+                <button onclick="setMatchFilter('All')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'All' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">All</button>
+                <button onclick="setMatchFilter('Live')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'Live' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">Live</button>
+                <button onclick="setMatchFilter('Completed')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'Completed' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">Completed</button>
+                <button onclick="setMatchFilter('Upcoming')" class="px-3 py-1 rounded-full text-xs font-semibold ${currentMatchFilter === 'Upcoming' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-700'}">Upcoming</button>
             </div>
         `;
-
+        
         let filteredMatches = matchList;
         if (currentMatchFilter === 'Live') {
             filteredMatches = matchList.filter(m => m.status === 'LIVE' || m.status === 'INNINGS_BREAK');
         } else if (currentMatchFilter === 'Completed') {
             filteredMatches = matchList.filter(m => m.status === 'FINISHED');
         } else if (currentMatchFilter === 'Upcoming') {
-            filteredMatches = matchList.filter(m => m.status === 'SETUP');
+             filteredMatches = matchList.filter(m => m.status === 'SETUP');
         }
-
+        
         if (filteredMatches.length === 0) {
             container.innerHTML = filterButtons + `<p class="text-sm text-gray-400 text-center mt-4">No ${currentMatchFilter} matches found.</p>`;
             return;
         }
+        
+        // Sorting is already handled in setupMatchListListener (newest on top)
 
         const matchCards = filteredMatches.map(match => {
-            const statusClass = match.status === 'LIVE' ? 'text-green-600 font-bold' :
+            const statusClass = match.status === 'LIVE' ? 'text-green-600 font-bold' : 
                                 match.status === 'FINISHED' ? 'text-red-600' : 'text-blue-600';
 
             return `
-                <div class="p-4 mb-3 bg-white border-b border-gray-200 rounded-lg shadow-md hover:shadow-xl transition duration-300 cursor-pointer ${activeMatchId === match.id ? 'ring-2 ring-teal-500' : ''}" onclick="window.loadMatch('${match.id}')">
+                <div class="p-4 mb-3 bg-white border-b border-gray-200 rounded-lg shadow-md hover:shadow-xl transition duration-300 cursor-pointer ${activeMatchId === match.id ? 'ring-2 ring-teal-500' : ''}" onclick="loadMatch('${match.id}')">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-lg font-extrabold text-gray-900">${match.teamA} vs ${match.teamB}</p>
@@ -1347,23 +1468,18 @@
         if (!state.isMatchLive && state.status === 'SETUP') {
             return `<div class="text-center p-10 bg-blue-50 rounded-lg"><p class="text-xl font-semibold text-blue-800">Match Setup Mode.</p><p class="text-sm text-blue-600 mt-2">Please go to the Setup tab to configure and start the match.</p></div>`;
         }
-
+        
         const battingTeam = getCurrentBattingTeam();
         const bowlingTeam = getCurrentBowlingTeam();
-
-        if (!battingTeam || !bowlingTeam) {
-            return `<div class="text-center p-10 bg-yellow-50 rounded-lg"><p class="text-xl font-semibold text-yellow-800">Loading match data...</p></div>`;
-        }
-
         const striker = getCurrentStriker();
         const nonStriker = getCurrentNonStriker();
         const bowler = getCurrentBowler();
 
-        const runs = battingTeam.totalScore;
-        const wickets = battingTeam.wickets;
+        const runs = battingTeam ? battingTeam.totalScore : 0;
+        const wickets = battingTeam ? battingTeam.wickets : 0;
         const currentOvers = Math.floor(battingTeam.overs) + '.' + state.current.overBalls;
-
-        const targetText = battingTeam.target > 0 ? `<p class="text-sm font-semibold text-red-600 mt-1">Target: ${battingTeam.target}</p>` : '';
+        
+        const targetText = battingTeam && battingTeam.target > 0 ? `<p class="text-sm font-semibold text-red-600 mt-1">Target: ${battingTeam.target}</p>` : '';
         const inningsStatus = state.status === 'INNINGS_BREAK' ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">INNINGS BREAK</span>` : '';
         const matchStatus = state.status === 'LIVE' ? `<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">LIVE</span>` : inningsStatus;
 
@@ -1381,18 +1497,20 @@
 
         const resultDisplay = state.status === 'FINISHED' ? `<div class="p-3 bg-green-100 rounded-lg mt-4"><p class="text-lg font-bold text-green-800 text-center">${state.result}</p></div>` : '';
 
+
         return `
             <div class="mb-4 flex justify-between items-center">
                 <h2 class="text-xl font-extrabold text-gray-800">${state.teamA.name} vs ${state.teamB.name}</h2>
                 ${matchStatus}
             </div>
-
+            
             <div class="text-sm text-gray-600 mb-4 border-b pb-2">
                 <p>Venue: ${state.toss.venue}</p>
                 <p>Toss: ${state.toss.winner} elected to ${state.toss.elected === 'BAT' ? 'Bat' : 'Bowl'}</p>
                 <p>Overs: ${state.toss.overs}</p>
             </div>
 
+            <!-- Main Scorecard -->
             <div class="bg-gray-900 text-white p-4 rounded-xl shadow-inner mb-6 flex flex-col md:flex-row justify-between items-center">
                 <div class="text-center md:text-left mb-3 md:mb-0">
                     <p class="text-2xl font-light">${battingTeam.name} Batting (Innings ${state.currentInnings})</p>
@@ -1403,19 +1521,20 @@
                 <div class="text-right mt-3 md:mt-0">
                     <p class="text-md font-medium text-gray-400">Bowler: ${bowler.name}</p>
                     <p class="text-xs text-gray-400 mb-3">Wkts: ${bowler.wickets1 || 0} | Runs: ${bowler.runs1 || 0} | Overs: ${bowler.balls1 > 0 ? (Math.floor(bowler.balls1 / 6) + '.' + (bowler.balls1 % 6)) : '0.0'}</p>
-
+                    
                     <p class="text-lg font-medium text-yellow-300">${striker.name} <span class="text-xs">(STR)</span> - ${striker.runs1 || 0} (${striker.balls1 || 0})</p>
                     <p class="text-md font-light text-gray-300">${nonStriker.name} <span class="text-xs">(NON)</span> - ${nonStriker.runs1 || 0} (${nonStriker.balls1 || 0})</p>
                 </div>
             </div>
 
+            <!-- Last 6 Balls -->
             <div class="p-4 bg-gray-100 rounded-lg shadow-inner">
                 <p class="font-semibold text-gray-700 mb-2">Last 6 Balls (Over ${Math.floor(battingTeam.overs) + 1}):</p>
                 <div class="flex flex-wrap gap-2">
-                    ${lastBalls || '<span class="text-gray-400 text-sm">No balls bowled yet</span>'}
+                    ${lastBalls}
                 </div>
             </div>
-
+            
             ${resultDisplay}
         `;
     };
@@ -1425,20 +1544,24 @@
 
         const battingTeam = getCurrentBattingTeam();
         const bowlingTeam = getCurrentBowlingTeam();
-
+        
+        // Determine which innings stats to display
         const isLive = matchState.status === 'LIVE' || matchState.status === 'INNINGS_BREAK';
         const displayInnings1 = matchState.innings1;
         const displayInnings2 = matchState.innings2 || (isLive && matchState.currentInnings === 2);
 
+
+        // Helper to render Batsman table (can take innings-specific player array or live array)
         const renderBatsmanStats = (playersArray) => {
             if (!playersArray || playersArray.length === 0) return '<tr><td colspan="7" class="px-4 py-2 text-center text-gray-400">No batting data available.</td></tr>';
-
+            
             return playersArray.map(p => {
                 const isBattingNow = isLive && (p.index === matchState.current.strikerIndex || p.index === matchState.current.nonStrikerIndex);
                 const isOut = p.out1;
                 const sr = p.balls1 > 0 ? ((p.runs1 / p.balls1) * 100).toFixed(2) : '0.00';
-
-                if (!isLive && p.runs1 === 0 && p.balls1 === 0 && !p.isOut) return '';
+                
+                // Filter out players who neither batted nor are batting (only for live view)
+                if (!isLive && p.runs1 === 0 && p.balls1 === 0 && !p.isOut) return ''; 
 
                 return `
                     <tr class="hover:bg-gray-50 transition ${isBattingNow ? 'bg-yellow-100 font-semibold text-yellow-800' : ''}">
@@ -1453,18 +1576,19 @@
                 `;
             }).join('');
         };
-
+        
+        // Helper to render Bowler table (can take innings-specific player array or live array)
         const renderBowlerStats = (playersArray, currentBowlerIndex) => {
             if (!playersArray || playersArray.length === 0) return '<tr><td colspan="6" class="px-4 py-2 text-center text-gray-400">No bowling data available.</td></tr>';
-
+            
             return playersArray.map(p => {
                 const totalBalls = p.balls1 || 0;
-                if (totalBalls === 0 && (p.wickets1 || 0) === 0) return '';
-
+                if (totalBalls === 0 && (p.wickets1 || 0) === 0) return ''; 
+                
                 const overs = Math.floor(totalBalls / 6) + '.' + (totalBalls % 6);
                 const runsConceded = (p.runs1 || 0) + (p.extras1 || 0);
                 const economy = totalBalls > 0 ? (runsConceded / (totalBalls / 6)).toFixed(2) : '0.00';
-
+                
                 return `
                     <tr class="hover:bg-gray-50 transition ${isLive && currentBowlerIndex === p.index ? 'bg-indigo-50 font-semibold' : ''}">
                         <td class="px-4 py-2 font-medium">${p.name}</td>
@@ -1477,23 +1601,30 @@
                 `;
             }).join('');
         };
-
+        
         const renderInningsTable = (inningsData, teamName, inningsNumber, isCurrent) => {
             if (!inningsData) return '';
-
-            let battingTeamKey = (inningsNumber === 1 && matchState.toss.elected === 'BAT') || (inningsNumber === 2 && matchState.toss.elected === 'BOWL') ? 'teamA' :
+            
+            // Determine who was batting and bowling this innings
+            let battingTeamKey = (inningsNumber === 1 && matchState.toss.elected === 'BAT') || (inningsNumber === 2 && matchState.toss.elected === 'BOWL') ? 'teamA' : 
                                  (inningsNumber === 1 && matchState.toss.elected === 'BOWL') || (inningsNumber === 2 && matchState.toss.elected === 'BAT') ? 'teamB' : null;
 
             let bowlingTeamKey = battingTeamKey === 'teamA' ? 'teamB' : 'teamA';
+
             let battingTeamName = matchState[battingTeamKey]?.name || teamName;
             let bowlingTeamName = matchState[bowlingTeamKey]?.name || teamName;
+            
             let playersData = inningsData.teamPlayers || matchState[battingTeamKey]?.players;
+            
+            // For bowling stats, use the opposition's player data saved in matchState for that innings, or the current live bowling team data
             let bowlingPlayersForThisInnings = matchState[bowlingTeamKey]?.players;
-
             if (inningsNumber === 1 && matchState.innings1?.teamPlayers) {
+                // If it's Innings 1 data, the bowling team is the one that is currently batting in Innings 2 state (if match is finished)
+                // We assume the non-batting team is the bowling team for that innings' data storage.
                 const fieldingTeamKey = getOpposingTeamKey(battingTeamKey);
                 bowlingPlayersForThisInnings = matchState[fieldingTeamKey]?.players;
             }
+
 
             return `
                 <div class="mb-10 p-4 border rounded-xl shadow-lg bg-white">
@@ -1541,52 +1672,55 @@
                 </div>
             `;
         };
-
+        
         let statsHtml = `
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Detailed Scorecard & Match Stats</h2>
             <p class="text-sm text-gray-500 mb-4">Match: ${matchState.teamA.name} vs ${matchState.teamB.name} | Status: ${matchState.status}</p>
         `;
-
+        
+        // Render Innings 1
+        // For Innings 1, the batting team is determined by the toss, and the bowling stats shown are of the opposing team (which is currently the fielding team's state in matchState)
         const teamKey1 = matchState.toss.elected === 'BAT' ? 'teamA' : 'teamB';
         statsHtml += renderInningsTable(
-            matchState.innings1 || (isLive && matchState.currentInnings === 1 ? { score: battingTeam?.totalScore, wickets: battingTeam?.wickets } : null),
+            matchState.innings1 || (isLive && matchState.currentInnings === 1 ? { score: battingTeam.totalScore, wickets: battingTeam.wickets } : null),
             matchState[teamKey1]?.name,
             1,
             isLive && matchState.currentInnings === 1
         );
-
+        
+        // Render Innings 2 (or Current Live)
         if (displayInnings2) {
             const teamKey2 = teamKey1 === 'teamA' ? 'teamB' : 'teamA';
-            statsHtml += renderInningsTable(
-                matchState.innings2 || (isLive && matchState.currentInnings === 2 ? { score: battingTeam?.totalScore, wickets: battingTeam?.wickets } : null),
+             statsHtml += renderInningsTable(
+                matchState.innings2 || (isLive && matchState.currentInnings === 2 ? { score: battingTeam.totalScore, wickets: battingTeam.wickets } : null),
                 matchState[teamKey2]?.name,
                 2,
                 isLive && matchState.currentInnings === 2
             );
         }
 
+
         if (!displayInnings1 && !displayInnings2) {
             statsHtml += `<p class="text-center p-10 text-gray-500 bg-yellow-50 rounded-lg">Stats are not available yet. Match setup is incomplete or loading.</p>`;
         }
-
+        
         return statsHtml;
     };
 
+
     const renderSetupTab = () => {
-        if (!auth.currentUser || auth.currentUser.isAnonymous) {
-            return `<div class="p-8 text-center text-red-500 bg-red-50 rounded-lg"><p class="text-xl font-semibold">Admin Login Required</p><p>Please log in to set up a match.</p></div>`;
-        }
+        if (!auth.currentUser || auth.currentUser.isAnonymous) return `<div class="p-8 text-center text-red-500 bg-red-50 rounded-lg"><p class="text-xl font-semibold">Admin Login Required</p><p>Please log in to set up a match.</p></div>`;
 
         const teamA = matchState.teamA.name;
         const teamB = matchState.teamB.name;
         const toss = matchState.toss;
-
+        
         setTimeout(() => updateTossDropdowns(), 100);
 
         return `
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Match Setup & Configuration</h2>
             <div class="flex justify-end mb-4">
-                <button onclick="window.startNewMatchFlow()" class="bg-red-500 text-white p-3 rounded-lg font-semibold hover:bg-red-600 transition">
+                <button onclick="startNewMatchFlow()" class="bg-red-500 text-white p-3 rounded-lg font-semibold hover:bg-red-600 transition">
                     <i class="fas fa-plus mr-2"></i> Start New Match
                 </button>
             </div>
@@ -1596,7 +1730,7 @@
                     <h3 class="text-xl font-semibold mb-3 text-teal-700">Match Details</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="hidden">
-                            <input id="setup-match-id" type="text" value="${activeMatchId || 'N/A'}" readonly class="p-2 border rounded-md w-full bg-gray-200">
+                             <input id="setup-match-id" type="text" value="${activeMatchId || 'N/A'}" readonly class="p-2 border rounded-md w-full bg-gray-200">
                         </div>
                         <div>
                             <label for="total-overs" class="block text-sm font-medium text-gray-700">Total Overs:</label>
@@ -1604,14 +1738,14 @@
                         </div>
                         <div>
                             <label for="team-a-name" class="block text-sm font-medium text-gray-700">Team A Name:</label>
-                            <input id="team-a-name" type="text" value="${teamA}" oninput="window.updateTossDropdowns()" class="p-2 border rounded-md w-full">
+                            <input id="team-a-name" type="text" value="${teamA}" oninput="updateTossDropdowns()" class="p-2 border rounded-md w-full">
                         </div>
                         <div>
                             <label for="team-b-name" class="block text-sm font-medium text-gray-700">Team B Name:</label>
-                            <input id="team-b-name" type="text" value="${teamB}" oninput="window.updateTossDropdowns()" class="p-2 border rounded-md w-full">
+                            <input id="team-b-name" type="text" value="${teamB}" oninput="updateTossDropdowns()" class="p-2 border rounded-md w-full">
                         </div>
                         <div class="md:col-span-2">
-                            <label for="venue-name" class="block text-sm font-medium text-gray-700">Venue:</label>
+                             <label for="venue-name" class="block text-sm font-medium text-gray-700">Venue:</label>
                             <input id="venue-name" type="text" value="${toss.venue || 'Local Ground'}" class="p-2 border rounded-md w-full">
                         </div>
                     </div>
@@ -1645,7 +1779,7 @@
                     </div>
                 </div>
 
-                <button onclick="window.saveMatchSetup()" class="w-full bg-green-600 text-white p-4 rounded-lg font-bold text-lg hover:bg-green-700 transition shadow-lg">
+                <button onclick="saveMatchSetup()" class="w-full bg-green-600 text-white p-4 rounded-lg font-bold text-lg hover:bg-green-700 transition shadow-lg">
                     <i class="fas fa-play mr-2"></i> Save and Start Match
                 </button>
             </div>
@@ -1657,25 +1791,26 @@
             return `<div class="p-8 text-center text-red-500 bg-red-50 rounded-lg"><p class="text-xl font-semibold">Admin Login Required</p><p>Please log in to access the scoring panel.</p></div>`;
         }
         if (!matchState.isMatchLive || !activeMatchId) {
-            return `<div class="p-8 text-center text-gray-500 bg-yellow-50 rounded-lg"><p class="text-xl font-semibold">No Active Match Loaded.</p><p>Please start a new match from the 'Setup' tab or load one from the 'Viewer' tab.</p></div>`;
+             return `<div class="p-8 text-center text-gray-500 bg-yellow-50 rounded-lg"><p class="text-xl font-semibold">No Active Match Loaded.</p><p>Please start a new match from the 'Setup' tab or load one from the 'Viewer' tab.</p></div>`;
         }
-
+        
         const isInitialSetupIncomplete = (matchState.current.strikerIndex === -1 || matchState.current.nonStrikerIndex === -1 || matchState.current.bowlerIndex === -1);
+
 
         const scoreboardHtml = renderScoreboard(matchState);
         const striker = getCurrentStriker();
         const nonStriker = getCurrentNonStriker();
         const bowler = getCurrentBowler();
-
+        
         let initialSetupPrompt = '';
         if (isInitialSetupIncomplete) {
             initialSetupPrompt = `<div class="p-3 bg-red-100 text-red-800 rounded-lg font-semibold mb-3">
                 <p>Initial Setup Required:</p>
                 <div class="flex flex-wrap gap-2 mt-2">
-                    ${(matchState.current.strikerIndex === -1 || matchState.current.nonStrikerIndex === -1) ?
-                        `<button onclick="window.showBatsmanInitModal()" class="text-sm bg-indigo-500 text-white px-3 py-1 rounded-lg">Select Batsmen</button>` : ''}
-                    ${matchState.current.bowlerIndex === -1 ?
-                        `<button onclick="window.showBowlerModal()" class="text-sm bg-red-500 text-white px-3 py-1 rounded-lg">Select Bowler</button>` : ''}
+                    ${(matchState.current.strikerIndex === -1 || matchState.current.nonStrikerIndex === -1) ? 
+                        `<button onclick="showBatsmanInitModal()" class="text-sm bg-indigo-500 text-white px-3 py-1 rounded-lg">Select Batsmen</button>` : ''}
+                    ${matchState.current.bowlerIndex === -1 ? 
+                        `<button onclick="showBowlerModal()" class="text-sm bg-red-500 text-white px-3 py-1 rounded-lg">Select Bowler</button>` : ''}
                 </div>
             </div>`;
         }
@@ -1686,62 +1821,67 @@
             actionPanel = `
                 <div class="mt-6 p-4 bg-white rounded-lg shadow-xl">
                     <h3 class="text-xl font-bold text-teal-700 mb-4 border-b pb-2">Live Scoring Control (Innings ${matchState.currentInnings})</h3>
-
+                    
                     ${initialSetupPrompt}
 
+                    <!-- Batsmen Info -->
                     <div class="mb-4 p-3 bg-indigo-50 rounded-lg">
-                        <p class="font-semibold text-gray-800">Batsmen:</p>
-                        <p class="text-lg font-bold">${striker.name} (${striker.runs1}/${striker.balls1}) <span class="text-sm text-indigo-700 ml-2">Strike</span></p>
-                        <p class="text-md">${nonStriker.name} (${nonStriker.runs1}/${nonStriker.balls1}) <span class="text-sm text-gray-500 ml-2">Non-Strike</span></p>
-                        <p class="font-semibold text-gray-800 mt-2">Bowler: ${bowler.name}</p>
+                         <p class="font-semibold text-gray-800">Batsmen:</p>
+                         <p class="text-lg font-bold">${striker.name} (${striker.runs1}/${striker.balls1}) <span class="text-sm text-indigo-700 ml-2">Strike</span></p>
+                         <p class="text-md">${nonStriker.name} (${nonStriker.runs1}/${nonStriker.balls1}) <span class="text-sm text-gray-500 ml-2">Non-Strike</span></p>
+                         <p class="font-semibold text-gray-800 mt-2">Bowler: ${bowler.name}</p>
                     </div>
 
+                    <!-- Scoring Buttons -->
                     <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
-                        <button onclick="window.addRun(0)" class="score-button bg-red-400 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>Dot (0)</button>
-                        <button onclick="window.addRun(1)" class="score-button bg-blue-500 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>1 Run</button>
-                        <button onclick="window.addRun(2)" class="score-button bg-blue-500 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>2 Runs</button>
-                        <button onclick="window.addRun(3)" class="score-button bg-blue-500 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>3 Runs</button>
-                        <button onclick="window.addRun(4)" class="score-button bg-indigo-600 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>FOUR (4)</button>
-                        <button onclick="window.addRun(6)" class="score-button bg-green-600 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>SIX (6)</button>
+                        <button onclick="addRun(0)" class="score-button bg-red-400 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>Dot (0)</button>
+                        <button onclick="addRun(1)" class="score-button bg-blue-500 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>1 Run</button>
+                        <button onclick="addRun(2)" class="score-button bg-blue-500 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>2 Runs</button>
+                        <button onclick="addRun(3)" class="score-button bg-blue-500 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>3 Runs</button>
+                        <button onclick="addRun(4)" class="score-button bg-indigo-600 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>FOUR (4)</button>
+                        <button onclick="addRun(6)" class="score-button bg-green-600 text-white p-4 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>SIX (6)</button>
                     </div>
 
+                    <!-- Wicket / Extras / Controls -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <button onclick="window.showWicketModal()" class="score-button bg-red-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-red-700" ${isInitialSetupIncomplete ? 'disabled' : ''}>
-                            <i class="fas fa-hand-rock mr-1"></i> WICKET
+                        <button onclick="showWicketModal()" class="score-button bg-red-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-red-700" ${isInitialSetupIncomplete ? 'disabled' : ''}>
+                             <i class="fas fa-hand-rock mr-1"></i> WICKET
                         </button>
-                        <button onclick="window.addRun(0, true, 'WD')" class="score-button bg-yellow-400 text-gray-900 p-3 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>
-                            <i class="fas fa-plus mr-1"></i> WD (+1)
+                        <button onclick="addRun(0, true, 'WD')" class="score-button bg-yellow-400 text-gray-900 p-3 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>
+                             <i class="fas fa-plus mr-1"></i> WD (+1)
                         </button>
-                        <button onclick="window.addRun(0, true, 'NB')" class="score-button bg-yellow-400 text-gray-900 p-3 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>
-                            <i class="fas fa-plus mr-1"></i> NB (+1)
+                        <button onclick="addRun(0, true, 'NB')" class="score-button bg-yellow-400 text-gray-900 p-3 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>
+                             <i class="fas fa-plus mr-1"></i> NB (+1)
                         </button>
-                        <button onclick="window.addRun(0, true, 'BY')" class="score-button bg-yellow-400 text-gray-900 p-3 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>
-                            <i class="fas fa-plus mr-1"></i> BY
+                        <button onclick="addRun(0, true, 'BY')" class="score-button bg-yellow-400 text-gray-900 p-3 rounded-lg font-bold" ${isInitialSetupIncomplete ? 'disabled' : ''}>
+                             <i class="fas fa-plus mr-1"></i> BY
                         </button>
                     </div>
 
+                    <!-- Utility Buttons -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 border-t pt-4">
-                        <button onclick="window.rotateStrike()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
-                            <i class="fas fa-sync-alt mr-1"></i> Rotate Strike
+                        <button onclick="rotateStrike()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
+                             <i class="fas fa-sync-alt mr-1"></i> Rotate Strike
                         </button>
-                        <button onclick="window.showBowlerModal()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
+                        <button onclick="showBowlerModal()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
                             <i class="fas fa-baseball-ball mr-1"></i> New Bowler
                         </button>
-                        <button onclick="window.undoLastAction()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
-                            <i class="fas fa-undo mr-1"></i> Undo Last Ball
+                        <button onclick="undoLastAction()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
+                             <i class="fas fa-undo mr-1"></i> Undo Last Ball
                         </button>
-                        <button onclick="window.declareInningsOver()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
-                            <i class="fas fa-flag-checkered mr-1"></i> Innings Over
+                        <button onclick="declareInningsOver()" class="score-button bg-gray-200 text-gray-800 p-3 rounded-lg font-medium hover:bg-gray-300">
+                             <i class="fas fa-flag-checkered mr-1"></i> Innings Over
                         </button>
                     </div>
 
+                    <!-- Admin Utility -->
                     <div class="mt-6 pt-4 border-t border-red-200 flex justify-between">
-                        <button onclick="window.switchTab('setup')" class="bg-indigo-100 text-indigo-700 p-2 rounded-lg font-medium hover:bg-indigo-200 transition text-sm">
-                            <i class="fas fa-edit mr-1"></i> Edit Match Setup
-                        </button>
-                        <button onclick="window.deleteMatch()" class="bg-red-100 text-red-700 p-2 rounded-lg font-medium hover:bg-red-200 transition text-sm">
-                            <i class="fas fa-trash-alt mr-1"></i> Delete Match
-                        </button>
+                         <button onclick="switchTab('setup')" class="bg-indigo-100 text-indigo-700 p-2 rounded-lg font-medium hover:bg-indigo-200 transition text-sm">
+                             <i class="fas fa-edit mr-1"></i> Edit Match Setup
+                         </button>
+                         <button onclick="deleteMatch()" class="bg-red-100 text-red-700 p-2 rounded-lg font-medium hover:bg-red-200 transition text-sm">
+                             <i class="fas fa-trash-alt mr-1"></i> Delete Match
+                         </button>
                     </div>
                 </div>
             `;
@@ -1755,20 +1895,21 @@
             ${actionPanel}
         `;
     };
-
+    
     const renderDefaultTabContent = () => {
         const contentDiv = document.getElementById('content');
-        contentDiv.innerHTML = '';
-
+        contentDiv.innerHTML = ''; 
+        
         if (!authReady) {
-            contentDiv.innerHTML = `<div class="p-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-4">System Initializing...</p></div>`;
-            return;
+             contentDiv.innerHTML = `<div class="p-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-4">System Initializing...</p></div>`;
+             return;
         }
-
+        
         const isAuthenticated = auth.currentUser && !auth.currentUser.isAnonymous;
         document.getElementById('nav-setup').classList.toggle('hidden', !isAuthenticated);
         document.getElementById('nav-admin').classList.toggle('hidden', !isAuthenticated);
         document.getElementById('auth-status').textContent = isAuthenticated ? 'Logout' : 'Login';
+
 
         switch (currentTab) {
             case 'viewer':
@@ -1787,18 +1928,34 @@
                 contentDiv.innerHTML = renderAdminTab();
                 break;
             case 'login':
+                // renderAdminLogin is now globally available
                 contentDiv.innerHTML = renderAdminLogin();
                 break;
             default:
                 contentDiv.innerHTML = `<p class="text-center text-gray-500 p-8">Select a tab.</p>`;
         }
     };
-
-    // Initialize on load
+    
+    // --- 9. Initial Load ---
     window.onload = () => {
         setupFirebase();
         renderDefaultTabContent();
     };
+    
+    // Attach window functions to global scope for HTML event handlers
+    window.addRun = addRun;
+    window.handleWicket = handleWicket; 
+    window.showWicketModal = showWicketModal;
+    window.showBowlerModal = showBowlerModal;
+    window.declareInningsOver = declareInningsOver;
+    window.startSecondInnings = startSecondInnings;
+    window.hideMessageModal = hideMessageModal;
+    window.deleteMatch = deleteMatch; // Attach new delete function
+    // New functions attached
+    window.showBatsmanInitModal = showBatsmanInitModal;
+    window.confirmInitialBatsmen = confirmInitialBatsmen;
+    // Make renderAdminLogin available globally
+    window.renderAdminLogin = renderAdminLogin; 
 </script>
 
 </body>
