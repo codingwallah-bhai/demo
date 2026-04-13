@@ -1,4 +1,6 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Er Karim | Full Stack AI Developer</title>
@@ -14,9 +16,6 @@
       --bg-dark: #0f1115;
       --bg-secondary: #171a20;
       --bg-card: rgba(28, 32, 39, 0.94);
-      --bg: #0f1115;
-      --bg-soft: #171a20;
-      --card: rgba(28, 32, 39, 0.94);
       --text: #f5f1e8;
       --muted: #b0aa9d;
       --primary: #c48a3a;
@@ -24,8 +23,6 @@
       --accent: #ead7b0;
       --gradient: linear-gradient(135deg, #c48a3a, #d6b06b);
       --card-border: 1px solid rgba(234, 215, 176, 0.1);
-      --border: 1px solid rgba(234, 215, 176, 0.1);
-      --shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
       --wa: #25d366;
       --fb: #1877f2;
       --li: #0a66c2;
@@ -33,20 +30,24 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: "Outfit", sans-serif;
-      color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(196, 138, 58, 0.12), transparent 28%),
         radial-gradient(circle at top right, rgba(127, 143, 115, 0.1), transparent 24%),
-        radial-gradient(circle at top right, rgba(127, 143, 115, 0.10), transparent 24%),
         linear-gradient(180deg, #0e1014 0%, #14171c 48%, #0d0f13 100%);
       color: var(--text);
       line-height: 1.65;
       overflow-x: hidden;
     }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .grad {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       background-clip: text;
       color: transparent;
     }
@@ -54,21 +55,64 @@
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(24px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.45); }
+      70% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+    }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 1000;
+      height: 78px;
+      background: rgba(14, 16, 20, 0.84);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .nav-wrap {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
       color: #ece5d8;
       font-size: 0.95rem;
       font-weight: 500;
       transition: color 0.2s ease, transform 0.2s ease;
-      transition: color .2s ease, transform .2s ease;
     }
     .nav-links a:hover { color: var(--secondary); transform: translateY(-1px); }
-    .nav-links a:hover { color: var(--primary); transform: translateY(-1px); }
     .nav-toggle {
       display: none;
       width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       padding: 120px 0 72px;
-      overflow: hidden;
     }
     .hero::before {
       content: "";
@@ -78,9 +122,6 @@
         linear-gradient(180deg, rgba(12, 14, 18, 0.32) 0%, rgba(12, 14, 18, 0.86) 76%, rgba(12, 14, 18, 1) 100%),
         radial-gradient(circle at 18% 32%, rgba(196, 138, 58, 0.18), transparent 34%),
         radial-gradient(circle at 82% 28%, rgba(127, 143, 115, 0.14), transparent 26%);
-        linear-gradient(180deg, rgba(12, 14, 18, 0.30) 0%, rgba(12, 14, 18, 0.86) 76%, rgba(12, 14, 18, 1) 100%),
-        radial-gradient(circle at 18% 32%, rgba(196, 138, 58, 0.16), transparent 34%),
-        radial-gradient(circle at 82% 28%, rgba(127, 143, 115, 0.12), transparent 26%);
       pointer-events: none;
     }
     .hero-bg {
@@ -88,7 +129,6 @@
       inset: 0;
       background:
         linear-gradient(120deg, rgba(15, 17, 21, 0.56), rgba(15, 17, 21, 0.74)),
-        linear-gradient(120deg, rgba(15, 17, 21, 0.56), rgba(15, 17, 21, 0.76)),
         url("assets/images/banner.png") center/cover no-repeat;
       opacity: 0.95;
     }
@@ -99,7 +139,6 @@
       grid-template-columns: 1.15fr 0.85fr;
       align-items: center;
       gap: 40px;
-      max-width: 760px;
     }
     .hero-copy > * { animation: fadeUp 0.8s ease both; }
     .hero-copy > *:nth-child(2) { animation-delay: 0.08s; }
@@ -107,51 +146,54 @@
     .hero-copy > *:nth-child(4) { animation-delay: 0.24s; }
     .hero-copy > *:nth-child(5) { animation-delay: 0.32s; }
     .hero-copy > *:nth-child(6) { animation-delay: 0.4s; }
-    .hero-copy > * { animation: fadeUp .8s ease both; }
-    .hero-copy > *:nth-child(2) { animation-delay: .08s; }
-    .hero-copy > *:nth-child(3) { animation-delay: .16s; }
-    .hero-copy > *:nth-child(4) { animation-delay: .24s; }
-    .hero-copy > *:nth-child(5) { animation-delay: .32s; }
     .avail-badge {
       display: inline-flex;
       align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
       border: 1px solid rgba(37, 211, 102, 0.3);
       color: #9af0b8;
       background: rgba(37, 211, 102, 0.08);
       font-size: 0.82rem;
-      font-size: .82rem;
       font-weight: 700;
       margin-bottom: 18px;
     }
+    .avail-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #25d366;
+      animation: pulse 2s infinite;
+    }
+    .hero-role {
+      display: inline-flex;
       align-items: center;
       gap: 10px;
       color: #ddd4c4;
       letter-spacing: 0.12em;
       font-size: 0.82rem;
-      letter-spacing: .12em;
       text-transform: uppercase;
-      font-size: .82rem;
       font-weight: 700;
       margin-bottom: 18px;
     }
+    .hero-role::before {
+      content: "";
+      width: 36px;
+      height: 1px;
       background: linear-gradient(90deg, transparent, var(--secondary));
     }
     .hero h1 {
       font-size: clamp(2.5rem, 6vw, 4.8rem);
-      font-size: clamp(2.6rem, 6vw, 5rem);
       line-height: 1.03;
       margin-bottom: 18px;
       max-width: 12ch;
-      margin-bottom: 20px;
-      max-width: 10.6ch;
     }
     .hero-sub {
-      color: #c7c0b2;
       max-width: 58ch;
       color: #c7c0b2;
       font-size: 1.05rem;
       margin-bottom: 30px;
-      margin-bottom: 32px;
     }
     .hero-btns {
       display: flex;
@@ -161,16 +203,19 @@
     }
     .btn {
       display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       border-radius: 999px;
       padding: 14px 24px;
       font-weight: 700;
       font-size: 0.95rem;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      font-size: .95rem;
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
     .btn:hover { transform: translateY(-2px); }
     .btn-primary {
+      background: var(--gradient);
+      color: #fff;
       box-shadow: 0 16px 34px rgba(196, 138, 58, 0.2);
     }
     .btn-wa { background: var(--wa); color: #fff; }
@@ -261,10 +306,15 @@
       padding: 6px 10px;
       border-radius: 999px;
     }
-
     .stats-bar {
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(20, 22, 27, 0.92);
+    }
+    .stats-wrap {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
       padding: 28px 0;
     }
     .stat { text-align: center; }
@@ -280,19 +330,26 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
-    .stat strong { display: block; font-size: clamp(1.9rem, 4vw, 2.4rem); color: #fff; }
-    .stat span { color: var(--muted); font-size: .85rem; text-transform: uppercase; letter-spacing: .08em; }
-
     .ticker {
       overflow: hidden;
       white-space: nowrap;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(20, 22, 27, 0.84);
+    }
+    .ticker-inner { display: inline-flex; animation: ticker 26s linear infinite; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: #e6dece;
       font-size: 0.92rem;
-      font-size: .92rem;
     }
-
     .section { padding: 88px 0; }
     .section.alt { background: rgba(22, 24, 30, 0.76); }
     .sec-head { margin-bottom: 40px; }
@@ -306,70 +363,83 @@
       display: grid;
       gap: 22px;
     }
-    .sec-head p { max-width: 64ch; color: var(--muted); }
-    .grid-3, .grid-4, .testi-grid { display: grid; gap: 22px; }
     .grid-3 { grid-template-columns: repeat(3, 1fr); }
     .grid-4 { grid-template-columns: repeat(4, 1fr); }
     .testi-grid { grid-template-columns: repeat(3, 1fr); }
     .card, .testi-card, .proj-card, .contact-box {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.025));
       border: var(--card-border);
-      border: var(--border);
       box-shadow: var(--shadow);
     }
     .card, .testi-card {
       border-radius: 24px;
       padding: 26px;
       transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-      transition: transform .25s ease, border-color .25s ease;
     }
     .card:hover, .testi-card:hover, .proj-card:hover {
       transform: translateY(-6px);
       border-color: rgba(34, 211, 238, 0.24);
-      border-color: rgba(196, 138, 58, 0.24);
     }
     .card-icon {
       width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #fff;
+      background: linear-gradient(135deg, rgba(196, 138, 58, 0.95), rgba(127, 143, 115, 0.88));
+      margin-bottom: 16px;
+    }
     .card h3 { font-size: 1.16rem; margin-bottom: 10px; }
     .card p, .card ul, .testi-card .quote, .meta { color: var(--muted); }
     .card ul { list-style: none; display: grid; gap: 8px; margin-top: 8px; }
     .card ul li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.94rem; }
-    .card ul li { display: flex; align-items: flex-start; gap: 10px; font-size: .94rem; }
     .card ul i { color: var(--accent); margin-top: 3px; }
-
     .port-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 24px;
+    }
     .proj-card {
       border-radius: 22px;
       overflow: hidden;
       transition: transform 0.28s ease, border-color 0.28s ease;
-      transition: transform .28s ease, border-color .28s ease;
     }
     .proj-thumb {
       position: relative;
+      height: 220px;
+      overflow: hidden;
+      background: #0b1620;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .proj-thumb img {
       width: 100%;
       object-position: top center;
       transform: translateY(0);
       transition: transform 2.8s cubic-bezier(0.37, 0, 0.63, 1);
       will-change: transform;
-      transition: transform 2.8s cubic-bezier(.37, 0, .63, 1);
     }
     .proj-card:hover .proj-thumb img { transform: translateY(var(--dy, -40%)); }
     .overlay {
+      position: absolute;
       inset: 0;
       background: linear-gradient(to top, rgba(5, 11, 18, 0.55), transparent 58%);
       opacity: 0;
       transition: opacity 0.24s ease;
-      transition: opacity .24s ease;
     }
     .proj-card:hover .overlay { opacity: 1; }
     .proj-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 1;
+      padding: 7px 12px;
       border-radius: 999px;
       background: rgba(4, 12, 18, 0.72);
       border: 1px solid rgba(255, 255, 255, 0.12);
       font-size: 0.75rem;
-      font-size: .75rem;
       font-weight: 700;
       color: #fff;
       backdrop-filter: blur(8px);
@@ -381,13 +451,11 @@
       padding: 20px;
       min-height: 180px;
     }
-    .proj-body { display: flex; flex-direction: column; gap: 12px; padding: 20px; min-height: 180px; }
     .proj-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag {
       border-radius: 999px;
       padding: 5px 10px;
       font-size: 0.73rem;
-      font-size: .73rem;
       font-weight: 700;
       background: rgba(196, 138, 58, 0.12);
       border: 1px solid rgba(196, 138, 58, 0.2);
@@ -469,8 +537,6 @@
       <div class="stat"><strong>24/7</strong><span>Support Mindset</span></div>
     </div>
   </div>
-    .proj-body p { color: var(--muted); font-size: .93rem; }
-    .proj-body a { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
 
   <div class="ticker" aria-label="Skills">
     <div class="ticker-inner">
@@ -497,19 +563,41 @@
   <style>
     .stars { color: var(--accent); letter-spacing: 0.08em; font-size: 0.92rem; }
     .testi-card .quote { color: #d7e4f0; font-size: 0.97rem; line-height: 1.75; }
-    .stars { color: var(--accent); font-size: .92rem; }
-    .testi-card .quote { color: #e2d9c8; font-size: .97rem; line-height: 1.75; }
     .meta {
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       padding-top: 14px;
       font-size: 0.88rem;
-      font-size: .88rem;
       font-weight: 600;
     }
-
     .contact-wrap { padding: 96px 0 102px; }
     .contact-box {
       position: relative;
+      border-radius: 30px;
+      padding: 46px 32px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .contact-box::before, .contact-box::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(10px);
+      pointer-events: none;
+    }
+    .contact-box::before {
+      top: -110px;
+      left: -70px;
+      width: 240px;
+      height: 240px;
+      background: rgba(196, 138, 58, 0.12);
+    }
+    .contact-box::after {
+      right: -80px;
+      bottom: -120px;
+      width: 260px;
+      height: 260px;
+      background: rgba(127, 143, 115, 0.12);
+    }
     .contact-box > * { position: relative; z-index: 1; }
     .contact-box h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 12px; }
     .contact-box p { color: var(--muted); max-width: 54ch; margin: 0 auto 28px; }
@@ -519,10 +607,14 @@
       justify-content: center;
       gap: 12px;
     }
-    .contact-btns, .socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
     .socials { margin-top: 24px; }
     .soc-btn {
       width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       font-size: 1.15rem;
@@ -538,15 +630,24 @@
       text-align: center;
       color: #88a0b4;
       font-size: 0.88rem;
-      color: #9f9687;
-      font-size: .88rem;
     }
     .wa-float {
       position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 999;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+      color: #fff;
+      background: var(--wa);
       box-shadow: 0 14px 28px rgba(37, 211, 102, 0.24);
       animation: pulse 2s infinite;
     }
-
     @media (max-width: 1100px) {
       .hero-inner, .grid-3, .grid-4, .testi-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-inner { grid-template-columns: 1fr; }
@@ -555,7 +656,6 @@
       .hero-btns, .hero-highlights { justify-content: center; }
       .hero-role { justify-content: center; }
       .hero-visual { min-height: 420px; }
-      .grid-3, .grid-4, .testi-grid { grid-template-columns: repeat(2, 1fr); }
       .stats-wrap { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 820px) {
@@ -564,18 +664,28 @@
         align-items: center;
         justify-content: center;
       }
-      .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
       .nav-links {
         position: absolute;
         top: 78px;
+        left: 20px;
+        right: 20px;
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 0;
         padding: 14px 0;
         border-radius: 18px;
         background: rgba(10, 20, 31, 0.98);
-        background: rgba(19, 21, 26, 0.98);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: var(--shadow);
       }
+      .nav-links.open { display: flex; }
+      .nav-links a { width: 100%; padding: 12px 18px; }
+      .hero { padding-top: 112px; }
+      .grid-3, .grid-4, .testi-grid, .stats-wrap { grid-template-columns: 1fr; }
+      .contact-box { padding: 38px 22px; }
+    }
+    @media (max-width: 600px) {
       .container { width: min(100% - 24px, 1180px); }
       .hero h1 { font-size: 2.35rem; }
       .hero-btns .btn, .contact-btns .btn { width: 100%; }
@@ -585,74 +695,47 @@
       .proj-thumb { height: 210px; }
     }
   </style>
-</head>
-<body>
-  <nav>
-    <div class="container nav-wrap">
-      <div class="logo">Er<span class="grad">Karim</span></div>
-      <div class="nav-links" id="nav">
-        <a href="#about" onclick="closeNav()">About</a>
-        <a href="#services" onclick="closeNav()">Services</a>
-        <a href="#why" onclick="closeNav()">Why Me</a>
-        <a href="#work" onclick="closeNav()">Projects</a>
-        <a href="#reviews" onclick="closeNav()">Reviews</a>
-        <a href="#contact" onclick="closeNav()">Contact</a>
-      </div>
-      <button class="nav-toggle" type="button" onclick="toggleNav()" aria-label="Toggle navigation">
-        <i class="bi bi-list" id="nav-icon"></i>
-      </button>
-    </div>
-  </nav>
 
-  <section class="hero" id="about">
-    <div class="hero-bg"></div>
-    <div class="container hero-inner">
-      <div class="hero-copy">
-        <div class="avail-badge"><span class="dot"></span> Available for Freelance</div>
-        <div class="hero-role">Full Stack Developer • Shopify • WordPress • AI Solutions</div>
-        <h1>I Build <span class="grad">Websites, Portals &amp; Web Apps</span> That Help Businesses Grow</h1>
-        <p class="hero-sub">Fast, modern, conversion-focused digital experiences from landing pages and Shopify stores to dashboards, portals, and AI-powered workflows.</p>
-        <div class="hero-btns">
-          <a href="#work" class="btn btn-primary"><i class="bi bi-briefcase-fill"></i> View Projects</a>
-          <a href="https://wa.me/917631115414" target="_blank" rel="noopener" class="btn btn-wa"><i class="bi bi-whatsapp"></i> Chat on WhatsApp</a>
-          <a href="#contact" class="btn btn-ghost"><i class="bi bi-send-fill"></i> Hire Me</a>
-        </div>
+  <section class="section" id="services">
+    <div class="container">
+      <div class="sec-head">
+        <h2>My <span class="grad">Expertise</span></h2>
+        <p>Complete digital solutions for businesses, creators, startups, and growing brands.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card"><div class="card-icon"><i class="bi bi-code-slash"></i></div><h3>Web Development</h3><ul><li><i class="bi bi-check-circle-fill"></i> E-commerce (Shopify &amp; WooCommerce)</li><li><i class="bi bi-check-circle-fill"></i> 100% Custom Themes &amp; UI</li><li><i class="bi bi-check-circle-fill"></i> WordPress &amp; Elementor Pro</li><li><i class="bi bi-check-circle-fill"></i> High-converting Landing Pages</li><li><i class="bi bi-check-circle-fill"></i> Responsive for All Devices</li></ul></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-laptop"></i></div><h3>Custom Web Apps</h3><ul><li><i class="bi bi-check-circle-fill"></i> CRM, Dashboard &amp; Admin Panels</li><li><i class="bi bi-check-circle-fill"></i> Distributor &amp; Vendor Portals</li><li><i class="bi bi-check-circle-fill"></i> Internal Tools &amp; Automation</li><li><i class="bi bi-check-circle-fill"></i> SaaS-style Interfaces</li><li><i class="bi bi-check-circle-fill"></i> API Integration &amp; Backend</li></ul></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-cpu-fill"></i></div><h3>AI Integration</h3><ul><li><i class="bi bi-check-circle-fill"></i> ChatGPT &amp; Gemini Integration</li><li><i class="bi bi-check-circle-fill"></i> AI Chatbots &amp; Smart Workflows</li><li><i class="bi bi-check-circle-fill"></i> Automation &amp; Productivity Tools</li><li><i class="bi bi-check-circle-fill"></i> AI Content Systems</li><li><i class="bi bi-check-circle-fill"></i> Business Process Improvements</li></ul></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-palette-fill"></i></div><h3>UI &amp; Branding</h3><ul><li><i class="bi bi-check-circle-fill"></i> Modern Premium Layout Design</li><li><i class="bi bi-check-circle-fill"></i> Creative Brand-focused UI</li><li><i class="bi bi-check-circle-fill"></i> Canva &amp; Photoshop Support</li><li><i class="bi bi-check-circle-fill"></i> Clean Visual Identity Systems</li><li><i class="bi bi-check-circle-fill"></i> Better UX &amp; Trust Signals</li></ul></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-graph-up-arrow"></i></div><h3>SEO &amp; Growth</h3><ul><li><i class="bi bi-check-circle-fill"></i> SEO Content &amp; Structure</li><li><i class="bi bi-check-circle-fill"></i> Conversion-focused Pages</li><li><i class="bi bi-check-circle-fill"></i> Keyword Strategy</li><li><i class="bi bi-check-circle-fill"></i> Performance Optimization</li><li><i class="bi bi-check-circle-fill"></i> Lead Generation Improvement</li></ul></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-tools"></i></div><h3>Maintenance &amp; Support</h3><ul><li><i class="bi bi-check-circle-fill"></i> Instant Reply &amp; Fast Fixes</li><li><i class="bi bi-check-circle-fill"></i> Ongoing Website Updates</li><li><i class="bi bi-check-circle-fill"></i> Long-term Technical Support</li><li><i class="bi bi-check-circle-fill"></i> Business Guidance</li><li><i class="bi bi-check-circle-fill"></i> Post-launch Improvements</li></ul></div>
       </div>
     </div>
   </section>
 
-  <div class="stats-bar">
-    <div class="container stats-wrap">
-      <div class="stat"><strong>4+</strong><span>Years Experience</span></div>
-      <div class="stat"><strong>50+</strong><span>Projects Done</span></div>
-      <div class="stat"><strong>100%</strong><span>Client Satisfaction</span></div>
-      <div class="stat"><strong>24/7</strong><span>Support Mindset</span></div>
-    </div>
-  </div>
-
-  <div class="ticker">
-    <div class="ticker-inner">
-      <span class="pill"><i class="bi bi-bag-fill"></i> Shopify</span>
-      <span class="pill"><i class="bi bi-wordpress"></i> WordPress</span>
-      <span class="pill"><i class="bi bi-grid-1x2-fill"></i> Elementor Pro</span>
-      <span class="pill"><i class="bi bi-filetype-html"></i> HTML5</span>
-      <span class="pill"><i class="bi bi-filetype-css"></i> CSS3</span>
-      <span class="pill"><i class="bi bi-filetype-js"></i> JavaScript</span>
-      <span class="pill"><i class="bi bi-window-stack"></i> React</span>
-      <span class="pill"><i class="bi bi-server"></i> Full Stack Apps</span>
-      <span class="pill"><i class="bi bi-graph-up-arrow"></i> SEO Strategy</span>
-      <span class="pill"><i class="bi bi-robot"></i> AI Integrations</span>
-      <span class="pill"><i class="bi bi-columns-gap"></i> Dashboards</span>
-      <span class="pill"><i class="bi bi-diagram-3-fill"></i> Portals</span>
-      <span class="pill"><i class="bi bi-bag-fill"></i> Shopify</span>
-      <span class="pill"><i class="bi bi-wordpress"></i> WordPress</span>
-      <span class="pill"><i class="bi bi-grid-1x2-fill"></i> Elementor Pro</span>
-      <span class="pill"><i class="bi bi-window-stack"></i> React</span>
-    </div>
-  </div>
-
-  <section class="section" id="services">
+  <section class="section alt" id="why">
     <div class="container">
+      <div class="sec-head">
+        <h2>Why Clients <span class="grad">Choose Me</span></h2>
+        <p>I don't just deliver pages. I help businesses launch faster, solve problems quickly, and stay modern.</p>
+      </div>
+      <div class="grid-4">
+        <div class="card"><div class="card-icon"><i class="bi bi-lightning-charge-fill"></i></div><h3>Instant Communication</h3><p>Quick replies, no waiting days for updates or fixes.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-shield-check"></i></div><h3>Trust &amp; Reliability</h3><p>Clean work, honest communication, and proper delivery throughout.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-arrow-repeat"></i></div><h3>Long-term Support</h3><p>Available after delivery for maintenance, improvements, and growth.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-wrench-adjustable-circle-fill"></i></div><h3>Fast Problem Solving</h3><p>Design bugs to technical issues solved fast to keep operations smooth.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-lightbulb-fill"></i></div><h3>Business-minded</h3><p>Better layouts, conversions, and practical solutions for actual goals.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-rocket-takeoff-fill"></i></div><h3>Latest Technology</h3><p>AI systems, modern frameworks, updated design patterns and future-ready delivery.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-stars"></i></div><h3>Creative Design</h3><p>Premium, modern interfaces instead of generic layouts.</p></div>
+        <div class="card"><div class="card-icon"><i class="bi bi-bar-chart-fill"></i></div><h3>Conversion-first</h3><p>Every build is shaped to improve trust, user journey, leads, and sales.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="work">
+    <div class="container">
+      <div class="sec-head">
+        <h2>Recent <span class="grad">Work</span></h2>
         <p>Hover on any project to see a smooth scrolling live-style preview.</p>
       </div>
       <div class="port-grid" id="portGrid"></div>
@@ -676,6 +759,13 @@
     </div>
   </section>
 
+  <section class="section" id="reviews">
+    <div class="container">
+      <div class="sec-head">
+        <h2>Client <span class="grad">Testimonials</span></h2>
+        <p>What clients say about working with me.</p>
+      </div>
+      <div class="testi-grid">
         <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"Karim handled the website updates very fast and understood exactly what we needed. The design quality and response speed were both impressive."</p><div class="meta">Aman Raj · Bihar, India</div></div>
         <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"We needed a cleaner business website and faster support. The turnaround time was excellent and communication stayed smooth throughout."</p><div class="meta">Faizan Malik · Dubai, UAE</div></div>
         <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"Very reliable developer. The landing page structure, responsiveness, and small custom fixes were all handled professionally."</p><div class="meta">Priya Mehta · Delhi, India</div></div>
@@ -685,19 +775,20 @@
       </div>
     </div>
   </section>
-
   <div class="contact-wrap" id="contact">
     <div class="container">
       <div class="contact-box">
+        <h2>Ready to Build <span class="grad">Something Strong?</span></h2>
+        <p>Website, portal, dashboard, Shopify store, WordPress solution, or long-term support. I'm ready to help.</p>
+        <div class="contact-btns">
+          <a href="https://wa.me/917631115414" target="_blank" rel="noopener" class="btn btn-wa"><i class="bi bi-whatsapp"></i> WhatsApp Me</a>
+          <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" rel="noopener" class="btn btn-primary"><i class="bi bi-linkedin"></i> Connect on LinkedIn</a>
           <a href="#work" class="btn btn-ghost"><i class="bi bi-eye-fill"></i> See Projects</a>
         </div>
         <div class="socials">
           <a href="https://wa.me/917631115414" target="_blank" rel="noopener" class="soc-btn wa" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
           <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" rel="noopener" class="soc-btn li" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
           <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" rel="noopener" class="soc-btn fb" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-          <a href="https://wa.me/917631115414" target="_blank" rel="noopener" class="soc-btn" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-          <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" rel="noopener" class="soc-btn" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
-          <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" rel="noopener" class="soc-btn" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
         </div>
       </div>
     </div>
@@ -708,10 +799,11 @@
   <a href="https://wa.me/917631115414" class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
     <i class="bi bi-whatsapp"></i>
   </a>
-  <a href="https://wa.me/917631115414" class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><i class="bi bi-whatsapp"></i></a>
 
   <script>
     function toggleNav() {
+      const nav = document.getElementById("nav");
+      const icon = document.getElementById("nav-icon");
       nav.classList.toggle("open");
       icon.className = nav.classList.contains("open") ? "bi bi-x-lg" : "bi bi-list";
     }
@@ -721,11 +813,11 @@
       const icon = document.getElementById("nav-icon");
       nav.classList.remove("open");
       icon.className = "bi bi-list";
-      document.getElementById("nav").classList.remove("open");
-      document.getElementById("nav-icon").className = "bi bi-list";
     }
 
     const projects = [
+      { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"] },
+      { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"] },
       { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"] },
       { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"] },
       { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"] },
@@ -740,7 +832,6 @@
       { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"] },
       { name: "M Print House", url: "https://mprinthouse.ae/", tags: ["Printing", "Business"] },
       { name: "Sound7 Distributor Portal", url: "https://sound7nextdistributorportal.netlify.app/", tags: ["Web App", "Portal"] }
-      { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"] }
     ];
 
     const grid = document.getElementById("portGrid");
@@ -775,21 +866,6 @@
           </article>
         `
       );
-      grid.insertAdjacentHTML("beforeend", `
-        <article class="proj-card">
-          <div class="proj-thumb">
-            <span class="proj-badge">Live Preview</span>
-            <img src="${thumb}" alt="${project.name}" loading="lazy" onload="calcDy(this)" onerror="fallback(this,'${project.name}')">
-            <div class="overlay"></div>
-          </div>
-          <div class="proj-body">
-            <div class="proj-tags">${project.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
-            <h3>${project.name}</h3>
-            <p>Preview-powered portfolio section with external live site link.</p>
-            <a href="${project.url}" target="_blank" rel="noopener">View Live Site <i class="bi bi-arrow-up-right-circle-fill"></i></a>
-          </div>
-        </article>
-      `);
     });
 
     function calcDy(img) {
@@ -803,16 +879,12 @@
       const scale = contW / nW;
       const imgH = nH * scale;
 
-      const scale = thumb.offsetWidth / (img.naturalWidth || 1400);
-      const imgH = (img.naturalHeight || 2800) * scale;
       img.style.height = `${imgH}px`;
       img.style.objectFit = "unset";
 
       const diff = imgH - contH;
       const dy = diff > 10 ? -(diff * 0.85) : -80;
       img.style.setProperty("--dy", `${Math.round(dy)}px`);
-      const diff = imgH - thumb.offsetHeight;
-      img.style.setProperty("--dy", `${Math.round(diff > 10 ? -(diff * .85) : -80)}px`);
     }
 
     function fallback(img, name) {
@@ -824,3 +896,8 @@
     window.addEventListener("resize", () => {
       document.querySelectorAll(".proj-thumb img").forEach((img) => {
         if (img.complete) calcDy(img);
+      });
+    });
+  </script>
+</body>
+</html>
