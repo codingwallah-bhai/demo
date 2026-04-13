@@ -6,7 +6,6 @@
   <title>Er Karim | Full Stack AI Developer</title>
 
   <link rel="preconnect" href="https://image.thum.io">
-  <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
@@ -26,7 +25,6 @@
       --facebook-color: #1877F2;
       --linkedin-color: #0077b5;
       --section-space: 90px;
-      --radius-xl: 26px;
     }
 
     * {
@@ -47,7 +45,21 @@
       line-height: 1.6;
     }
 
-    a { color: inherit; }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(212,0,255,0.09), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(0,243,255,0.08), transparent 28%);
+      z-index: -1;
+    }
 
     @keyframes fadeInUp {
       from {
@@ -69,17 +81,6 @@
     @keyframes marquee {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 15% 20%, rgba(212,0,255,0.09), transparent 30%),
-        radial-gradient(circle at 85% 15%, rgba(0,243,255,0.08), transparent 28%);
-      z-index: -1;
     }
 
     nav {
@@ -117,7 +118,6 @@
     }
 
     .nav-items a {
-      text-decoration: none;
       font-weight: 500;
       font-size: 0.95rem;
       transition: 0.25s ease;
@@ -136,29 +136,40 @@
 
     .hero {
       min-height: 100vh;
-      padding: 130px 5% 70px;
+      padding: 120px 5% 70px;
       display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
       align-items: center;
-      gap: 50px;
+      gap: 36px;
+      overflow: hidden;
       background:
         linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.9)),
-        url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80');
+        url('assets/images/banner.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
     }
 
+    .hero-left,
+    .hero-right,
+    .hero-visual,
+    .hero-main-card {
+      min-width: 0;
+    }
+
     .hero-left {
       max-width: 720px;
+      width: 100%;
+      position: relative;
+      z-index: 2;
       animation: fadeInUp 0.8s ease;
     }
 
     .profile-row {
       display: flex;
       align-items: center;
-      gap: 18px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
     }
 
@@ -169,34 +180,38 @@
       object-fit: cover;
       border: 3px solid var(--primary-accent);
       box-shadow: 0 0 24px rgba(212, 0, 255, 0.3);
+      flex-shrink: 0;
     }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 9px 16px;
+      padding: 10px 18px;
       border-radius: 999px;
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       font-weight: 600;
       color: var(--primary-accent);
       background: rgba(212, 0, 255, 0.12);
       border: 1px solid rgba(212, 0, 255, 0.28);
+      white-space: nowrap;
     }
 
     .hero-mini-title {
       color: var(--primary-accent);
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       font-weight: 700;
       font-size: 0.95rem;
+      line-height: 1.5;
     }
 
     .hero h1 {
       font-size: 4rem;
       line-height: 1.08;
       margin-bottom: 18px;
+      max-width: 820px;
     }
 
     .text-gradient {
@@ -206,49 +221,56 @@
     }
 
     .hero p {
-      max-width: 680px;
-      font-size: 1.08rem;
+      max-width: 690px;
+      font-size: 1.06rem;
       color: #dfdfdf;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
     }
 
     .hero-points {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px 18px;
+      gap: 12px 28px;
       margin-bottom: 28px;
+      max-width: 760px;
     }
 
     .hero-point {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 10px;
-      color: #e8e8e8;
+      color: #ededed;
       font-size: 0.98rem;
+      line-height: 1.5;
     }
 
     .hero-point i {
       color: var(--secondary-accent);
       font-size: 0.9rem;
+      margin-top: 5px;
+      flex-shrink: 0;
     }
 
     .hero-btns {
       display: flex;
       flex-wrap: wrap;
       gap: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 26px;
     }
 
     .btn {
       padding: 14px 28px;
       border-radius: 999px;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 10px;
       font-weight: 700;
       transition: 0.28s ease;
       font-size: 0.98rem;
+    }
+
+    .btn i {
+      flex-shrink: 0;
     }
 
     .btn-primary {
@@ -288,44 +310,49 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
+      max-width: 700px;
     }
 
     .mini-stat {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 18px;
-      padding: 16px;
+      padding: 18px 14px;
       text-align: center;
       backdrop-filter: blur(10px);
     }
 
     .mini-stat strong {
       display: block;
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       margin-bottom: 4px;
     }
 
     .mini-stat span {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
     }
 
     .hero-right {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
       position: relative;
       animation: fadeInUp 1s ease;
     }
 
     .hero-visual {
+      width: 100%;
+      max-width: 620px;
+      min-height: 520px;
       position: relative;
-      min-height: 560px;
-      border-radius: 30px;
-      overflow: hidden;
     }
 
     .hero-main-card {
       position: relative;
-      height: 100%;
-      border-radius: 30px;
+      width: 100%;
+      height: 520px;
+      border-radius: 28px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.03);
@@ -335,7 +362,6 @@
     .hero-main-card img {
       width: 100%;
       height: 100%;
-      min-height: 560px;
       object-fit: cover;
       display: block;
     }
@@ -343,46 +369,48 @@
     .hero-main-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.1));
+      background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.08));
     }
 
     .hero-floating-card {
       position: absolute;
-      background: rgba(8,8,8,0.78);
+      background: rgba(8,8,8,0.82);
       backdrop-filter: blur(14px);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 20px;
       padding: 16px 18px;
       box-shadow: 0 16px 38px rgba(0,0,0,0.3);
+      z-index: 3;
     }
 
     .hero-floating-card h4 {
       font-size: 1rem;
       margin-bottom: 6px;
+      line-height: 1.4;
     }
 
     .hero-floating-card p {
       color: var(--text-muted);
       font-size: 0.88rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .floating-one {
       top: 18px;
       right: 18px;
-      width: 220px;
+      width: 190px;
     }
 
     .floating-two {
       bottom: 18px;
       left: 18px;
-      width: 230px;
+      width: 220px;
     }
 
     .floating-three {
+      right: 18px;
       bottom: 90px;
-      right: -18px;
-      width: 180px;
+      width: 170px;
     }
 
     .stats-bar {
@@ -647,7 +675,6 @@
 
     .project-info a {
       margin-top: auto;
-      text-decoration: none;
       color: var(--primary-accent);
       font-weight: 700;
       display: inline-flex;
@@ -678,8 +705,7 @@
       min-height: 100%;
     }
 
-    .brand-image,
-    .testimonial-image {
+    .brand-image {
       width: 100%;
       height: 170px;
       border-radius: 16px;
@@ -688,8 +714,7 @@
       border: 1px solid rgba(255,255,255,0.06);
     }
 
-    .brand-image img,
-    .testimonial-image img {
+    .brand-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -705,7 +730,8 @@
     .testimonial-card .quote {
       font-size: 1rem;
       color: #f0f0f0;
-      margin-bottom: 18px;
+      margin-bottom: 24px;
+      line-height: 1.8;
       flex: 1;
     }
 
@@ -713,6 +739,8 @@
       color: var(--text-muted);
       font-size: 0.95rem;
       font-weight: 600;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 14px;
     }
 
     .swiper-nav {
@@ -791,7 +819,6 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
       border: 1px solid rgba(255,255,255,0.08);
       transition: 0.25s ease;
       font-size: 1.2rem;
@@ -828,7 +855,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
       font-size: 1.7rem;
       z-index: 999;
       animation: pulse 2s infinite;
@@ -846,9 +872,18 @@
     @media (max-width: 1180px) {
       .hero {
         grid-template-columns: 1fr;
+        gap: 34px;
       }
 
       .hero-right {
+        justify-content: center;
+      }
+
+      .hero-left {
+        max-width: 100%;
+      }
+
+      .hero-visual {
         max-width: 760px;
       }
 
@@ -880,7 +915,7 @@
 
       .hero {
         padding-top: 112px;
-        gap: 30px;
+        gap: 28px;
       }
 
       .hero h1 {
@@ -891,20 +926,37 @@
         font-size: 1rem;
       }
 
+      .profile-row {
+        align-items: center;
+        gap: 12px;
+      }
+
+      .profile-img {
+        width: 70px;
+        height: 70px;
+      }
+
+      .status-badge {
+        font-size: 0.82rem;
+        padding: 8px 14px;
+      }
+
       .hero-points {
         grid-template-columns: 1fr;
+        gap: 10px;
       }
 
       .mini-stats {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
       }
 
       .hero-visual {
-        min-height: 420px;
+        min-height: auto;
+        max-width: 100%;
       }
 
-      .hero-main-card img {
-        min-height: 420px;
+      .hero-main-card {
+        height: 380px;
       }
 
       .floating-one,
@@ -980,7 +1032,7 @@
           src="1737800704026.jpeg"
           alt="Er Karim"
           class="profile-img"
-          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80';"
+          onerror="this.onerror=null; this.src='assets/images/profile.jpeg';"
         >
         <div class="status-badge">
           <i class="fas fa-circle" style="font-size:8px;"></i>
@@ -996,7 +1048,8 @@
       </h1>
 
       <p>
-        I design and develop premium, fast, conversion-focused digital experiences for brands, business owners, startups, agencies, and creators. From landing pages to dashboards and custom portals, I build systems that look modern and solve real business problems.
+        I design and develop premium, fast, conversion-focused digital experiences for brands, business owners, startups, agencies, and creators.
+        From landing pages to dashboards and custom portals, I build systems that look modern and solve real business problems.
       </p>
 
       <div class="hero-points">
@@ -1031,7 +1084,7 @@
     <div class="hero-right">
       <div class="hero-visual">
         <div class="hero-main-card">
-          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80" alt="Modern workspace">
+          <img src="1737800704026.jpeg" alt="Er Karim" onerror="this.onerror=null; this.src='assets/images/profile.jpeg';">
           <div class="hero-main-overlay"></div>
         </div>
 
@@ -1047,7 +1100,7 @@
 
         <div class="hero-floating-card floating-three">
           <h4>Latest Tech</h4>
-          <p>Always adapting to new tools, AI workflows, and modern web stacks.</p>
+          <p>Modern tools, AI workflows, and updated web stacks.</p>
         </div>
       </div>
     </div>
@@ -1074,487 +1127,4 @@
 
   <div class="marquee">
     <div class="marquee-content">
-      <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
-      <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
-      <span class="tech-pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
-      <span class="tech-pill"><i class="fab fa-html5"></i> HTML5</span>
-      <span class="tech-pill"><i class="fab fa-css3-alt"></i> CSS3</span>
-      <span class="tech-pill"><i class="fab fa-js"></i> JavaScript</span>
-      <span class="tech-pill"><i class="fab fa-react"></i> React</span>
-      <span class="tech-pill"><i class="fas fa-server"></i> Full Stack Apps</span>
-      <span class="tech-pill"><i class="fas fa-chart-line"></i> SEO Strategy</span>
-      <span class="tech-pill"><i class="fas fa-robot"></i> AI Integrations</span>
-      <span class="tech-pill"><i class="fas fa-window-restore"></i> Dashboards</span>
-      <span class="tech-pill"><i class="fas fa-sitemap"></i> Portals</span>
-      <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
-      <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
-      <span class="tech-pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
-      <span class="tech-pill"><i class="fab fa-react"></i> React</span>
-    </div>
-  </div>
-
-  <section class="section" id="services">
-    <div class="section-header">
-      <h2>My Expertise</h2>
-      <p>I provide complete digital solutions for businesses, creators, startups, agencies, and growing brands.</p>
-    </div>
-
-    <div class="equal-grid">
-      <div class="service-card">
-        <i class="fas fa-code service-icon"></i>
-        <h3>Web Development</h3>
-        <ul>
-          <li><i class="fas fa-check"></i><span>E-commerce (Shopify & WooCommerce)</span></li>
-          <li><i class="fas fa-check"></i><span>100% Custom Themes & UI</span></li>
-          <li><i class="fas fa-check"></i><span>WordPress & Elementor Pro</span></li>
-          <li><i class="fas fa-check"></i><span>High-converting Landing Pages</span></li>
-          <li><i class="fas fa-check"></i><span>Responsive Websites for All Devices</span></li>
-        </ul>
-      </div>
-
-      <div class="service-card">
-        <i class="fas fa-laptop-code service-icon"></i>
-        <h3>Custom Web Apps</h3>
-        <ul>
-          <li><i class="fas fa-check"></i><span>Custom Business Applications</span></li>
-          <li><i class="fas fa-check"></i><span>CRM, Dashboard & Admin Panels</span></li>
-          <li><i class="fas fa-check"></i><span>Distributor & Vendor Portals</span></li>
-          <li><i class="fas fa-check"></i><span>Internal Tools & Automation Systems</span></li>
-          <li><i class="fas fa-check"></i><span>SaaS-style Interfaces</span></li>
-        </ul>
-      </div>
-
-      <div class="service-card">
-        <i class="fas fa-robot service-icon"></i>
-        <h3>AI Integration</h3>
-        <ul>
-          <li><i class="fas fa-check"></i><span>ChatGPT & Gemini Integration</span></li>
-          <li><i class="fas fa-check"></i><span>AI Chatbots & Smart Workflows</span></li>
-          <li><i class="fas fa-check"></i><span>AI Content Systems</span></li>
-          <li><i class="fas fa-check"></i><span>Automation & Productivity Tools</span></li>
-          <li><i class="fas fa-check"></i><span>Business Process Improvements</span></li>
-        </ul>
-      </div>
-
-      <div class="service-card">
-        <i class="fas fa-paint-brush service-icon"></i>
-        <h3>UI, Branding & Design</h3>
-        <ul>
-          <li><i class="fas fa-check"></i><span>Modern Premium Layout Design</span></li>
-          <li><i class="fas fa-check"></i><span>Creative Brand-focused UI</span></li>
-          <li><i class="fas fa-check"></i><span>Canva & Photoshop Support</span></li>
-          <li><i class="fas fa-check"></i><span>Clean Visual Identity Systems</span></li>
-          <li><i class="fas fa-check"></i><span>Better User Experience & Trust</span></li>
-        </ul>
-      </div>
-
-      <div class="service-card">
-        <i class="fas fa-chart-line service-icon"></i>
-        <h3>SEO & Growth</h3>
-        <ul>
-          <li><i class="fas fa-check"></i><span>SEO Content & Structure</span></li>
-          <li><i class="fas fa-check"></i><span>Conversion-focused Pages</span></li>
-          <li><i class="fas fa-check"></i><span>Keyword Strategy</span></li>
-          <li><i class="fas fa-check"></i><span>Performance Optimization</span></li>
-          <li><i class="fas fa-check"></i><span>Lead Generation Improvement</span></li>
-        </ul>
-      </div>
-
-      <div class="service-card">
-        <i class="fas fa-tools service-icon"></i>
-        <h3>Maintenance & Support</h3>
-        <ul>
-          <li><i class="fas fa-check"></i><span>Instant Reply & Fast Fixes</span></li>
-          <li><i class="fas fa-check"></i><span>Ongoing Updates</span></li>
-          <li><i class="fas fa-check"></i><span>Website Maintenance</span></li>
-          <li><i class="fas fa-check"></i><span>Business Guidance</span></li>
-          <li><i class="fas fa-check"></i><span>Long-term Technical Support</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="why-choose">
-    <div class="section-header">
-      <h2>Why Clients Choose Me</h2>
-      <p>I do not just deliver pages. I help businesses launch faster, solve problems quickly, and stay updated with modern technology.</p>
-    </div>
-
-    <div class="equal-grid">
-      <div class="trust-card">
-        <i class="fas fa-bolt trust-icon"></i>
-        <h3>Instant Communication</h3>
-        <p>I stay available and respond quickly. Clients do not have to wait days for updates or issue fixes.</p>
-      </div>
-
-      <div class="trust-card">
-        <i class="fas fa-shield-alt trust-icon"></i>
-        <h3>Trust & Reliability</h3>
-        <p>I focus on clean work, honest communication, and proper delivery so clients feel confident throughout the project.</p>
-      </div>
-
-      <div class="trust-card">
-        <i class="fas fa-infinity trust-icon"></i>
-        <h3>Long-term Support</h3>
-        <p>I stay connected after project delivery for maintenance, fixes, improvements, and future growth needs.</p>
-      </div>
-
-      <div class="trust-card">
-        <i class="fas fa-screwdriver-wrench trust-icon"></i>
-        <h3>Maintenance & Problem Solving</h3>
-        <p>From design bugs to technical issues, I solve things fast and keep business operations running smoothly.</p>
-      </div>
-
-      <div class="trust-card">
-        <i class="fas fa-lightbulb trust-icon"></i>
-        <h3>Business-minded Guidance</h3>
-        <p>I suggest better layouts, better conversions, better flow, and practical solutions that support actual business goals.</p>
-      </div>
-
-      <div class="trust-card">
-        <i class="fas fa-rocket trust-icon"></i>
-        <h3>Latest Technology Adoption</h3>
-        <p>I adapt quickly to new tools, AI systems, modern frameworks, and updated design patterns to keep projects future-ready.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="work">
-    <div class="section-header">
-      <h2>Recent Work</h2>
-      <p>Hover on any project to see a fast scrolling live-style preview of the website.</p>
-    </div>
-
-    <div class="portfolio-grid" id="portfolio-container"></div>
-  </section>
-
-  <section class="section swiper-section" id="brands">
-    <div class="section-header">
-      <h2>Client Trust & Collaboration</h2>
-      <p>Worked with agencies, brands, founders, educational platforms, and business teams. Carousel use kiya hai taki scrolling kam ho.</p>
-    </div>
-
-    <div class="swiper brandSwiper swiper-wrap">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image">
-              <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80" alt="Agency team">
-            </div>
-            <i class="fas fa-building"></i>
-            <h3>Digital Marketing Agencies</h3>
-            <p>Trusted for development support, landing pages, fixes, and performance improvements.</p>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image">
-              <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=900&q=80" alt="Ecommerce">
-            </div>
-            <i class="fas fa-cart-shopping"></i>
-            <h3>E-commerce Brands</h3>
-            <p>Worked on custom Shopify stores, product layouts, UX updates, and conversion-focused sections.</p>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image">
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80" alt="Education">
-            </div>
-            <i class="fas fa-graduation-cap"></i>
-            <h3>Educational Platforms</h3>
-            <p>Built portals, course websites, institutional pages, and structured user-facing systems.</p>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image">
-              <img src="https://images.unsplash.com/photo-1556155092-490a1ba16284?auto=format&fit=crop&w=900&q=80" alt="Founders">
-            </div>
-            <i class="fas fa-user-tie"></i>
-            <h3>Business Owners & Founders</h3>
-            <p>Helped founders launch websites, improve branding, and create systems that support growth.</p>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image">
-              <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80" alt="Creators">
-            </div>
-            <i class="fas fa-bullhorn"></i>
-            <h3>Creators & Service Brands</h3>
-            <p>Designed professional digital presence with speed, trust, and better presentation.</p>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image">
-              <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80" alt="Internal systems">
-            </div>
-            <i class="fas fa-diagram-project"></i>
-            <h3>Custom Internal Systems</h3>
-            <p>Created dashboards, distributor portals, and web-based tools for better workflow handling.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="swiper-nav">
-      <button class="swiper-btn brand-prev"><i class="fas fa-arrow-left"></i></button>
-      <button class="swiper-btn brand-next"><i class="fas fa-arrow-right"></i></button>
-    </div>
-  </section>
-
-  <section class="section swiper-section" id="testimonials">
-    <div class="section-header">
-      <h2>Client Testimonials</h2>
-      <p>Carousel use kiya hai so less scrolling. Cards ko thoda real-feel aur visual diya gaya hai.</p>
-    </div>
-
-    <div class="swiper testimonialSwiper swiper-wrap">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <div class="testimonial-image">
-              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80" alt="Client">
-            </div>
-            <p class="quote">“Karim handled the website updates very fast and understood exactly what we needed. The design quality and response speed were both impressive.”</p>
-            <div class="client-meta">Aman Raj • Bihar, India</div>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <div class="testimonial-image">
-              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80" alt="Client">
-            </div>
-            <p class="quote">“We needed a cleaner business website and faster support. The turnaround time was excellent and communication stayed smooth throughout.”</p>
-            <div class="client-meta">Faizan Malik • Dubai, UAE</div>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <div class="testimonial-image">
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80" alt="Client">
-            </div>
-            <p class="quote">“Very reliable developer. The landing page structure, responsiveness, and small custom fixes were all handled professionally.”</p>
-            <div class="client-meta">Priya Mehta • Delhi, India</div>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <div class="testimonial-image">
-              <img src="https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=900&q=80" alt="Client">
-            </div>
-            <p class="quote">“Elementor and WordPress issues that others could not solve were fixed quickly. Good understanding of design and technical balance.”</p>
-            <div class="client-meta">Sandeep Reddy • Hyderabad, India</div>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <div class="testimonial-image">
-              <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=900&q=80" alt="Client">
-            </div>
-            <p class="quote">“The support after delivery made a big difference. Updates, guidance, and fixes came without delay. Good person to work with long term.”</p>
-            <div class="client-meta">Noman Khan • Lucknow, UP</div>
-          </div>
-        </div>
-
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <div class="testimonial-image">
-              <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=80" alt="Client">
-            </div>
-            <p class="quote">“We liked the creative approach and modern execution. It felt less generic and more aligned with our business identity.”</p>
-            <div class="client-meta">Ritika Sharma • Noida, India</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="swiper-nav">
-      <button class="swiper-btn test-prev"><i class="fas fa-arrow-left"></i></button>
-      <button class="swiper-btn test-next"><i class="fas fa-arrow-right"></i></button>
-    </div>
-  </section>
-
-  <section class="contact-section" id="contact">
-    <div class="contact-box">
-      <div class="contact-content">
-        <h2>Ready to Build Something Strong?</h2>
-        <p style="margin: 18px auto 28px; color: var(--text-muted); max-width: 620px;">
-          Whether you need a website, custom portal, landing page, business dashboard, Shopify store, WordPress solution, or long-term technical support, I am ready to help.
-        </p>
-
-        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
-          <a href="mailto:technicalkrimullah@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
-          <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
-          <a href="#work" class="btn btn-outline"><i class="fas fa-eye"></i> See Projects</a>
-        </div>
-
-        <div class="social-row">
-          <a href="https://wa.me/917631115414" target="_blank" class="social-btn wa"><i class="fab fa-whatsapp"></i></a>
-          <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" class="social-btn in"><i class="fab fa-linkedin-in"></i></a>
-          <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" class="social-btn fb"><i class="fab fa-facebook-f"></i></a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    &copy; 2025 Er Karim. All Rights Reserved. Built with modern web technologies.
-  </footer>
-
-  <a href="https://wa.me/917631115414" class="whatsapp-float" target="_blank" aria-label="WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script>
-    function toggleMenu() {
-      const nav = document.getElementById('navItems');
-      const btn = document.querySelector('.mobile-menu-btn i');
-
-      nav.classList.toggle('active');
-
-      if (nav.classList.contains('active')) {
-        btn.classList.remove('fa-bars');
-        btn.classList.add('fa-times');
-      } else {
-        btn.classList.remove('fa-times');
-        btn.classList.add('fa-bars');
-      }
-    }
-
-    const projects = [
-      { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"] },
-      { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"] },
-      { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"] },
-      { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"] },
-      { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"] },
-      { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"] },
-      { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"] },
-      { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Organization"] },
-      { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"] },
-      { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"] },
-      { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"] },
-      { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"] },
-      { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"] },
-      { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"] },
-      { name: "M Print House", url: "https://mprinthouse.ae/", tags: ["Printing", "Business"] },
-      { name: "Sound7 Distributor Portal", url: "https://sound7nextdistributorportal.netlify.app/", tags: ["Web App", "Portal"] }
-    ];
-
-    const container = document.getElementById('portfolio-container');
-
-    projects.forEach((proj) => {
-      const tagsHtml = proj.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-      const previewUrl = `https://image.thum.io/get/width/1400/crop/2400/noanimate/${proj.url}`;
-
-      const html = `
-        <div class="project-card">
-          <div class="project-img-container">
-            <span class="project-badge">Live Preview</span>
-            <img
-              src="${previewUrl}"
-              alt="${proj.name}"
-              loading="lazy"
-              onload="setScrollDistance(this)"
-              onerror="handleImageError(this, '${proj.name}')"
-            >
-            <div class="project-overlay"></div>
-          </div>
-          <div class="project-info">
-            <div class="project-tags">${tagsHtml}</div>
-            <h3>${proj.name}</h3>
-            <a href="${proj.url}" target="_blank" rel="noopener noreferrer">
-              View Live Site <i class="fas fa-external-link-alt"></i>
-            </a>
-          </div>
-        </div>
-      `;
-
-      container.insertAdjacentHTML('beforeend', html);
-    });
-
-    function setScrollDistance(img) {
-      const wrapper = img.closest('.project-img-container');
-      const wrapperHeight = wrapper.offsetHeight;
-      const imgHeight = img.offsetHeight;
-      const diff = imgHeight - wrapperHeight;
-
-      if (diff > 0) {
-        wrapper.style.setProperty('--scroll-distance', `-${diff}px`);
-      } else {
-        wrapper.style.setProperty('--scroll-distance', '-180px');
-      }
-    }
-
-    function handleImageError(img, projectName) {
-      img.onerror = null;
-      img.src = `https://via.placeholder.com/1200x2200/111111/00f3ff?text=${encodeURIComponent(projectName)}`;
-      setTimeout(() => setScrollDistance(img), 250);
-    }
-
-    window.addEventListener('resize', () => {
-      document.querySelectorAll('.project-img-container img').forEach((img) => {
-        if (img.complete) setScrollDistance(img);
-      });
-    });
-
-    new Swiper('.brandSwiper', {
-      slidesPerView: 1.1,
-      spaceBetween: 18,
-      loop: true,
-      speed: 700,
-      navigation: {
-        nextEl: '.brand-next',
-        prevEl: '.brand-prev',
-      },
-      breakpoints: {
-        768: {
-          slidesPerView: 2,
-          spaceBetween: 22,
-        },
-        1024: {
-          slidesPerView: 3,
-          spaceBetween: 24,
-        }
-      }
-    });
-
-    new Swiper('.testimonialSwiper', {
-      slidesPerView: 1.1,
-      spaceBetween: 18,
-      loop: true,
-      speed: 700,
-      autoplay: {
-        delay: 3500,
-        disableOnInteraction: false,
-      },
-      navigation: {
-        nextEl: '.test-next',
-        prevEl: '.test-prev',
-      },
-      breakpoints: {
-        768: {
-          slidesPerView: 2,
-          spaceBetween: 22,
-        },
-        1024: {
-          slidesPerView: 3,
-          spaceBetween: 24,
-        }
-      }
-    });
-  </script>
-</body>
-</html>
+      <span class="tech-pill"><
