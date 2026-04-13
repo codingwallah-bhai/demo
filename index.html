@@ -6,7 +6,8 @@
   <title>Er Karim | Full Stack AI Developer</title>
 
   <link rel="preconnect" href="https://image.thum.io">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- FontAwesome — two CDN fallbacks for reliability -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 
   <style>
@@ -96,7 +97,12 @@
       margin-bottom: 16px;
       animation: fadeUp .7s .1s ease both;
     }
-    .avail-badge i { font-size: 7px; }
+    .avail-badge .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #25d366;
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
     .hero-role {
       color: var(--primary);
       letter-spacing: 2.5px; text-transform: uppercase;
@@ -172,7 +178,16 @@
       transition: .3s;
     }
     .card:hover { transform: translateY(-5px); border-color: rgba(212,0,255,.26); box-shadow: 0 12px 30px rgba(0,0,0,.3); }
-    .card-icon { font-size: 1.9rem; color: var(--secondary); }
+    .card-icon {
+      font-size: 2rem;
+      color: var(--secondary);
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px;
+      background: rgba(0,243,255,.08);
+      border: 1px solid rgba(0,243,255,.15);
+      flex-shrink: 0;
+    }
     .card h3 { font-size: 1.15rem; line-height: 1.35; }
     .card p { color: var(--muted); font-size: .95rem; }
     .card ul { list-style: none; color: var(--muted); font-size: .93rem; display: flex; flex-direction: column; gap: 8px; }
@@ -334,7 +349,7 @@
       class="hero-photo"
       onerror="this.src='assets/images/profile.jpeg'"
     >
-    <div class="avail-badge"><i class="fas fa-circle"></i> Available for Freelance</div>
+    <div class="avail-badge"><span class="dot"></span> Available for Freelance</div>
     <div class="hero-role">Full Stack Developer · Shopify · WordPress · AI Solutions</div>
     <h1>
       I Build <span class="grad">Websites, Web Apps<br>&amp; Portals</span><br>
@@ -394,66 +409,66 @@
       <div class="card-icon"><i class="fas fa-code"></i></div>
       <h3>Web Development</h3>
       <ul>
-        <li><i class="fas fa-circle"></i>E-commerce (Shopify & WooCommerce)</li>
-        <li><i class="fas fa-circle"></i>100% Custom Themes & UI</li>
-        <li><i class="fas fa-circle"></i>WordPress & Elementor Pro</li>
-        <li><i class="fas fa-circle"></i>High-converting Landing Pages</li>
-        <li><i class="fas fa-circle"></i>Responsive for All Devices</li>
+        <li><i class="fas fa-check"></i>E-commerce (Shopify & WooCommerce)</li>
+        <li><i class="fas fa-check"></i>100% Custom Themes & UI</li>
+        <li><i class="fas fa-check"></i>WordPress & Elementor Pro</li>
+        <li><i class="fas fa-check"></i>High-converting Landing Pages</li>
+        <li><i class="fas fa-check"></i>Responsive for All Devices</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon"><i class="fas fa-laptop-code"></i></div>
       <h3>Custom Web Apps</h3>
       <ul>
-        <li><i class="fas fa-circle"></i>CRM, Dashboard & Admin Panels</li>
-        <li><i class="fas fa-circle"></i>Distributor & Vendor Portals</li>
-        <li><i class="fas fa-circle"></i>Internal Tools & Automation</li>
-        <li><i class="fas fa-circle"></i>SaaS-style Interfaces</li>
-        <li><i class="fas fa-circle"></i>API Integration & Backend</li>
+        <li><i class="fas fa-check"></i>CRM, Dashboard & Admin Panels</li>
+        <li><i class="fas fa-check"></i>Distributor & Vendor Portals</li>
+        <li><i class="fas fa-check"></i>Internal Tools & Automation</li>
+        <li><i class="fas fa-check"></i>SaaS-style Interfaces</li>
+        <li><i class="fas fa-check"></i>API Integration & Backend</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon"><i class="fas fa-robot"></i></div>
       <h3>AI Integration</h3>
       <ul>
-        <li><i class="fas fa-circle"></i>ChatGPT & Gemini Integration</li>
-        <li><i class="fas fa-circle"></i>AI Chatbots & Smart Workflows</li>
-        <li><i class="fas fa-circle"></i>Automation & Productivity Tools</li>
-        <li><i class="fas fa-circle"></i>AI Content Systems</li>
-        <li><i class="fas fa-circle"></i>Business Process Improvements</li>
+        <li><i class="fas fa-check"></i>ChatGPT & Gemini Integration</li>
+        <li><i class="fas fa-check"></i>AI Chatbots & Smart Workflows</li>
+        <li><i class="fas fa-check"></i>Automation & Productivity Tools</li>
+        <li><i class="fas fa-check"></i>AI Content Systems</li>
+        <li><i class="fas fa-check"></i>Business Process Improvements</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon"><i class="fas fa-paint-brush"></i></div>
       <h3>UI & Branding</h3>
       <ul>
-        <li><i class="fas fa-circle"></i>Modern Premium Layout Design</li>
-        <li><i class="fas fa-circle"></i>Creative Brand-focused UI</li>
-        <li><i class="fas fa-circle"></i>Canva & Photoshop Support</li>
-        <li><i class="fas fa-circle"></i>Clean Visual Identity Systems</li>
-        <li><i class="fas fa-circle"></i>Better UX & Trust Signals</li>
+        <li><i class="fas fa-check"></i>Modern Premium Layout Design</li>
+        <li><i class="fas fa-check"></i>Creative Brand-focused UI</li>
+        <li><i class="fas fa-check"></i>Canva & Photoshop Support</li>
+        <li><i class="fas fa-check"></i>Clean Visual Identity Systems</li>
+        <li><i class="fas fa-check"></i>Better UX & Trust Signals</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon"><i class="fas fa-chart-line"></i></div>
       <h3>SEO & Growth</h3>
       <ul>
-        <li><i class="fas fa-circle"></i>SEO Content & Structure</li>
-        <li><i class="fas fa-circle"></i>Conversion-focused Pages</li>
-        <li><i class="fas fa-circle"></i>Keyword Strategy</li>
-        <li><i class="fas fa-circle"></i>Performance Optimization</li>
-        <li><i class="fas fa-circle"></i>Lead Generation Improvement</li>
+        <li><i class="fas fa-check"></i>SEO Content & Structure</li>
+        <li><i class="fas fa-check"></i>Conversion-focused Pages</li>
+        <li><i class="fas fa-check"></i>Keyword Strategy</li>
+        <li><i class="fas fa-check"></i>Performance Optimization</li>
+        <li><i class="fas fa-check"></i>Lead Generation Improvement</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon"><i class="fas fa-tools"></i></div>
       <h3>Maintenance & Support</h3>
       <ul>
-        <li><i class="fas fa-circle"></i>Instant Reply & Fast Fixes</li>
-        <li><i class="fas fa-circle"></i>Ongoing Website Updates</li>
-        <li><i class="fas fa-circle"></i>Long-term Technical Support</li>
-        <li><i class="fas fa-circle"></i>Business Guidance</li>
-        <li><i class="fas fa-circle"></i>Post-launch Improvements</li>
+        <li><i class="fas fa-check"></i>Instant Reply & Fast Fixes</li>
+        <li><i class="fas fa-check"></i>Ongoing Website Updates</li>
+        <li><i class="fas fa-check"></i>Long-term Technical Support</li>
+        <li><i class="fas fa-check"></i>Business Guidance</li>
+        <li><i class="fas fa-check"></i>Post-launch Improvements</li>
       </ul>
     </div>
   </div>
@@ -524,7 +539,7 @@
     <h2>Ready to Build <span class="grad">Something Strong?</span></h2>
     <p>Website, portal, dashboard, Shopify store, WordPress solution, or long-term support — I'm ready to help.</p>
     <div class="contact-btns">
-      <a href="mailto:technicalkrimullah@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
+      <a href="/cdn-cgi/l/email-protection#5e2a3b3d3630373d3f32352c37332b32323f361e39333f3732703d3133" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
       <a href="https://wa.me/917631115414" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
       <a href="#work" class="btn btn-ghost"><i class="fas fa-eye"></i> See Projects</a>
     </div>
@@ -542,7 +557,7 @@
   <i class="fab fa-whatsapp"></i>
 </a>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   /* NAV */
   function toggleNav() {
     const nav = document.getElementById('nav');
@@ -626,10 +641,28 @@
   }
 
   window.addEventListener('resize', () => {
-    document.querySelectorAll('.proj-thumb img').forEach(img => {
+        document.querySelectorAll('.proj-thumb img').forEach(img => {
       if (img.complete && img.naturalWidth) calcDy(img);
     });
   });
+
+  /* FA fallback */
+  (function(){
+    var test = document.createElement('span');
+    test.className = 'fas fa-check';
+    test.style.cssText = 'position:absolute;visibility:hidden';
+    document.body.appendChild(test);
+    setTimeout(function(){
+      var w = window.getComputedStyle(test,':before').getPropertyValue('content');
+      document.body.removeChild(test);
+      if(!w || w==='none' || w==='""' || w==="''"){
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = 'https://use.fontawesome.com/releases/v6.5.1/css/all.css';
+        document.head.appendChild(l);
+      }
+    }, 800);
+  })();
 </script>
 </body>
 </html>
