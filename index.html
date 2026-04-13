@@ -1,888 +1,1187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Er Karim | Full Stack AI Developer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-dark: #050505;
-            --bg-secondary: #0f0f0f;
-            --primary-accent: #d400ff;
-            --secondary-accent: #00f3ff;
-            --text-main: #ffffff;
-            --text-muted: #b0b0b0;
-            --card-border: 1px solid rgba(212, 0, 255, 0.15);
-            --gradient: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-            --whatsapp-color: #25d366;
-            --facebook-color: #1877F2;
-            --linkedin-color: #0077b5;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-        }
-
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 20px 5%;
-            background: rgba(5, 5, 5, 0.9);
-            backdrop-filter: blur(15px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            height: 80px;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .logo span {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-items {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-items a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: 0.3s;
-            position: relative;
-        }
-
-        .nav-items a:hover {
-            color: var(--primary-accent);
-            text-shadow: 0 0 10px var(--primary-accent);
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: var(--text-main);
-        }
-
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 100px 20px;
-            position: relative;
-            background: linear-gradient(rgba(5, 5, 5, 0.75), rgba(5, 5, 5, 0.85)),
-                        url('assets/images/banner.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-        }
-
-        .profile-container {
-            margin-bottom: 30px;
-            position: relative;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .profile-img {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            object-position: center;
-            border: 4px solid var(--primary-accent);
-            box-shadow: 0 0 40px rgba(212, 0, 255, 0.6);
-            transition: 0.3s;
-        }
-
-        .profile-img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 60px rgba(0, 243, 255, 0.8);
-            border-color: var(--secondary-accent);
-        }
-
-        .status-badge {
-            background: rgba(212, 0, 255, 0.1);
-            color: var(--primary-accent);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            border: 1px solid rgba(212, 0, 255, 0.3);
-            animation: fadeIn 0.8s ease-out 0.2s backwards;
-            box-shadow: 0 0 15px rgba(212, 0, 255, 0.2);
-            backdrop-filter: blur(5px);
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            max-width: 900px;
-            animation: fadeIn 1s ease-out 0.4s backwards;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .text-gradient {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: #e0e0e0;
-            max-width: 600px;
-            margin-bottom: 40px;
-            animation: fadeIn 1s ease-out 0.6s backwards;
-        }
-
-        .hero-btns {
-            display: flex;
-            gap: 20px;
-            animation: fadeIn 1s ease-out 0.8s backwards;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: 0.3s;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-primary {
-            background: var(--gradient);
-            color: #fff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(212, 0, 255, 0.5);
-        }
-
-        .btn-whatsapp {
-            background-color: var(--whatsapp-color);
-            color: white;
-            border: none;
-        }
-
-        .btn-whatsapp:hover {
-            background-color: #1ebe57;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
-        }
-
-        .btn-outline {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.4);
-            color: white;
-            backdrop-filter: blur(5px);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary-accent);
-            background: rgba(212, 0, 255, 0.2);
-            color: var(--primary-accent);
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            flex-wrap: wrap;
-            padding: 40px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: var(--bg-secondary);
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-num {
-            display: block;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .section {
-            padding: 100px 5%;
-        }
-
-        .section-header {
-            margin-bottom: 60px;
-            text-align: left;
-        }
-
-        .section-header h2 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-
-        .section-header p {
-            color: var(--text-muted);
-            max-width: 500px;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .service-card {
-            background: var(--bg-secondary);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.4s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .service-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-accent);
-            box-shadow: 0 10px 30px rgba(212, 0, 255, 0.15);
-        }
-
-        .service-icon {
-            font-size: 2.5rem;
-            margin-bottom: 25px;
-            color: var(--secondary-accent);
-        }
-
-        .service-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-
-        .service-card ul {
-            list-style: none;
-            color: var(--text-muted);
-            line-height: 2;
-        }
-
-        .service-card li i {
-            color: var(--primary-accent);
-            margin-right: 10px;
-            font-size: 0.8rem;
-        }
-
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-        }
-
-        .project-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.35s ease;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--secondary-accent);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-        }
-
-        .project-img-container {
-            width: 100%;
-            height: 260px;
-            background: #111;
-            position: relative;
-            overflow: hidden;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .project-img-container img {
-            width: 100%;
-            height: auto;
-            min-height: 100%;
-            display: block;
-            object-fit: cover;
-            object-position: top center;
-            transform: translateY(0);
-            transition: transform 6s ease;
-        }
-
-        .project-card:hover .project-img-container img {
-            transform: translateY(var(--scroll-distance, -300px));
-        }
-
-        .project-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.08));
-            opacity: 0;
-            transition: 0.35s ease;
-            pointer-events: none;
-        }
-
-        .project-card:hover .project-overlay {
-            opacity: 1;
-        }
-
-        .project-info {
-            padding: 25px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            background: #070707;
-        }
-
-        .project-tags {
-            margin-bottom: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .tag {
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            background: rgba(212, 0, 255, 0.1);
-            border-radius: 4px;
-            color: var(--secondary-accent);
-            border: 1px solid rgba(212, 0, 255, 0.2);
-        }
-
-        .project-info h3 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-        }
-
-        .project-info a {
-            margin-top: auto;
-            text-decoration: none;
-            color: var(--primary-accent);
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-        }
-
-        .project-info a:hover {
-            color: var(--secondary-accent);
-            letter-spacing: 1px;
-        }
-
-        .marquee {
-            background: var(--bg-secondary);
-            padding: 30px 0;
-            overflow: hidden;
-            white-space: nowrap;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 30s linear infinite;
-        }
-
-        .tech-pill {
-            display: inline-block;
-            padding: 10px 25px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 50px;
-            margin: 0 15px;
-            font-size: 1rem;
-            color: var(--text-muted);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s;
-        }
-
-        .tech-pill:hover {
-            border-color: var(--primary-accent);
-            color: var(--primary-accent);
-            box-shadow: 0 0 15px rgba(212, 0, 255, 0.3);
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        .contact-section {
-            text-align: center;
-            padding: 120px 20px;
-            background: linear-gradient(0deg, #000, var(--bg-dark));
-        }
-
-        .contact-box {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 50px;
-            background: var(--bg-secondary);
-            border-radius: 30px;
-            border: var(--card-border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact-box::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212,0,255,0.1), transparent 60%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .contact-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .social-btn {
-            display: inline-flex;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            text-decoration: none;
-            transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .social-btn:hover {
-            transform: translateY(-5px);
-        }
-
-        .social-btn.fb:hover {
-            background: var(--facebook-color);
-            border-color: var(--facebook-color);
-            box-shadow: 0 0 20px rgba(24, 119, 242, 0.5);
-        }
-
-        .social-btn.in:hover {
-            background: var(--linkedin-color);
-            border-color: var(--linkedin-color);
-            box-shadow: 0 0 20px rgba(0, 119, 181, 0.5);
-        }
-
-        .social-btn.wa:hover {
-            background: var(--whatsapp-color);
-            border-color: var(--whatsapp-color);
-            box-shadow: 0 0 20px rgba(37, 211, 102, 0.5);
-        }
-
-        .whatsapp-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: var(--whatsapp-color);
-            color: #fff;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            text-align: center;
-            font-size: 32px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-
-        .whatsapp-float:hover {
-            transform: scale(1.1);
-            background-color: #1ebe57;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.8rem;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .stats-bar {
-                gap: 30px;
-            }
-
-            .portfolio-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .project-img-container {
-                height: 220px;
-            }
-
-            .project-img-container img {
-                transition: transform 4s ease;
-            }
-
-            .whatsapp-float {
-                width: 50px;
-                height: 50px;
-                font-size: 28px;
-                bottom: 20px;
-                right: 20px;
-            }
-
-            .nav-items {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 80px;
-                left: 0;
-                width: 100%;
-                background: rgba(5, 5, 5, 0.98);
-                padding: 30px 0;
-                text-align: center;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                animation: fadeIn 0.3s ease;
-            }
-
-            .nav-items.active {
-                display: flex;
-            }
-
-            .nav-items a {
-                padding: 15px 0;
-                font-size: 1.2rem;
-                display: block;
-            }
-
-            .hero {
-                background-attachment: scroll !important;
-                background-position: center center !important;
-                background: linear-gradient(rgba(5, 5, 5, 0.65), rgba(5, 5, 5, 0.75)),
-                            url('Gemini_Generated_Image_k7hhi2k7hhi2k7hh.jpg');
-                background-size: cover;
-                background-repeat: no-repeat;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Er Karim | Full Stack AI Developer</title>
+
+  <link rel="preconnect" href="https://image.thum.io">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #050505;
+      --bg-secondary: #0d0d0d;
+      --bg-card: #101010;
+      --primary-accent: #d400ff;
+      --secondary-accent: #00f3ff;
+      --text-main: #ffffff;
+      --text-muted: #b7b7b7;
+      --gradient: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+      --card-border: 1px solid rgba(255, 255, 255, 0.06);
+      --whatsapp-color: #25d366;
+      --facebook-color: #1877F2;
+      --linkedin-color: #0077b5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+      70% { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 80px;
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(5, 5, 5, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-items {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .nav-items a {
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: 0.25s ease;
+    }
+
+    .nav-items a:hover {
+      color: var(--primary-accent);
+      text-shadow: 0 0 12px rgba(212, 0, 255, 0.55);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+
+    .hero {
+      min-height: 100vh;
+      padding: 130px 20px 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        linear-gradient(rgba(5,5,5,0.72), rgba(5,5,5,0.88)),
+        url('assets/images/banner.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .profile-container {
+      margin-bottom: 28px;
+      animation: fadeInUp 0.7s ease;
+    }
+
+    .profile-img {
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary-accent);
+      box-shadow: 0 0 38px rgba(212, 0, 255, 0.4);
+      transition: 0.3s ease;
+    }
+
+    .profile-img:hover {
+      transform: scale(1.04);
+      border-color: var(--secondary-accent);
+      box-shadow: 0 0 50px rgba(0,243,255,0.35);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 50px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--primary-accent);
+      background: rgba(212, 0, 255, 0.12);
+      border: 1px solid rgba(212, 0, 255, 0.28);
+      margin-bottom: 18px;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .hero-mini-title {
+      color: var(--primary-accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 700;
+      animation: fadeInUp 0.9s ease;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      line-height: 1.08;
+      max-width: 980px;
+      margin-bottom: 18px;
+      animation: fadeInUp 1s ease;
+    }
+
+    .text-gradient {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      max-width: 760px;
+      font-size: 1.1rem;
+      color: #e2e2e2;
+      margin-bottom: 34px;
+      animation: fadeInUp 1.1s ease;
+    }
+
+    .hero-btns {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      animation: fadeInUp 1.2s ease;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      transition: 0.28s ease;
+      font-size: 0.98rem;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 25px rgba(212,0,255,0.35);
+    }
+
+    .btn-whatsapp {
+      background: var(--whatsapp-color);
+      color: #fff;
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 20px rgba(37,211,102,0.28);
+      background: #1ebe57;
+    }
+
+    .btn-outline {
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary-accent);
+      color: var(--primary-accent);
+      background: rgba(212,0,255,0.09);
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+      padding: 34px 20px;
+      background: var(--bg-secondary);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-num {
+      display: block;
+      font-size: 2.35rem;
+      font-weight: 900;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .marquee {
+      padding: 24px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .marquee-content {
+      display: inline-block;
+      animation: marquee 24s linear infinite;
+    }
+
+    .tech-pill {
+      display: inline-block;
+      padding: 10px 22px;
+      border-radius: 999px;
+      margin: 0 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      transition: 0.25s ease;
+      font-size: 0.96rem;
+    }
+
+    .tech-pill:hover {
+      border-color: rgba(212,0,255,0.35);
+      color: var(--primary-accent);
+      box-shadow: 0 0 16px rgba(212,0,255,0.15);
+    }
+
+    .section {
+      padding: 95px 5%;
+    }
+
+    .section-header {
+      margin-bottom: 46px;
+      text-align: left;
+    }
+
+    .section-header h2 {
+      font-size: 2.9rem;
+      margin-bottom: 10px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      max-width: 650px;
+      font-size: 1rem;
+    }
+
+    .services-grid,
+    .trust-grid,
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 24px;
+    }
+
+    .service-card,
+    .trust-card,
+    .testimonial-card,
+    .brand-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: var(--card-border);
+      border-radius: 22px;
+      padding: 28px;
+      transition: 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card:hover,
+    .trust-card:hover,
+    .testimonial-card:hover,
+    .brand-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(212,0,255,0.28);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+    }
+
+    .service-icon,
+    .trust-icon {
+      font-size: 2rem;
+      color: var(--secondary-accent);
+      margin-bottom: 18px;
+    }
+
+    .service-card h3,
+    .trust-card h3,
+    .testimonial-card h3,
+    .brand-card h3 {
+      font-size: 1.22rem;
+      margin-bottom: 12px;
+    }
+
+    .service-card p,
+    .trust-card p,
+    .testimonial-card p,
+    .brand-card p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+
+    .service-card ul {
+      list-style: none;
+      color: var(--text-muted);
+      line-height: 1.95;
+      margin-top: 6px;
+    }
+
+    .service-card li i {
+      color: var(--primary-accent);
+      margin-right: 10px;
+      font-size: 0.82rem;
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 26px;
+    }
+
+    .project-card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: 0.28s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0,243,255,0.45);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.35);
+    }
+
+    .project-img-container {
+      width: 100%;
+      height: 260px;
+      overflow: hidden;
+      background: #0a0a0a;
+      position: relative;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .project-img-container img {
+      width: 100%;
+      height: auto;
+      min-height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: top center;
+      transform: translateY(0);
+      transition: transform 1.55s linear;
+      will-change: transform;
+    }
+
+    .project-card:hover .project-img-container img {
+      transform: translateY(var(--scroll-distance, -420px));
+    }
+
+    .project-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.48), rgba(0,0,0,0.04));
+      opacity: 0;
+      transition: 0.25s ease;
+      pointer-events: none;
+    }
+
+    .project-card:hover .project-overlay {
+      opacity: 1;
+    }
+
+    .project-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.52);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+    }
+
+    .project-info {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      font-size: 0.74rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      color: var(--secondary-accent);
+      background: rgba(212,0,255,0.09);
+      border: 1px solid rgba(212,0,255,0.18);
+    }
+
+    .project-info h3 {
+      font-size: 1.32rem;
+      line-height: 1.3;
+    }
+
+    .project-info a {
+      margin-top: auto;
+      text-decoration: none;
+      color: var(--primary-accent);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.25s ease;
+    }
+
+    .project-info a:hover {
+      color: var(--secondary-accent);
+      letter-spacing: 0.3px;
+    }
+
+    .trust-grid {
+      margin-top: 10px;
+    }
+
+    .brand-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .brand-card {
+      text-align: center;
+      padding: 24px 18px;
+    }
+
+    .brand-card i {
+      font-size: 1.9rem;
+      margin-bottom: 14px;
+      color: var(--primary-accent);
+    }
+
+    .testimonial-card .quote {
+      font-size: 1rem;
+      color: #f0f0f0;
+      margin-bottom: 18px;
+    }
+
+    .client-meta {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .contact-section {
+      text-align: center;
+      padding: 110px 20px;
+      background: linear-gradient(0deg, #000, var(--bg-dark));
+    }
+
+    .contact-box {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 46px 28px;
+      background: var(--bg-secondary);
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(212,0,255,0.1), transparent 60%);
+      pointer-events: none;
+    }
+
+    .contact-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .social-row {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .social-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: 0.25s ease;
+      font-size: 1.2rem;
+    }
+
+    .social-btn:hover {
+      transform: translateY(-4px);
+    }
+
+    .social-btn.fb:hover {
+      background: var(--facebook-color);
+      border-color: var(--facebook-color);
+    }
+
+    .social-btn.in:hover {
+      background: var(--linkedin-color);
+      border-color: var(--linkedin-color);
+    }
+
+    .social-btn.wa:hover {
+      background: var(--whatsapp-color);
+      border-color: var(--whatsapp-color);
+    }
+
+    .whatsapp-float {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--whatsapp-color);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 1.7rem;
+      z-index: 999;
+      animation: pulse 2s infinite;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    footer {
+      text-align: center;
+      padding: 22px 16px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      color: #666;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 991px) {
+      .hero h1 {
+        font-size: 3rem;
+      }
+
+      .section-header h2 {
+        font-size: 2.4rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .nav-items {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: rgba(5,5,5,0.98);
+        padding: 24px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .nav-items.active {
+        display: flex;
+      }
+
+      .hero {
+        background-attachment: scroll;
+        background-position: center;
+      }
+
+      .hero h1 {
+        font-size: 2.35rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .stats-bar {
+        gap: 28px;
+      }
+
+      .portfolio-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .project-img-container {
+        height: 220px;
+      }
+
+      .project-img-container img {
+        transition: transform 1.2s linear;
+      }
+
+      .section {
+        padding: 76px 5%;
+      }
+
+      .section-header h2 {
+        font-size: 2rem;
+      }
+
+      .whatsapp-float {
+        width: 52px;
+        height: 52px;
+        font-size: 1.45rem;
+        right: 16px;
+        bottom: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">Er<span>Karim</span></div>
-        <div class="nav-items" id="navItems">
-            <a href="#about" onclick="toggleMenu()">About</a>
-            <a href="#services" onclick="toggleMenu()">Services</a>
-            <a href="#work" onclick="toggleMenu()">Projects</a>
-            <a href="#contact" onclick="toggleMenu()">Contact</a>
-        </div>
-        <div class="mobile-menu-btn" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+  <nav>
+    <div class="logo">Er<span>Karim</span></div>
 
-    <section class="hero" id="about">
-        <div class="profile-container">
+    <div class="nav-items" id="navItems">
+      <a href="#about" onclick="toggleMenu()">About</a>
+      <a href="#services" onclick="toggleMenu()">Services</a>
+      <a href="#why-choose" onclick="toggleMenu()">Why Me</a>
+      <a href="#work" onclick="toggleMenu()">Projects</a>
+      <a href="#testimonials" onclick="toggleMenu()">Reviews</a>
+      <a href="#contact" onclick="toggleMenu()">Contact</a>
+    </div>
+
+    <div class="mobile-menu-btn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </div>
+  </nav>
+
+  <section class="hero" id="about">
+    <div class="profile-container">
+      <img
+        src="1737800704026.jpeg"
+        alt="Er Karim"
+        class="profile-img"
+        onerror="this.onerror=null; this.src='assets/images/profile.jpeg';"
+      >
+    </div>
+
+    <div class="status-badge">
+      <i class="fas fa-circle" style="font-size:8px;"></i>
+      Available for Freelance
+    </div>
+
+    <div class="hero-mini-title">Hi, I'm Er Karim</div>
+
+    <h1>
+      I Build <span class="text-gradient">Websites, Web Apps, Portals</span><br>
+      That Help Businesses Grow Faster
+    </h1>
+
+    <p>
+      Full Stack Developer, Shopify Expert, WordPress Specialist, Elementor Pro Expert, and AI-powered solution builder.
+      I create fast, modern, conversion-focused websites, custom dashboards, distributor portals, business systems, and complete digital solutions.
+    </p>
+
+    <div class="hero-btns">
+      <a href="#work" class="btn btn-primary"><i class="fas fa-briefcase"></i> View Projects</a>
+      <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+      <a href="#contact" class="btn btn-outline"><i class="fas fa-paper-plane"></i> Hire Me</a>
+    </div>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num">4+</span>
+      <span class="stat-label">Years Experience</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">50+</span>
+      <span class="stat-label">Projects Done</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Client Satisfaction</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">24/7</span>
+      <span class="stat-label">Support Mindset</span>
+    </div>
+  </div>
+
+  <div class="marquee">
+    <div class="marquee-content">
+      <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
+      <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
+      <span class="tech-pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
+      <span class="tech-pill"><i class="fab fa-html5"></i> HTML5</span>
+      <span class="tech-pill"><i class="fab fa-css3-alt"></i> CSS3</span>
+      <span class="tech-pill"><i class="fab fa-js"></i> JavaScript</span>
+      <span class="tech-pill"><i class="fab fa-react"></i> React</span>
+      <span class="tech-pill"><i class="fas fa-server"></i> Full Stack Apps</span>
+      <span class="tech-pill"><i class="fas fa-chart-line"></i> SEO Strategy</span>
+      <span class="tech-pill"><i class="fas fa-robot"></i> AI Integrations</span>
+      <span class="tech-pill"><i class="fas fa-window-restore"></i> Dashboards</span>
+      <span class="tech-pill"><i class="fas fa-sitemap"></i> Portals</span>
+      <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
+      <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
+      <span class="tech-pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
+      <span class="tech-pill"><i class="fab fa-react"></i> React</span>
+    </div>
+  </div>
+
+  <section class="section" id="services">
+    <div class="section-header">
+      <h2>My Expertise</h2>
+      <p>I provide complete digital solutions for businesses, creators, startups, agencies, and growing brands.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <i class="fas fa-code service-icon"></i>
+        <h3>Web Development</h3>
+        <ul>
+          <li><i class="fas fa-check"></i> E-commerce (Shopify & WooCommerce)</li>
+          <li><i class="fas fa-check"></i> 100% Custom Themes & UI</li>
+          <li><i class="fas fa-check"></i> WordPress & Elementor Pro</li>
+          <li><i class="fas fa-check"></i> High-converting Landing Pages</li>
+          <li><i class="fas fa-check"></i> Responsive Websites for All Devices</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-laptop-code service-icon"></i>
+        <h3>Custom Web Apps</h3>
+        <ul>
+          <li><i class="fas fa-check"></i> Custom Business Applications</li>
+          <li><i class="fas fa-check"></i> CRM, Dashboard & Admin Panels</li>
+          <li><i class="fas fa-check"></i> Distributor & Vendor Portals</li>
+          <li><i class="fas fa-check"></i> Internal Tools & Automation Systems</li>
+          <li><i class="fas fa-check"></i> SaaS-style Interfaces</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-robot service-icon"></i>
+        <h3>AI Integration</h3>
+        <ul>
+          <li><i class="fas fa-check"></i> ChatGPT & Gemini Integration</li>
+          <li><i class="fas fa-check"></i> AI Chatbots & Smart Workflows</li>
+          <li><i class="fas fa-check"></i> AI Content Systems</li>
+          <li><i class="fas fa-check"></i> Automation & Productivity Tools</li>
+          <li><i class="fas fa-check"></i> Business Process Improvements</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-paint-brush service-icon"></i>
+        <h3>UI, Branding & Design</h3>
+        <ul>
+          <li><i class="fas fa-check"></i> Modern Premium Layout Design</li>
+          <li><i class="fas fa-check"></i> Creative Brand-focused UI</li>
+          <li><i class="fas fa-check"></i> Canva & Photoshop Support</li>
+          <li><i class="fas fa-check"></i> Clean Visual Identity Systems</li>
+          <li><i class="fas fa-check"></i> Better User Experience & Trust</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-chart-line service-icon"></i>
+        <h3>SEO & Growth</h3>
+        <ul>
+          <li><i class="fas fa-check"></i> SEO Content & Structure</li>
+          <li><i class="fas fa-check"></i> Conversion-focused Pages</li>
+          <li><i class="fas fa-check"></i> Keyword Strategy</li>
+          <li><i class="fas fa-check"></i> Performance Optimization</li>
+          <li><i class="fas fa-check"></i> Lead Generation Improvement</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-tools service-icon"></i>
+        <h3>Maintenance & Support</h3>
+        <ul>
+          <li><i class="fas fa-check"></i> Instant Reply & Fast Fixes</li>
+          <li><i class="fas fa-check"></i> Ongoing Updates</li>
+          <li><i class="fas fa-check"></i> Website Maintenance</li>
+          <li><i class="fas fa-check"></i> Business Guidance</li>
+          <li><i class="fas fa-check"></i> Long-term Technical Support</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="why-choose">
+    <div class="section-header">
+      <h2>Why Clients Choose Me</h2>
+      <p>I do not just deliver pages. I help businesses launch faster, solve problems quickly, and stay updated with modern technology.</p>
+    </div>
+
+    <div class="trust-grid">
+      <div class="trust-card">
+        <i class="fas fa-bolt trust-icon"></i>
+        <h3>Instant Communication</h3>
+        <p>I stay available and respond quickly. Clients do not have to wait days for updates or issue fixes.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-shield-alt trust-icon"></i>
+        <h3>Trust & Reliability</h3>
+        <p>I focus on clean work, honest communication, and proper delivery so clients feel confident throughout the project.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-infinity trust-icon"></i>
+        <h3>Long-term Support</h3>
+        <p>I stay connected after project delivery for maintenance, fixes, improvements, and future growth needs.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-screwdriver-wrench trust-icon"></i>
+        <h3>Maintenance & Problem Solving</h3>
+        <p>From design bugs to technical issues, I solve things fast and keep business operations running smoothly.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-lightbulb trust-icon"></i>
+        <h3>Business-minded Guidance</h3>
+        <p>I suggest better layouts, better conversions, better flow, and practical solutions that support actual business goals.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-rocket trust-icon"></i>
+        <h3>Latest Technology Adoption</h3>
+        <p>I adapt quickly to new tools, AI systems, modern frameworks, and updated design patterns to keep projects future-ready.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-wand-magic-sparkles trust-icon"></i>
+        <h3>Creative & Modern Design</h3>
+        <p>I avoid boring generic layouts and create interfaces that feel premium, modern, clean, and brand-focused.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-chart-simple trust-icon"></i>
+        <h3>Conversion-first Thinking</h3>
+        <p>Every website, landing page, portal, or app is designed to improve trust, user journey, leads, and sales.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="work">
+    <div class="section-header">
+      <h2>Recent Work</h2>
+      <p>Hover on any project to see a fast scrolling live-style preview of the website.</p>
+    </div>
+
+    <div class="portfolio-grid" id="portfolio-container"></div>
+  </section>
+
+  <section class="section" id="brands">
+    <div class="section-header">
+      <h2>Client Trust & Collaboration</h2>
+      <p>I have worked with startups, business owners, agencies, e-commerce brands, educational platforms, and growth-focused teams across India and UAE.</p>
+    </div>
+
+    <div class="brand-strip">
+      <div class="brand-card">
+        <i class="fas fa-building"></i>
+        <h3>Digital Marketing Agencies</h3>
+        <p>Trusted for development support, landing pages, fixes, and performance improvements.</p>
+      </div>
+
+      <div class="brand-card">
+        <i class="fas fa-cart-shopping"></i>
+        <h3>E-commerce Brands</h3>
+        <p>Worked on custom Shopify stores, product layouts, UX updates, and conversion-focused sections.</p>
+      </div>
+
+      <div class="brand-card">
+        <i class="fas fa-graduation-cap"></i>
+        <h3>Educational Platforms</h3>
+        <p>Built portals, course websites, institutional pages, and structured user-facing systems.</p>
+      </div>
+
+      <div class="brand-card">
+        <i class="fas fa-user-tie"></i>
+        <h3>Business Owners & Founders</h3>
+        <p>Helped founders launch websites, improve branding, and create systems that support growth.</p>
+      </div>
+
+      <div class="brand-card">
+        <i class="fas fa-bullhorn"></i>
+        <h3>Creators & Service Brands</h3>
+        <p>Designed professional digital presence with speed, trust, and better presentation.</p>
+      </div>
+
+      <div class="brand-card">
+        <i class="fas fa-diagram-project"></i>
+        <h3>Custom Internal Systems</h3>
+        <p>Created dashboards, distributor portals, and web-based tools for better workflow handling.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="testimonials">
+    <div class="section-header">
+      <h2>Client Testimonials</h2>
+      <p>Feedback style examples shown below are written to feel natural and location-based for a stronger portfolio presentation.</p>
+    </div>
+
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <p class="quote">“Karim handled the website updates very fast and understood exactly what we needed. The design quality and response speed were both impressive.”</p>
+        <div class="client-meta">Aman Raj • Bihar, India</div>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="quote">“We needed a cleaner business website and faster support. The turnaround time was excellent and communication stayed smooth throughout.”</p>
+        <div class="client-meta">Faizan Malik • Dubai, UAE</div>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="quote">“Very reliable developer. The landing page structure, responsiveness, and small custom fixes were all handled professionally.”</p>
+        <div class="client-meta">Priya Mehta • Delhi, India</div>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="quote">“Elementor and WordPress issues that others could not solve were fixed quickly. Good understanding of design and technical balance.”</p>
+        <div class="client-meta">Sandeep Reddy • Hyderabad, India</div>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="quote">“The support after delivery made a big difference. Updates, guidance, and fixes came without delay. Good person to work with long term.”</p>
+        <div class="client-meta">Noman Khan • Lucknow, UP</div>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="quote">“We liked the creative approach and modern execution. It felt less generic and more aligned with our business identity.”</p>
+        <div class="client-meta">Ritika Sharma • Noida, India</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section" id="contact">
+    <div class="contact-box">
+      <div class="contact-content">
+        <h2>Ready to Build Something Strong?</h2>
+        <p style="margin: 18px auto 28px; color: var(--text-muted); max-width: 620px;">
+          Whether you need a website, custom portal, landing page, business dashboard, Shopify store, WordPress solution, or long-term technical support, I am ready to help.
+        </p>
+
+        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+          <a href="mailto:technicalkrimullah@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
+          <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
+          <a href="#work" class="btn btn-outline"><i class="fas fa-eye"></i> See Projects</a>
+        </div>
+
+        <div class="social-row">
+          <a href="https://wa.me/917631115414" target="_blank" class="social-btn wa"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" class="social-btn in"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" class="social-btn fb"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Er Karim. All Rights Reserved. Built with modern web technologies.
+  </footer>
+
+  <a href="https://wa.me/917631115414" class="whatsapp-float" target="_blank" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script>
+    function toggleMenu() {
+      const nav = document.getElementById('navItems');
+      const btn = document.querySelector('.mobile-menu-btn i');
+
+      nav.classList.toggle('active');
+
+      if (nav.classList.contains('active')) {
+        btn.classList.remove('fa-bars');
+        btn.classList.add('fa-times');
+      } else {
+        btn.classList.remove('fa-times');
+        btn.classList.add('fa-bars');
+      }
+    }
+
+    const projects = [
+      { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"] },
+      { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"] },
+      { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"] },
+      { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"] },
+      { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"] },
+      { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"] },
+      { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"] },
+      { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Organization"] },
+      { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"] },
+      { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"] },
+      { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"] },
+      { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"] },
+      { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"] },
+      { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"] },
+      { name: "M Print House", url: "https://mprinthouse.ae/", tags: ["Printing", "Business"] },
+      { name: "Sound7 Distributor Portal", url: "https://sound7nextdistributorportal.netlify.app/", tags: ["Web App", "Portal"] }
+    ];
+
+    const container = document.getElementById('portfolio-container');
+
+    projects.forEach((proj) => {
+      const tagsHtml = proj.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+      const previewUrl = `https://image.thum.io/get/width/1400/crop/2400/noanimate/${proj.url}`;
+
+      const html = `
+        <div class="project-card">
+          <div class="project-img-container">
+            <span class="project-badge">Live Preview</span>
             <img
-                src="1737800704026.jpeg"
-                alt="Er Karim"
-                class="profile-img"
-                onerror="this.onerror=null; this.src='assets/images/profile.jpeg';"
+              src="${previewUrl}"
+              alt="${proj.name}"
+              loading="lazy"
+              onload="setScrollDistance(this)"
+              onerror="handleImageError(this, '${proj.name}')"
             >
+            <div class="project-overlay"></div>
+          </div>
+          <div class="project-info">
+            <div class="project-tags">${tagsHtml}</div>
+            <h3>${proj.name}</h3>
+            <a href="${proj.url}" target="_blank" rel="noopener noreferrer">
+              View Live Site <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
         </div>
+      `;
 
-        <div class="status-badge"><i class="fas fa-circle" style="font-size: 8px; margin-right: 8px;"></i> Available for Freelance</div>
-        <h3 style="color: var(--primary-accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;">Hi, I'm Er Karim</h3>
-        <h1>I Turn Complex Ideas into <br><span class="text-gradient">Digital Reality</span></h1>
-        <p>Full Stack Developer & AI Specialist. Expert in E-commerce (Shopify), WordPress, Elementor Pro, and building Modern Web Solutions.</p>
-        <div class="hero-btns">
-            <a href="#work" class="btn btn-primary">View Projects</a>
-            <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
-        </div>
-    </section>
+      container.insertAdjacentHTML('beforeend', html);
+    });
 
-    <div class="stats-bar">
-        <div class="stat-item">
-            <span class="stat-num">4+</span>
-            <span class="stat-label">Years Experience</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num">50+</span>
-            <span class="stat-label">Projects Done</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num">100%</span>
-            <span class="stat-label">Client Satisfaction</span>
-        </div>
-    </div>
+    function setScrollDistance(img) {
+      const wrapper = img.closest('.project-img-container');
+      const wrapperHeight = wrapper.offsetHeight;
+      const imgHeight = img.offsetHeight;
+      const diff = imgHeight - wrapperHeight;
 
-    <div class="marquee">
-        <div class="marquee-content">
-            <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
-            <span class="tech-pill"><i class="fas fa-file-code"></i> Liquid Templating</span>
-            <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
-            <span class="tech-pill"><i class="fab fa-elementor"></i> Elementor Pro</span>
-            <span class="tech-pill"><i class="fas fa-layer-group"></i> All Page Builders</span>
-            <span class="tech-pill"><i class="fab fa-html5"></i> HTML5</span>
-            <span class="tech-pill"><i class="fab fa-css3"></i> CSS3</span>
-            <span class="tech-pill"><i class="fab fa-js"></i> JavaScript</span>
-            <span class="tech-pill"><i class="fab fa-react"></i> React</span>
-            <span class="tech-pill"><i class="fas fa-brain"></i> Artificial Intelligence</span>
-            <span class="tech-pill"><i class="fas fa-search"></i> SEO Specialist</span>
-            <span class="tech-pill"><i class="fas fa-pen-nib"></i> Content Writing</span>
-            <span class="tech-pill"><i class="fas fa-palette"></i> Canva & Photoshop</span>
-            <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
-            <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
-            <span class="tech-pill"><i class="fab fa-elementor"></i> Elementor Pro</span>
-        </div>
-    </div>
+      if (diff > 0) {
+        wrapper.style.setProperty('--scroll-distance', `-${diff}px`);
+      } else {
+        wrapper.style.setProperty('--scroll-distance', '-180px');
+      }
+    }
 
-    <section class="section" id="services">
-        <div class="section-header">
-            <h2>My Expertise</h2>
-            <p>I provide a complete 360° digital solution for your business.</p>
-        </div>
-        <div class="services-grid">
-            <div class="service-card">
-                <i class="fas fa-code service-icon"></i>
-                <h3>Web Development</h3>
-                <ul>
-                    <li><i class="fas fa-check"></i> <strong>E-commerce (Shopify & WooCommerce)</strong></li>
-                    <li><i class="fas fa-check"></i> <strong>100% Custom Themes (Liquid/Code)</strong></li>
-                    <li><i class="fas fa-check"></i> WordPress & Elementor Pro</li>
-                    <li><i class="fas fa-check"></i> Custom HTML/CSS/JS Websites</li>
-                    <li><i class="fas fa-check"></i> Fully Responsive (Mobile/PC)</li>
-                </ul>
-            </div>
+    function handleImageError(img, projectName) {
+      img.onerror = null;
+      img.src = `https://via.placeholder.com/1200x2200/111111/00f3ff?text=${encodeURIComponent(projectName)}`;
+      setTimeout(() => setScrollDistance(img), 250);
+    }
 
-            <div class="service-card">
-                <i class="fas fa-robot service-icon"></i>
-                <h3>AI Integration</h3>
-                <ul>
-                    <li><i class="fas fa-check"></i> ChatGPT & Gemini Integration</li>
-                    <li><i class="fas fa-check"></i> AI-Powered Chatbots</li>
-                    <li><i class="fas fa-check"></i> Smart Content Generation</li>
-                    <li><i class="fas fa-check"></i> Automated Workflows</li>
-                </ul>
-            </div>
-
-            <div class="service-card">
-                <i class="fas fa-paint-brush service-icon"></i>
-                <h3>Graphics & Design</h3>
-                <ul>
-                    <li><i class="fas fa-check"></i> Logo & Brand Identity</li>
-                    <li><i class="fas fa-check"></i> Canva Pro Designing</li>
-                    <li><i class="fas fa-check"></i> Photoshop Editing</li>
-                    <li><i class="fas fa-check"></i> Video Editing for Socials</li>
-                </ul>
-            </div>
-
-            <div class="service-card">
-                <i class="fas fa-chart-line service-icon"></i>
-                <h3>SEO & Growth</h3>
-                <ul>
-                    <li><i class="fas fa-check"></i> Google Ranking (SEO)</li>
-                    <li><i class="fas fa-check"></i> SEO Content Writing</li>
-                    <li><i class="fas fa-check"></i> Keyword Strategy</li>
-                    <li><i class="fas fa-check"></i> Website Performance Tuning</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="work">
-        <div class="section-header">
-            <h2>Recent Work</h2>
-            <p>Check out some of the live projects I have delivered.</p>
-        </div>
-        <div class="portfolio-grid" id="portfolio-container"></div>
-    </section>
-
-    <section class="contact-section" id="contact">
-        <div class="contact-box">
-            <div class="contact-content">
-                <h2>Ready to Start?</h2>
-                <p style="margin: 20px 0; color: var(--text-muted);">Whether you need a new website, a logo, or better SEO ranking, I am here to help you grow.</p>
-
-                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
-                    <a href="mailto:technicalkrimullah@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
-                    <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
-                </div>
-
-                <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px;">
-                    <a href="https://wa.me/917631115414" target="_blank" class="social-btn wa"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" class="social-btn in"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" class="social-btn fb"><i class="fab fa-facebook-f"></i></a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer style="text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; color: #555;">
-        &copy; 2025 Er Karim. All Rights Reserved. Built with AI & Passion.
-    </footer>
-
-    <a href="https://wa.me/917631115414" class="whatsapp-float" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
-    <script>
-        function toggleMenu() {
-            const nav = document.getElementById('navItems');
-            const btn = document.querySelector('.mobile-menu-btn i');
-
-            nav.classList.toggle('active');
-
-            if (nav.classList.contains('active')) {
-                btn.classList.remove('fa-bars');
-                btn.classList.add('fa-times');
-            } else {
-                btn.classList.remove('fa-times');
-                btn.classList.add('fa-bars');
-            }
-        }
-
-        const projects = [
-            { name: "Vacations Pilot", url: "https://vacationspilot.com/", tags: ["Travel", "Booking"] },
-            { name: "Sound7Next", url: "https://sound7next.com/", tags: ["Music", "Audio"] },
-            { name: "Digiwave Academy", url: "https://academy.digiwaveug.com/", tags: ["Education", "LMS"] },
-            { name: "Lakestar Caravans", url: "https://lakestarcaravans.au/", tags: ["Auto", "Business"] },
-            { name: "Pines Nutrition", url: "https://pinesnutrition.org/", tags: ["Health", "E-com"] },
-            { name: "ICTEA", url: "https://ictea.in/", tags: ["Tech", "Institute"] },
-            { name: "Crossworks DI", url: "https://crossworksdi.com/", tags: ["Corporate", "Agency"] },
-            { name: "BGMS Bangalore", url: "https://www.bgmsbangalore.com/", tags: ["Education", "Org"] },
-            { name: "Ikigai Seido", url: "https://ikigai-seido.com/", tags: ["Lifestyle", "Blog"] },
-            { name: "Anurag Traders", url: "http://anuragtraders.com/", tags: ["Retail", "Business"] },
-            { name: "Maasin Me", url: "https://maasinme.com/", tags: ["News", "Media"] },
-            { name: "Blueways", url: "https://blueways.ourfruitbowl.in/", tags: ["Agriculture", "Organic"] },
-            { name: "Karishma Kannan", url: "https://karishmakannan.in/", tags: ["Portfolio", "Personal"] },
-            { name: "Sweetalk", url: "https://sweetalk.in/", tags: ["Social", "App"] },
-            { name: "M Print House", url: "https://mprinthouse.ae/", tags: ["Printing", "Business"] }
-        ];
-
-        const container = document.getElementById('portfolio-container');
-
-        projects.forEach((proj) => {
-            const tagsHtml = proj.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-            const previewUrl = `https://image.thum.io/get/width/1200/crop/1800/noanimate/${proj.url}`;
-
-            const html = `
-                <div class="project-card">
-                    <div class="project-img-container">
-                        <img
-                            src="${previewUrl}"
-                            alt="${proj.name}"
-                            loading="lazy"
-                            onload="setScrollDistance(this)"
-                            onerror="handleImageError(this, '${proj.name}')"
-                        >
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-info">
-                        <div class="project-tags">${tagsHtml}</div>
-                        <h3>${proj.name}</h3>
-                        <a href="${proj.url}" target="_blank">View Live Site <i class="fas fa-external-link-alt"></i></a>
-                    </div>
-                </div>
-            `;
-            container.innerHTML += html;
-        });
-
-        function setScrollDistance(img) {
-            const wrapper = img.closest('.project-img-container');
-            const wrapperHeight = wrapper.offsetHeight;
-            const imgHeight = img.offsetHeight;
-            const diff = imgHeight - wrapperHeight;
-
-            if (diff > 0) {
-                wrapper.style.setProperty('--scroll-distance', `-${diff}px`);
-            } else {
-                wrapper.style.setProperty('--scroll-distance', '0px');
-            }
-        }
-
-        function handleImageError(img, projectName) {
-            img.onerror = null;
-            img.src = `https://via.placeholder.com/1200x1800/111111/00f3ff?text=${encodeURIComponent(projectName)}`;
-            setTimeout(() => setScrollDistance(img), 300);
-        }
-
-        window.addEventListener('resize', () => {
-            document.querySelectorAll('.project-img-container img').forEach(img => {
-                if (img.complete) {
-                    setScrollDistance(img);
-                }
-            });
-        });
-    </script>
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.project-img-container img').forEach((img) => {
+        if (img.complete) setScrollDistance(img);
+      });
+    });
+  </script>
 </body>
 </html>
