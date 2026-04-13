@@ -13,20 +13,20 @@
 
   <style>
     :root {
-      --bg-dark: #07111a;
-      --bg-secondary: #0d1722;
-      --bg-card: rgba(16, 26, 38, 0.92);
-      --text: #f8fbff;
-      --muted: #9cb0c3;
-      --primary: #ff6b2c;
-      --secondary: #22d3ee;
-      --accent: #ffd166;
-      --gradient: linear-gradient(135deg, #ff6b2c, #22d3ee);
-      --card-border: 1px solid rgba(255, 255, 255, 0.08);
+      --bg-dark: #0f1115;
+      --bg-secondary: #171a20;
+      --bg-card: rgba(28, 32, 39, 0.94);
+      --text: #f5f1e8;
+      --muted: #b0aa9d;
+      --primary: #c48a3a;
+      --secondary: #7f8f73;
+      --accent: #ead7b0;
+      --gradient: linear-gradient(135deg, #c48a3a, #d6b06b);
+      --card-border: 1px solid rgba(234, 215, 176, 0.1);
       --wa: #25d366;
       --fb: #1877f2;
       --li: #0a66c2;
-      --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,9 +34,9 @@
     body {
       font-family: "Outfit", sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(255, 107, 44, 0.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(34, 211, 238, 0.14), transparent 24%),
-        linear-gradient(180deg, #050b12 0%, #08131d 48%, #050b12 100%);
+        radial-gradient(circle at top left, rgba(196, 138, 58, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(127, 143, 115, 0.1), transparent 24%),
+        linear-gradient(180deg, #0e1014 0%, #14171c 48%, #0d0f13 100%);
       color: var(--text);
       line-height: 1.65;
       overflow-x: hidden;
@@ -70,7 +70,7 @@
       inset: 0 0 auto 0;
       z-index: 1000;
       height: 78px;
-      background: rgba(6, 13, 20, 0.84);
+      background: rgba(14, 16, 20, 0.84);
       backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -89,7 +89,7 @@
     }
     .nav-links { display: flex; align-items: center; gap: 28px; }
     .nav-links a {
-      color: #dbe8f5;
+      color: #ece5d8;
       font-size: 0.95rem;
       font-weight: 500;
       transition: color 0.2s ease, transform 0.2s ease;
@@ -119,16 +119,16 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(5, 11, 18, 0.3) 0%, rgba(5, 11, 18, 0.86) 76%, rgba(5, 11, 18, 1) 100%),
-        radial-gradient(circle at 18% 32%, rgba(255, 107, 44, 0.18), transparent 34%),
-        radial-gradient(circle at 82% 28%, rgba(34, 211, 238, 0.16), transparent 26%);
+        linear-gradient(180deg, rgba(12, 14, 18, 0.32) 0%, rgba(12, 14, 18, 0.86) 76%, rgba(12, 14, 18, 1) 100%),
+        radial-gradient(circle at 18% 32%, rgba(196, 138, 58, 0.18), transparent 34%),
+        radial-gradient(circle at 82% 28%, rgba(127, 143, 115, 0.14), transparent 26%);
       pointer-events: none;
     }
     .hero-bg {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(120deg, rgba(8, 19, 29, 0.5), rgba(8, 19, 29, 0.65)),
+        linear-gradient(120deg, rgba(15, 17, 21, 0.56), rgba(15, 17, 21, 0.74)),
         url("assets/images/banner.png") center/cover no-repeat;
       opacity: 0.95;
     }
@@ -170,7 +170,7 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      color: #d7e6f4;
+      color: #ddd4c4;
       letter-spacing: 0.12em;
       font-size: 0.82rem;
       text-transform: uppercase;
@@ -191,7 +191,7 @@
     }
     .hero-sub {
       max-width: 58ch;
-      color: #c4d3e1;
+      color: #c7c0b2;
       font-size: 1.05rem;
       margin-bottom: 30px;
     }
@@ -216,7 +216,7 @@
     .btn-primary {
       background: var(--gradient);
       color: #fff;
-      box-shadow: 0 16px 34px rgba(255, 107, 44, 0.22);
+      box-shadow: 0 16px 34px rgba(196, 138, 58, 0.2);
     }
     .btn-wa { background: var(--wa); color: #fff; }
     .btn-wa:hover { box-shadow: 0 12px 24px rgba(37, 211, 102, 0.24); }
@@ -281,7 +281,7 @@
       aspect-ratio: 4 / 5;
       object-fit: cover;
       border-radius: 22px;
-      background: #102233;
+      background: #1a1d23;
     }
     .hero-stack {
       position: absolute;
@@ -289,27 +289,27 @@
       bottom: 20px;
       padding: 16px 18px;
       border-radius: 18px;
-      background: rgba(7, 17, 26, 0.92);
+      background: rgba(24, 26, 32, 0.94);
       border: 1px solid rgba(255, 255, 255, 0.1);
       min-width: 180px;
       box-shadow: var(--shadow);
       z-index: 2;
     }
-    .hero-stack h3 { font-size: 0.88rem; margin-bottom: 10px; color: #e9f3fc; }
+    .hero-stack h3 { font-size: 0.88rem; margin-bottom: 10px; color: #f1e7d5; }
     .stack-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .stack-list span {
       font-size: 0.76rem;
       font-weight: 700;
-      color: #dff8ff;
-      background: rgba(34, 211, 238, 0.12);
-      border: 1px solid rgba(34, 211, 238, 0.18);
+      color: #eee0c2;
+      background: rgba(127, 143, 115, 0.16);
+      border: 1px solid rgba(127, 143, 115, 0.22);
       padding: 6px 10px;
       border-radius: 999px;
     }
     .stats-bar {
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(11, 20, 31, 0.9);
+      background: rgba(20, 22, 27, 0.92);
     }
     .stats-wrap {
       display: grid;
@@ -335,7 +335,7 @@
       white-space: nowrap;
       padding: 18px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(8, 17, 27, 0.84);
+      background: rgba(20, 22, 27, 0.84);
     }
     .ticker-inner { display: inline-flex; animation: ticker 26s linear infinite; }
     .pill {
@@ -347,11 +347,11 @@
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #d8e6f3;
+      color: #e6dece;
       font-size: 0.92rem;
     }
     .section { padding: 88px 0; }
-    .section.alt { background: rgba(8, 17, 27, 0.68); }
+    .section.alt { background: rgba(22, 24, 30, 0.76); }
     .sec-head { margin-bottom: 40px; }
     .sec-head h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 10px; }
     .sec-head p {
@@ -389,7 +389,7 @@
       justify-content: center;
       font-size: 1.35rem;
       color: #fff;
-      background: linear-gradient(135deg, rgba(255, 107, 44, 0.9), rgba(34, 211, 238, 0.88));
+      background: linear-gradient(135deg, rgba(196, 138, 58, 0.95), rgba(127, 143, 115, 0.88));
       margin-bottom: 16px;
     }
     .card h3 { font-size: 1.16rem; margin-bottom: 10px; }
@@ -457,9 +457,9 @@
       padding: 5px 10px;
       font-size: 0.73rem;
       font-weight: 700;
-      background: rgba(34, 211, 238, 0.1);
-      border: 1px solid rgba(34, 211, 238, 0.18);
-      color: #bff6ff;
+      background: rgba(196, 138, 58, 0.12);
+      border: 1px solid rgba(196, 138, 58, 0.2);
+      color: #f0debc;
     }
     .proj-body h3 { font-size: 1.18rem; }
     .proj-body p { color: var(--muted); font-size: 0.93rem; }
@@ -589,14 +589,14 @@
       left: -70px;
       width: 240px;
       height: 240px;
-      background: rgba(255, 107, 44, 0.12);
+      background: rgba(196, 138, 58, 0.12);
     }
     .contact-box::after {
       right: -80px;
       bottom: -120px;
       width: 260px;
       height: 260px;
-      background: rgba(34, 211, 238, 0.12);
+      background: rgba(127, 143, 115, 0.12);
     }
     .contact-box > * { position: relative; z-index: 1; }
     .contact-box h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 12px; }
