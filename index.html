@@ -5,882 +5,631 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Er Karim | Full Stack AI Developer</title>
 
+  <link rel="preconnect" href="https://image.thum.io">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
   <style>
     :root {
       --bg-dark: #050505;
       --bg-secondary: #0d0d0d;
       --bg-card: #101010;
-      --primary-accent: #d400ff;
-      --secondary-accent: #00f3ff;
-      --text-main: #ffffff;
-      --text-muted: #b7b7b7;
-      --gradient: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-      --card-border: 1px solid rgba(255, 255, 255, 0.06);
-      --whatsapp-color: #25d366;
-      --facebook-color: #1877F2;
-      --linkedin-color: #0077b5;
-      --section-space: 90px;
+      --primary: #d400ff;
+      --secondary: #00f3ff;
+      --muted: #a0a0a0;
+      --gradient: linear-gradient(135deg, #d400ff, #00f3ff);
+      --card-border: 1px solid rgba(255,255,255,0.06);
+      --wa: #25d366;
+      --fb: #1877F2;
+      --li: #0077b5;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
     html { scroll-behavior: smooth; }
-    body { background: var(--bg-dark); color: var(--text-main); overflow-x: hidden; line-height: 1.6; }
+    body { background: var(--bg-dark); color: #fff; overflow-x: hidden; line-height: 1.65; }
     a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInLeft {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
-      70% { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-    }
-    @keyframes marquee {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse    { 0%,100% { box-shadow:0 0 0 0 rgba(37,211,102,.5); } 70% { box-shadow:0 0 0 14px rgba(37,211,102,0); } }
+    @keyframes ticker   { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
 
-    /* ── NAV ── */
+    /* NAV */
     nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 76px;
+      position: fixed; top: 0; width: 100%; height: 76px;
       padding: 0 5%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(5,5,5,0.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,5,5,.92); backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,.05); z-index: 1000;
     }
     .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
     .logo span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-items { display: flex; gap: 30px; align-items: center; }
-    .nav-items a { font-weight: 500; font-size: 0.95rem; transition: 0.25s ease; }
-    .nav-items a:hover { color: var(--primary-accent); text-shadow: 0 0 12px rgba(212,0,255,0.55); }
-    .mobile-menu-btn { display: none; font-size: 1.8rem; cursor: pointer; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: .93rem; font-weight: 500; transition: .2s; }
+    .nav-links a:hover { color: var(--primary); text-shadow: 0 0 12px rgba(212,0,255,.45); }
+    .nav-toggle { display: none; font-size: 1.7rem; cursor: pointer; }
 
-    /* ── HERO ── */
+    /* HERO */
     .hero {
       min-height: 100vh;
-      padding: 76px 0 0;
       position: relative;
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
       overflow: hidden;
     }
-
-    /* BG image fills hero */
     .hero-bg {
-      position: absolute;
-      inset: 0;
-      background: url('assets/images/banner.png') center center / cover no-repeat;
-      z-index: 0;
+      position: absolute; inset: 0;
+      background: url('assets/images/banner.png') center / cover no-repeat;
     }
-    /* Dark overlay on top of bg */
     .hero-bg::after {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        100deg,
-        rgba(5,5,5,0.97) 0%,
-        rgba(5,5,5,0.90) 50%,
-        rgba(5,5,5,0.55) 100%
-      );
-    }
-
-    /* Ambient glow blobs */
-    .hero-glow {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
+      position: absolute; inset: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 10% 40%, rgba(212,0,255,0.12), transparent),
-        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(0,243,255,0.07), transparent);
+        linear-gradient(to bottom, rgba(5,5,5,.5) 0%, rgba(5,5,5,.78) 55%, rgba(5,5,5,.97) 100%),
+        radial-gradient(ellipse 70% 60% at 20% 50%, rgba(212,0,255,.1), transparent),
+        radial-gradient(ellipse 50% 50% at 80% 40%, rgba(0,243,255,.07), transparent);
     }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      padding: 80px 5% 80px;
-      max-width: 780px;
-      width: 100%;
+    .hero-inner {
+      position: relative; z-index: 2;
+      padding: 110px 20px 90px;
+      max-width: 860px; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
     }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 18px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #25d366;
-      background: rgba(37,211,102,0.10);
-      border: 1px solid rgba(37,211,102,0.28);
+    .hero-photo {
+      width: 150px; height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary);
+      box-shadow: 0 0 40px rgba(212,0,255,.35);
       margin-bottom: 22px;
-      animation: fadeInLeft 0.6s ease both;
+      transition: .3s;
+      animation: fadeUp .7s ease both;
     }
-    .hero-badge i { font-size: 7px; }
-
-    .hero-role {
-      color: var(--primary-accent);
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      font-weight: 700;
-      font-size: 0.88rem;
+    .hero-photo:hover { transform: scale(1.05); border-color: var(--secondary); }
+    .avail-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 999px;
+      font-size: .82rem; font-weight: 600;
+      color: #25d366;
+      background: rgba(37,211,102,.1);
+      border: 1px solid rgba(37,211,102,.28);
       margin-bottom: 16px;
-      animation: fadeInLeft 0.7s ease 0.1s both;
+      animation: fadeUp .7s .1s ease both;
     }
-
+    .avail-badge i { font-size: 7px; }
+    .hero-role {
+      color: var(--primary);
+      letter-spacing: 2.5px; text-transform: uppercase;
+      font-size: .8rem; font-weight: 700;
+      margin-bottom: 18px;
+      animation: fadeUp .7s .15s ease both;
+    }
     .hero h1 {
-      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-size: clamp(2rem, 5vw, 3.9rem);
       line-height: 1.1;
-      margin-bottom: 28px;
-      animation: fadeInUp 0.8s ease 0.15s both;
+      margin-bottom: 22px;
+      animation: fadeUp .8s .2s ease both;
     }
-
-    .text-gradient {
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .grad { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub {
+      color: #d0d0d0; font-size: 1.02rem; max-width: 620px;
+      margin-bottom: 30px;
+      animation: fadeUp .8s .28s ease both;
     }
-
-    /* Bullet points — clean 2-col grid */
-    .hero-points {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px 24px;
-      margin-bottom: 34px;
-      animation: fadeInUp 0.8s ease 0.25s both;
-    }
-    .hero-point {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-size: 0.97rem;
-      color: #e2e2e2;
-    }
-    .hero-point i {
-      color: var(--secondary-accent);
-      font-size: 0.82rem;
-      flex-shrink: 0;
-    }
-
-    /* CTA buttons */
     .hero-btns {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      animation: fadeInUp 0.8s ease 0.35s both;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+      animation: fadeUp .8s .36s ease both;
     }
-
     .btn {
-      padding: 14px 26px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      font-weight: 700;
-      transition: 0.28s ease;
-      font-size: 0.96rem;
-      cursor: pointer;
+      padding: 13px 26px; border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 9px;
+      font-weight: 700; font-size: .95rem; cursor: pointer; transition: .25s;
     }
     .btn-primary { background: var(--gradient); color: #fff; }
-    .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 28px rgba(212,0,255,0.38); }
-    .btn-whatsapp { background: #25d366; color: #fff; }
-    .btn-whatsapp:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 22px rgba(37,211,102,0.30); background: #1ebe57; }
-    .btn-outline { border: 1px solid rgba(255,255,255,0.2); color: #fff; background: rgba(255,255,255,0.04); }
-    .btn-outline:hover { border-color: var(--primary-accent); color: var(--primary-accent); background: rgba(212,0,255,0.08); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 26px rgba(212,0,255,.35); }
+    .btn-wa { background: var(--wa); color: #fff; }
+    .btn-wa:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(37,211,102,.3); background: #1ebe57; }
+    .btn-ghost { border: 1px solid rgba(255,255,255,.18); color: #fff; background: rgba(255,255,255,.04); }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: rgba(212,0,255,.07); }
 
-    /* ── STATS BAR ── */
+    /* STATS */
     .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      flex-wrap: wrap;
-      padding: 34px 20px;
+      display: flex; justify-content: center; flex-wrap: wrap;
+      gap: 48px; padding: 32px 5%;
       background: var(--bg-secondary);
-      border-top: 1px solid rgba(255,255,255,0.05);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
     }
-    .stat-item { text-align: center; }
-    .stat-num { display: block; font-size: 2.35rem; font-weight: 900; }
-    .stat-label { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+    .stat { text-align: center; }
+    .stat strong { display: block; font-size: 2.2rem; font-weight: 900; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat span { color: var(--muted); font-size: .86rem; letter-spacing: 1px; text-transform: uppercase; }
 
-    /* ── MARQUEE ── */
-    .marquee {
-      padding: 22px 0;
-      overflow: hidden;
-      white-space: nowrap;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+    /* TICKER */
+    .ticker { overflow: hidden; white-space: nowrap; padding: 20px 0; background: var(--bg-secondary); border-bottom: 1px solid rgba(255,255,255,.05); }
+    .ticker-inner { display: inline-block; animation: ticker 26s linear infinite; }
+    .pill {
+      display: inline-block; padding: 9px 18px; border-radius: 999px; margin: 0 8px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06);
+      color: var(--muted); font-size: .92rem; transition: .2s;
     }
-    .marquee-content { display: inline-block; animation: marquee 24s linear infinite; }
-    .tech-pill {
-      display: inline-block;
-      padding: 9px 20px;
-      border-radius: 999px;
-      margin: 0 8px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.05);
-      color: var(--text-muted);
-      font-size: 0.94rem;
+    .pill:hover { border-color: rgba(212,0,255,.35); color: var(--primary); }
+
+    /* SECTIONS */
+    .section { padding: 90px 5%; }
+    .section.alt { background: var(--bg-secondary); }
+    .sec-head { margin-bottom: 42px; }
+    .sec-head h2 { font-size: clamp(1.9rem, 3.5vw, 2.8rem); margin-bottom: 8px; }
+    .sec-head p { color: var(--muted); max-width: 640px; font-size: .98rem; }
+
+    /* CARD GRIDS */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+
+    .card {
+      background: linear-gradient(160deg, rgba(255,255,255,.025), rgba(255,255,255,.008));
+      border: var(--card-border); border-radius: 20px; padding: 26px;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: .3s;
     }
+    .card:hover { transform: translateY(-5px); border-color: rgba(212,0,255,.26); box-shadow: 0 12px 30px rgba(0,0,0,.3); }
+    .card-icon { font-size: 1.9rem; color: var(--secondary); }
+    .card h3 { font-size: 1.15rem; line-height: 1.35; }
+    .card p { color: var(--muted); font-size: .95rem; }
+    .card ul { list-style: none; color: var(--muted); font-size: .93rem; display: flex; flex-direction: column; gap: 8px; }
+    .card ul li { display: flex; align-items: flex-start; gap: 9px; }
+    .card ul li i { color: var(--primary); font-size: .75rem; margin-top: 5px; flex-shrink: 0; }
 
-    /* ── SECTION ── */
-    .section { padding: var(--section-space) 5%; }
-    .section-header { margin-bottom: 40px; }
-    .section-header h2 { font-size: 2.8rem; margin-bottom: 10px; }
-    .section-header p { color: var(--text-muted); max-width: 680px; font-size: 1rem; }
-
-    .equal-grid {
+    /* PORTFOLIO */
+    .port-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 24px;
-      align-items: stretch;
     }
-
-    .service-card, .trust-card, .testimonial-card, .brand-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
-      border: var(--card-border);
-      border-radius: 22px;
-      padding: 26px;
-      transition: 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .service-card:hover, .trust-card:hover, .testimonial-card:hover, .brand-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(212,0,255,0.28);
-      box-shadow: 0 14px 34px rgba(0,0,0,0.35);
-    }
-    .service-icon, .trust-icon { font-size: 2rem; color: var(--secondary-accent); margin-bottom: 18px; }
-    .service-card h3, .trust-card h3, .testimonial-card h3, .brand-card h3 { font-size: 1.22rem; margin-bottom: 12px; line-height: 1.35; }
-    .service-card p, .trust-card p, .testimonial-card p, .brand-card p { color: var(--text-muted); font-size: 0.98rem; }
-    .service-card ul { list-style: none; color: var(--text-muted); line-height: 1.85; margin-top: 6px; flex: 1; }
-    .service-card li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
-    .service-card li i { color: var(--primary-accent); margin-top: 6px; font-size: 0.82rem; flex-shrink: 0; }
-
-    /* ── PORTFOLIO ── */
-    .portfolio-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 26px;
-    }
-    .project-card {
+    .proj-card {
       background: var(--bg-card);
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.06);
-      transition: 0.28s ease;
-      display: flex;
-      flex-direction: column;
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.06);
+      display: flex; flex-direction: column;
+      transition: .28s;
     }
-    .project-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(0,243,255,0.45);
-      box-shadow: 0 16px 30px rgba(0,0,0,0.35);
+    .proj-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0,243,255,.4);
+      box-shadow: 0 14px 28px rgba(0,0,0,.3);
     }
 
-    /* ── PROJECT IMAGE SCROLL FIX ── */
-    .project-img-container {
-      width: 100%;
-      height: 240px;
-      overflow: hidden;
+    /* image scroll preview */
+    .proj-thumb {
+      width: 100%; height: 220px;
+      overflow: hidden; position: relative;
       background: #0a0a0a;
-      position: relative;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .project-img-container img {
+    .proj-thumb img {
       width: 100%;
       display: block;
-      object-fit: cover;
       object-position: top center;
-      transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      will-change: transform;
       transform: translateY(0);
+      transition: transform 2.8s cubic-bezier(.37,0,.63,1);
+      will-change: transform;
     }
-    /* JS will set the correct negative translateY on hover */
-    .project-card:hover .project-img-container img {
-      transform: translateY(var(--img-scroll, -30%));
+    .proj-card:hover .proj-thumb img {
+      transform: translateY(var(--dy, -40%));
     }
+    .proj-thumb .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.4) 0%, transparent 50%);
+      opacity: 0; transition: .25s; pointer-events: none;
+    }
+    .proj-card:hover .proj-thumb .overlay { opacity: 1; }
+    .proj-badge {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      padding: 6px 11px; border-radius: 999px; font-size: .72rem; font-weight: 700;
+      background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(8px);
+    }
+    .proj-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag { font-size: .72rem; padding: 4px 9px; border-radius: 7px; color: var(--secondary); background: rgba(0,243,255,.08); border: 1px solid rgba(0,243,255,.18); }
+    .proj-body h3 { font-size: 1.18rem; }
+    .proj-body a { margin-top: auto; color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 7px; transition: .2s; font-size: .93rem; }
+    .proj-body a:hover { color: var(--secondary); }
 
-    .project-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0.02));
-      opacity: 0;
-      transition: 0.25s ease;
-      pointer-events: none;
-    }
-    .project-card:hover .project-overlay { opacity: 1; }
+    /* TESTIMONIALS */
+    .testi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+    .testi-card { background: linear-gradient(160deg, rgba(255,255,255,.025), rgba(255,255,255,.008)); border: var(--card-border); border-radius: 20px; padding: 26px; transition: .3s; display: flex; flex-direction: column; gap: 16px; }
+    .testi-card:hover { transform: translateY(-5px); border-color: rgba(212,0,255,.26); box-shadow: 0 12px 30px rgba(0,0,0,.3); }
+    .stars { color: #f5a623; font-size: .8rem; }
+    .testi-card .quote { color: #e8e8e8; font-size: .97rem; line-height: 1.75; flex: 1; }
+    .testi-card .meta { color: var(--muted); font-size: .88rem; font-weight: 600; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.06); }
 
-    .project-badge {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      z-index: 2;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(0,0,0,0.55);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(8px);
-    }
-    .project-info { padding: 22px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
-    .project-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag {
-      font-size: 0.74rem;
-      padding: 5px 10px;
-      border-radius: 8px;
-      color: var(--secondary-accent);
-      background: rgba(0,243,255,0.08);
-      border: 1px solid rgba(0,243,255,0.18);
-    }
-    .project-info h3 { font-size: 1.28rem; line-height: 1.3; }
-    .project-info a {
-      margin-top: auto;
-      color: var(--primary-accent);
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.25s ease;
-    }
-    .project-info a:hover { color: var(--secondary-accent); }
-
-    /* ── SWIPER ── */
-    .swiper-section { position: relative; }
-    .swiper-wrap { padding-bottom: 16px; }
-    .swiper-slide { height: auto; }
-    .brand-image { width: 100%; height: 170px; border-radius: 16px; overflow: hidden; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.06); }
-    .brand-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .brand-card i { font-size: 1.8rem; margin-bottom: 12px; color: var(--primary-accent); }
-    .testimonial-card .quote { font-size: 1rem; color: #f0f0f0; margin-bottom: 24px; line-height: 1.8; flex: 1; }
-    .client-meta { color: var(--text-muted); font-size: 0.95rem; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; }
-    .swiper-nav { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    .swiper-btn {
-      width: 44px; height: 44px; border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
-      color: #fff;
-      display: inline-flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: 0.25s ease;
-    }
-    .swiper-btn:hover { border-color: var(--primary-accent); color: var(--primary-accent); background: rgba(212,0,255,0.08); }
-
-    /* ── CONTACT ── */
-    .contact-section { text-align: center; padding: 110px 20px; background: linear-gradient(0deg, #000, var(--bg-dark)); }
+    /* CONTACT */
+    .contact-wrap { text-align: center; padding: 100px 20px; background: linear-gradient(0, #000, var(--bg-dark)); }
     .contact-box {
-      max-width: 780px; margin: 0 auto; padding: 46px 28px;
+      max-width: 760px; margin: 0 auto;
+      padding: 48px 32px;
       background: var(--bg-secondary);
-      border-radius: 28px; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 26px; border: 1px solid rgba(255,255,255,.06);
       position: relative; overflow: hidden;
     }
     .contact-box::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(circle, rgba(212,0,255,0.09), transparent 60%);
+      content: ''; position: absolute; inset: -50%;
+      background: radial-gradient(circle, rgba(212,0,255,.08), transparent 60%);
       pointer-events: none;
     }
-    .contact-content { position: relative; z-index: 1; }
-    .social-row { margin-top: 28px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-    .social-btn {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-      display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255,255,255,0.08); transition: 0.25s ease; font-size: 1.2rem;
+    .contact-box > * { position: relative; z-index: 1; }
+    .contact-box h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 12px; }
+    .contact-box p { color: var(--muted); max-width: 520px; margin: 0 auto 28px; }
+    .contact-btns { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+    .socials { display: flex; justify-content: center; gap: 14px; margin-top: 26px; flex-wrap: wrap; }
+    .soc-btn { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); font-size: 1.15rem; transition: .25s; }
+    .soc-btn:hover { transform: translateY(-4px); }
+    .soc-btn.fb:hover { background: var(--fb); border-color: var(--fb); }
+    .soc-btn.li:hover { background: var(--li); border-color: var(--li); }
+    .soc-btn.wa:hover { background: var(--wa); border-color: var(--wa); }
+
+    footer { text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,.05); color: #555; font-size: .88rem; }
+
+    /* FLOAT WA */
+    .wa-float {
+      position: fixed; bottom: 22px; right: 22px; z-index: 999;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--wa); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      animation: pulse 2s infinite;
+      box-shadow: 0 6px 20px rgba(0,0,0,.35);
     }
-    .social-btn:hover { transform: translateY(-4px); }
-    .social-btn.fb:hover { background: var(--facebook-color); border-color: var(--facebook-color); }
-    .social-btn.in:hover { background: var(--linkedin-color); border-color: var(--linkedin-color); }
-    .social-btn.wa:hover { background: var(--whatsapp-color); border-color: var(--whatsapp-color); }
 
-    /* ── FLOAT WHATSAPP ── */
-    .whatsapp-float {
-      position: fixed; right: 22px; bottom: 22px; width: 58px; height: 58px;
-      border-radius: 50%; background: var(--whatsapp-color); color: #fff;
-      display: flex; align-items: center; justify-content: center; font-size: 1.7rem;
-      z-index: 999; animation: pulse 2s infinite; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    /* RESPONSIVE */
+    @media (max-width: 1100px) {
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
     }
-
-    footer { text-align: center; padding: 22px 16px; border-top: 1px solid rgba(255,255,255,0.05); color: #555; font-size: 0.92rem; }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      .mobile-menu-btn { display: block; }
-      .nav-items {
-        display: none; flex-direction: column; position: absolute; top: 76px; left: 0;
-        width: 100%; background: rgba(5,5,5,0.98); padding: 24px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+      .nav-toggle { display: block; }
+      .nav-links {
+        display: none; flex-direction: column;
+        position: absolute; top: 76px; left: 0; width: 100%;
+        background: rgba(5,5,5,.98); padding: 20px 0;
+        border-bottom: 1px solid rgba(255,255,255,.07);
       }
-      .nav-items.active { display: flex; }
-
-      .hero h1 { font-size: 2.2rem; }
-      .hero-points { grid-template-columns: 1fr; gap: 10px; }
-      .hero-btns { flex-direction: column; }
-      .hero-btns .btn { justify-content: center; }
-      .hero-content { padding: 70px 5% 60px; }
-
-      .stats-bar { gap: 28px; }
-      .portfolio-grid { grid-template-columns: 1fr; }
-      .project-img-container { height: 210px; }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 9px 5%; }
+      .hero h1 { font-size: 2rem; }
+      .hero-photo { width: 120px; height: 120px; }
+      .hero-btns { flex-direction: column; align-items: center; }
+      .hero-btns .btn { width: 100%; max-width: 280px; justify-content: center; }
+      .stats-bar { gap: 26px; }
+      .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .port-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
       .section { padding: 70px 5%; }
-      .section-header h2 { font-size: 2rem; }
-      .equal-grid { grid-template-columns: 1fr; }
-      .whatsapp-float { width: 52px; height: 52px; font-size: 1.45rem; right: 16px; bottom: 16px; }
-    }
-
-    @media (min-width: 769px) and (max-width: 1100px) {
-      .equal-grid { grid-template-columns: repeat(2, 1fr); }
+      .wa-float { width: 50px; height: 50px; font-size: 1.4rem; bottom: 16px; right: 16px; }
     }
   </style>
 </head>
 <body>
 
-  <nav>
-    <div class="logo">Er<span>Karim</span></div>
-    <div class="nav-items" id="navItems">
-      <a href="#about" onclick="toggleMenu()">About</a>
-      <a href="#services" onclick="toggleMenu()">Services</a>
-      <a href="#why-choose" onclick="toggleMenu()">Why Me</a>
-      <a href="#work" onclick="toggleMenu()">Projects</a>
-      <a href="#brands" onclick="toggleMenu()">Trust</a>
-      <a href="#testimonials" onclick="toggleMenu()">Reviews</a>
-      <a href="#contact" onclick="toggleMenu()">Contact</a>
-    </div>
-    <div class="mobile-menu-btn" onclick="toggleMenu()">
-      <i class="fas fa-bars"></i>
-    </div>
-  </nav>
+<!-- NAV -->
+<nav>
+  <div class="logo">Er<span>Karim</span></div>
+  <div class="nav-links" id="nav">
+    <a href="#about"    onclick="closeNav()">About</a>
+    <a href="#services" onclick="closeNav()">Services</a>
+    <a href="#why"      onclick="closeNav()">Why Me</a>
+    <a href="#work"     onclick="closeNav()">Projects</a>
+    <a href="#reviews"  onclick="closeNav()">Reviews</a>
+    <a href="#contact"  onclick="closeNav()">Contact</a>
+  </div>
+  <div class="nav-toggle" onclick="toggleNav()"><i class="fas fa-bars" id="nav-icon"></i></div>
+</nav>
 
-  <!-- ── HERO ── -->
-  <section class="hero" id="about">
-    <!-- Background: your banner image fills here -->
-    <div class="hero-bg"></div>
-    <div class="hero-glow"></div>
-
-    <div class="hero-content">
-      <div class="hero-badge">
-        <i class="fas fa-circle"></i>
-        Available for Freelance
-      </div>
-
-      <div class="hero-role">Full Stack Developer • Shopify • WordPress • AI Solutions</div>
-
-      <h1>
-        I Build <span class="text-gradient">Modern Websites,<br>Portals & Web Apps</span><br>
-        That Help Businesses<br>Grow Faster
-      </h1>
-
-      <div class="hero-points">
-        <div class="hero-point"><i class="fas fa-check-circle"></i><span>Fast Loading Modern Websites</span></div>
-        <div class="hero-point"><i class="fas fa-check-circle"></i><span>Custom Web Apps & Dashboards</span></div>
-        <div class="hero-point"><i class="fas fa-check-circle"></i><span>Instant Reply & Quick Support</span></div>
-        <div class="hero-point"><i class="fas fa-check-circle"></i><span>Long-term Maintenance & Guidance</span></div>
-      </div>
-
-      <div class="hero-btns">
-        <a href="#work" class="btn btn-primary"><i class="fas fa-briefcase"></i> View Projects</a>
-        <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
-        <a href="#contact" class="btn btn-outline"><i class="fas fa-paper-plane"></i> Hire Me</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── STATS BAR ── -->
-  <div class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-num text-gradient">4+</span>
-      <span class="stat-label">Years Experience</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num text-gradient">50+</span>
-      <span class="stat-label">Projects Done</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num text-gradient">100%</span>
-      <span class="stat-label">Client Satisfaction</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num text-gradient">24/7</span>
-      <span class="stat-label">Support Mindset</span>
+<!-- HERO -->
+<section class="hero" id="about">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <img
+      src="1737800704026.jpeg"
+      alt="Er Karim"
+      class="hero-photo"
+      onerror="this.src='assets/images/profile.jpeg'"
+    >
+    <div class="avail-badge"><i class="fas fa-circle"></i> Available for Freelance</div>
+    <div class="hero-role">Full Stack Developer · Shopify · WordPress · AI Solutions</div>
+    <h1>
+      I Build <span class="grad">Websites, Web Apps<br>&amp; Portals</span><br>
+      That Help Businesses Grow
+    </h1>
+    <p class="hero-sub">
+      Fast, modern, conversion-focused digital experiences — from landing pages and Shopify stores to custom dashboards, portals, and AI-powered solutions.
+    </p>
+    <div class="hero-btns">
+      <a href="#work"    class="btn btn-primary"><i class="fas fa-briefcase"></i> View Projects</a>
+      <a href="https://wa.me/917631115414" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+      <a href="#contact" class="btn btn-ghost"><i class="fas fa-paper-plane"></i> Hire Me</a>
     </div>
   </div>
+</section>
 
-  <!-- ── MARQUEE ── -->
-  <div class="marquee">
-    <div class="marquee-content">
-      <span class="tech-pill">React</span>
-      <span class="tech-pill">Next.js</span>
-      <span class="tech-pill">Node.js</span>
-      <span class="tech-pill">Shopify</span>
-      <span class="tech-pill">WordPress</span>
-      <span class="tech-pill">Tailwind CSS</span>
-      <span class="tech-pill">MongoDB</span>
-      <span class="tech-pill">OpenAI</span>
-      <span class="tech-pill">Firebase</span>
-      <span class="tech-pill">Python</span>
-      <span class="tech-pill">MySQL</span>
-      <span class="tech-pill">Docker</span>
-      <span class="tech-pill">Figma</span>
-      <span class="tech-pill">AWS</span>
-      <span class="tech-pill">REST APIs</span>
-      <!-- duplicate for seamless loop -->
-      <span class="tech-pill">React</span>
-      <span class="tech-pill">Next.js</span>
-      <span class="tech-pill">Node.js</span>
-      <span class="tech-pill">Shopify</span>
-      <span class="tech-pill">WordPress</span>
-      <span class="tech-pill">Tailwind CSS</span>
-      <span class="tech-pill">MongoDB</span>
-      <span class="tech-pill">OpenAI</span>
-      <span class="tech-pill">Firebase</span>
-      <span class="tech-pill">Python</span>
-      <span class="tech-pill">MySQL</span>
-      <span class="tech-pill">Docker</span>
-      <span class="tech-pill">Figma</span>
-      <span class="tech-pill">AWS</span>
-      <span class="tech-pill">REST APIs</span>
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><strong>4+</strong><span>Years Experience</span></div>
+  <div class="stat"><strong>50+</strong><span>Projects Done</span></div>
+  <div class="stat"><strong>100%</strong><span>Client Satisfaction</span></div>
+  <div class="stat"><strong>24/7</strong><span>Support Mindset</span></div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="pill"><i class="fab fa-shopify"></i> Shopify</span>
+    <span class="pill"><i class="fab fa-wordpress"></i> WordPress</span>
+    <span class="pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
+    <span class="pill"><i class="fab fa-html5"></i> HTML5</span>
+    <span class="pill"><i class="fab fa-css3-alt"></i> CSS3</span>
+    <span class="pill"><i class="fab fa-js"></i> JavaScript</span>
+    <span class="pill"><i class="fab fa-react"></i> React</span>
+    <span class="pill"><i class="fas fa-server"></i> Full Stack Apps</span>
+    <span class="pill"><i class="fas fa-chart-line"></i> SEO Strategy</span>
+    <span class="pill"><i class="fas fa-robot"></i> AI Integrations</span>
+    <span class="pill"><i class="fas fa-window-restore"></i> Dashboards</span>
+    <span class="pill"><i class="fas fa-sitemap"></i> Portals</span>
+    <span class="pill"><i class="fab fa-shopify"></i> Shopify</span>
+    <span class="pill"><i class="fab fa-wordpress"></i> WordPress</span>
+    <span class="pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
+    <span class="pill"><i class="fab fa-react"></i> React</span>
+    <span class="pill"><i class="fas fa-server"></i> Full Stack Apps</span>
+    <span class="pill"><i class="fas fa-robot"></i> AI Integrations</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="sec-head">
+    <h2>My <span class="grad">Expertise</span></h2>
+    <p>Complete digital solutions for businesses, creators, startups, and growing brands.</p>
+  </div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-code"></i></div>
+      <h3>Web Development</h3>
+      <ul>
+        <li><i class="fas fa-circle"></i>E-commerce (Shopify & WooCommerce)</li>
+        <li><i class="fas fa-circle"></i>100% Custom Themes & UI</li>
+        <li><i class="fas fa-circle"></i>WordPress & Elementor Pro</li>
+        <li><i class="fas fa-circle"></i>High-converting Landing Pages</li>
+        <li><i class="fas fa-circle"></i>Responsive for All Devices</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-laptop-code"></i></div>
+      <h3>Custom Web Apps</h3>
+      <ul>
+        <li><i class="fas fa-circle"></i>CRM, Dashboard & Admin Panels</li>
+        <li><i class="fas fa-circle"></i>Distributor & Vendor Portals</li>
+        <li><i class="fas fa-circle"></i>Internal Tools & Automation</li>
+        <li><i class="fas fa-circle"></i>SaaS-style Interfaces</li>
+        <li><i class="fas fa-circle"></i>API Integration & Backend</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-robot"></i></div>
+      <h3>AI Integration</h3>
+      <ul>
+        <li><i class="fas fa-circle"></i>ChatGPT & Gemini Integration</li>
+        <li><i class="fas fa-circle"></i>AI Chatbots & Smart Workflows</li>
+        <li><i class="fas fa-circle"></i>Automation & Productivity Tools</li>
+        <li><i class="fas fa-circle"></i>AI Content Systems</li>
+        <li><i class="fas fa-circle"></i>Business Process Improvements</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-paint-brush"></i></div>
+      <h3>UI & Branding</h3>
+      <ul>
+        <li><i class="fas fa-circle"></i>Modern Premium Layout Design</li>
+        <li><i class="fas fa-circle"></i>Creative Brand-focused UI</li>
+        <li><i class="fas fa-circle"></i>Canva & Photoshop Support</li>
+        <li><i class="fas fa-circle"></i>Clean Visual Identity Systems</li>
+        <li><i class="fas fa-circle"></i>Better UX & Trust Signals</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+      <h3>SEO & Growth</h3>
+      <ul>
+        <li><i class="fas fa-circle"></i>SEO Content & Structure</li>
+        <li><i class="fas fa-circle"></i>Conversion-focused Pages</li>
+        <li><i class="fas fa-circle"></i>Keyword Strategy</li>
+        <li><i class="fas fa-circle"></i>Performance Optimization</li>
+        <li><i class="fas fa-circle"></i>Lead Generation Improvement</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-tools"></i></div>
+      <h3>Maintenance & Support</h3>
+      <ul>
+        <li><i class="fas fa-circle"></i>Instant Reply & Fast Fixes</li>
+        <li><i class="fas fa-circle"></i>Ongoing Website Updates</li>
+        <li><i class="fas fa-circle"></i>Long-term Technical Support</li>
+        <li><i class="fas fa-circle"></i>Business Guidance</li>
+        <li><i class="fas fa-circle"></i>Post-launch Improvements</li>
+      </ul>
     </div>
   </div>
+</section>
 
-  <!-- ── SERVICES ── -->
-  <section class="section" id="services">
-    <div class="section-header">
-      <h2>What I <span class="text-gradient">Build</span></h2>
-      <p>End-to-end digital solutions — from design to deployment, tailored for your business goals.</p>
+<!-- WHY ME -->
+<section class="section alt" id="why">
+  <div class="sec-head">
+    <h2>Why Clients <span class="grad">Choose Me</span></h2>
+    <p>I don't just deliver pages — I help businesses launch faster, solve problems quickly, and stay modern.</p>
+  </div>
+  <div class="grid-4">
+    <div class="card"><div class="card-icon"><i class="fas fa-bolt"></i></div><h3>Instant Communication</h3><p>Quick replies, no waiting days for updates or fixes.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-shield-alt"></i></div><h3>Trust & Reliability</h3><p>Clean work, honest communication, and proper delivery throughout.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-infinity"></i></div><h3>Long-term Support</h3><p>Available after delivery for maintenance, improvements, and growth.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-screwdriver-wrench"></i></div><h3>Fast Problem Solving</h3><p>Design bugs to technical issues — solved fast to keep operations smooth.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-lightbulb"></i></div><h3>Business-minded</h3><p>Better layouts, conversions, and practical solutions for actual goals.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-rocket"></i></div><h3>Latest Technology</h3><p>AI systems, modern frameworks, updated design patterns — always future-ready.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-wand-magic-sparkles"></i></div><h3>Creative Design</h3><p>Premium, modern interfaces — not boring generic layouts.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-chart-simple"></i></div><h3>Conversion-first</h3><p>Every build is designed to improve trust, user journey, leads, and sales.</p></div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section" id="work">
+  <div class="sec-head">
+    <h2>Recent <span class="grad">Work</span></h2>
+    <p>Hover on any project to see a smooth scrolling live-style preview.</p>
+  </div>
+  <div class="port-grid" id="portGrid"></div>
+</section>
+
+<!-- CLIENT TRUST -->
+<section class="section alt" id="brands">
+  <div class="sec-head">
+    <h2>Client <span class="grad">Trust &amp; Collaboration</span></h2>
+    <p>Worked with startups, business owners, agencies, e-commerce brands, educational platforms across India and UAE.</p>
+  </div>
+  <div class="grid-3">
+    <div class="card"><div class="card-icon"><i class="fas fa-building"></i></div><h3>Digital Marketing Agencies</h3><p>Development support, landing pages, fixes, and performance improvements.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-cart-shopping"></i></div><h3>E-commerce Brands</h3><p>Custom Shopify stores, product layouts, UX updates, and conversion sections.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-graduation-cap"></i></div><h3>Educational Platforms</h3><p>Portals, course websites, institutional pages, and structured systems.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-user-tie"></i></div><h3>Business Owners & Founders</h3><p>Helped launch websites, improve branding, and create growth systems.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-bullhorn"></i></div><h3>Creators & Service Brands</h3><p>Professional digital presence with speed, trust, and better presentation.</p></div>
+    <div class="card"><div class="card-icon"><i class="fas fa-diagram-project"></i></div><h3>Custom Internal Systems</h3><p>Dashboards, distributor portals, and tools for better workflow handling.</p></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" id="reviews">
+  <div class="sec-head">
+    <h2>Client <span class="grad">Testimonials</span></h2>
+    <p>What clients say about working with me.</p>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"Karim handled the website updates very fast and understood exactly what we needed. The design quality and response speed were both impressive."</p><div class="meta">Aman Raj · Bihar, India</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"We needed a cleaner business website and faster support. The turnaround time was excellent and communication stayed smooth throughout."</p><div class="meta">Faizan Malik · Dubai, UAE</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"Very reliable developer. The landing page structure, responsiveness, and small custom fixes were all handled professionally."</p><div class="meta">Priya Mehta · Delhi, India</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"Elementor and WordPress issues that others could not solve were fixed quickly. Good understanding of design and technical balance."</p><div class="meta">Sandeep Reddy · Hyderabad, India</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"The support after delivery made a big difference. Updates, guidance, and fixes came without delay. Good person to work with long term."</p><div class="meta">Noman Khan · Lucknow, UP</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p class="quote">"We liked the creative approach and modern execution. It felt less generic and more aligned with our business identity."</p><div class="meta">Ritika Sharma · Noida, India</div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<div class="contact-wrap" id="contact">
+  <div class="contact-box">
+    <h2>Ready to Build <span class="grad">Something Strong?</span></h2>
+    <p>Website, portal, dashboard, Shopify store, WordPress solution, or long-term support — I'm ready to help.</p>
+    <div class="contact-btns">
+      <a href="mailto:technicalkrimullah@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Email Me</a>
+      <a href="https://wa.me/917631115414" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp Me</a>
+      <a href="#work" class="btn btn-ghost"><i class="fas fa-eye"></i> See Projects</a>
     </div>
-    <div class="equal-grid">
-      <div class="service-card">
-        <div class="service-icon"><i class="fas fa-globe"></i></div>
-        <h3>Websites & Landing Pages</h3>
-        <ul>
-          <li><i class="fas fa-circle"></i><span>Business & Portfolio Sites</span></li>
-          <li><i class="fas fa-circle"></i><span>High-Converting Landing Pages</span></li>
-          <li><i class="fas fa-circle"></i><span>WordPress & Shopify Stores</span></li>
-          <li><i class="fas fa-circle"></i><span>Speed & SEO Optimization</span></li>
-        </ul>
-      </div>
-      <div class="service-card">
-        <div class="service-icon"><i class="fas fa-code"></i></div>
-        <h3>Web Apps & Dashboards</h3>
-        <ul>
-          <li><i class="fas fa-circle"></i><span>Admin Panels & Portals</span></li>
-          <li><i class="fas fa-circle"></i><span>SaaS MVP Development</span></li>
-          <li><i class="fas fa-circle"></i><span>Custom CRM & ERP Tools</span></li>
-          <li><i class="fas fa-circle"></i><span>API Integration & Backend</span></li>
-        </ul>
-      </div>
-      <div class="service-card">
-        <div class="service-icon"><i class="fas fa-robot"></i></div>
-        <h3>AI & Automation</h3>
-        <ul>
-          <li><i class="fas fa-circle"></i><span>AI Chatbots & Assistants</span></li>
-          <li><i class="fas fa-circle"></i><span>OpenAI / GPT Integration</span></li>
-          <li><i class="fas fa-circle"></i><span>Workflow Automation</span></li>
-          <li><i class="fas fa-circle"></i><span>Data Scraping & Processing</span></li>
-        </ul>
-      </div>
+    <div class="socials">
+      <a href="https://wa.me/917631115414" target="_blank" class="soc-btn wa"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://www.linkedin.com/in/er-karim-9ab962205/" target="_blank" class="soc-btn li"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/onlykarim2.0/" target="_blank" class="soc-btn fb"><i class="fab fa-facebook-f"></i></a>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- ── WHY CHOOSE ME ── -->
-  <section class="section" id="why-choose" style="background: var(--bg-secondary);">
-    <div class="section-header">
-      <h2>Why Choose <span class="text-gradient">Me</span></h2>
-      <p>What sets me apart from the crowd and keeps clients coming back.</p>
-    </div>
-    <div class="equal-grid">
-      <div class="trust-card">
-        <div class="trust-icon"><i class="fas fa-bolt"></i></div>
-        <h3>Fast Delivery</h3>
-        <p>I deliver clean, working projects on time. No ghosting, no delays — just results.</p>
-      </div>
-      <div class="trust-card">
-        <div class="trust-icon"><i class="fas fa-headset"></i></div>
-        <h3>Always Available</h3>
-        <p>Quick replies, instant support. You'll never feel left in the dark after launch.</p>
-      </div>
-      <div class="trust-card">
-        <div class="trust-icon"><i class="fas fa-star"></i></div>
-        <h3>Quality Focused</h3>
-        <p>Pixel-perfect, performance-tuned interfaces that clients are proud to show off.</p>
-      </div>
-      <div class="trust-card">
-        <div class="trust-icon"><i class="fas fa-shield-alt"></i></div>
-        <h3>Reliable & Honest</h3>
-        <p>Transparent pricing, honest timelines, and real communication throughout.</p>
-      </div>
-      <div class="trust-card">
-        <div class="trust-icon"><i class="fas fa-tools"></i></div>
-        <h3>Full Stack Expertise</h3>
-        <p>From UI design to database and deployment — I handle the full product lifecycle.</p>
-      </div>
-      <div class="trust-card">
-        <div class="trust-icon"><i class="fas fa-sync-alt"></i></div>
-        <h3>Long-term Support</h3>
-        <p>I don't disappear after delivery. Updates, fixes, and guidance always available.</p>
-      </div>
-    </div>
-  </section>
+<footer>&copy; 2025 Er Karim. All Rights Reserved. Built with modern web technologies.</footer>
 
-  <!-- ── PROJECTS ── -->
-  <section class="section" id="work">
-    <div class="section-header">
-      <h2>Recent <span class="text-gradient">Projects</span></h2>
-      <p>A selection of real-world builds across different industries and use cases.</p>
-    </div>
-    <div class="portfolio-grid">
+<a href="https://wa.me/917631115414" class="wa-float" target="_blank" aria-label="WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+</a>
 
-      <div class="project-card">
-        <div class="project-img-container">
-          <img src="assets/images/project1.png" alt="Project 1" loading="lazy">
-          <div class="project-overlay"></div>
-          <span class="project-badge">Live</span>
+<script>
+  /* NAV */
+  function toggleNav() {
+    const nav = document.getElementById('nav');
+    const icon = document.getElementById('nav-icon');
+    nav.classList.toggle('open');
+    icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+  }
+  function closeNav() {
+    document.getElementById('nav').classList.remove('open');
+    document.getElementById('nav-icon').className = 'fas fa-bars';
+  }
+
+  /* PROJECTS */
+  const projects = [
+    { name: "Vacations Pilot",           url: "https://vacationspilot.com/",                                    tags: ["Travel","Booking"] },
+    { name: "Sound7Next",                url: "https://sound7next.com/",                                         tags: ["Music","Audio"] },
+    { name: "Digiwave Academy",          url: "https://academy.digiwaveug.com/",                                 tags: ["Education","LMS"] },
+    { name: "Lakestar Caravans",         url: "https://lakestarcaravans.au/",                                    tags: ["Auto","Business"] },
+    { name: "Pines Nutrition",           url: "https://pinesnutrition.org/",                                     tags: ["Health","E-com"] },
+    { name: "ICTEA",                     url: "https://ictea.in/",                                               tags: ["Tech","Institute"] },
+    { name: "Crossworks DI",             url: "https://crossworksdi.com/",                                       tags: ["Corporate","Agency"] },
+    { name: "BGMS Bangalore",            url: "https://www.bgmsbangalore.com/",                                  tags: ["Education","Org"] },
+    { name: "Ikigai Seido",              url: "https://ikigai-seido.com/",                                       tags: ["Lifestyle","Blog"] },
+    { name: "Anurag Traders",            url: "http://anuragtraders.com/",                                       tags: ["Retail","Business"] },
+    { name: "Maasin Me",                 url: "https://maasinme.com/",                                          tags: ["News","Media"] },
+    { name: "Blueways",                  url: "https://blueways.ourfruitbowl.in/",                               tags: ["Agriculture","Organic"] },
+    { name: "Karishma Kannan",           url: "https://karishmakannan.in/",                                      tags: ["Portfolio","Personal"] },
+    { name: "Sweetalk",                  url: "https://sweetalk.in/",                                           tags: ["Social","App"] },
+    { name: "M Print House",             url: "https://mprinthouse.ae/",                                         tags: ["Printing","Business"] },
+    { name: "Sound7 Distributor Portal", url: "https://sound7nextdistributorportal.netlify.app/",                 tags: ["Web App","Portal"] }
+  ];
+
+  const grid = document.getElementById('portGrid');
+  projects.forEach(p => {
+    const thumb   = `https://image.thum.io/get/width/1400/crop/2800/noanimate/${p.url}`;
+    const tagsHtml = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="proj-card">
+        <div class="proj-thumb">
+          <span class="proj-badge">Live Preview</span>
+          <img src="${thumb}" alt="${p.name}" loading="lazy"
+               onload="calcDy(this)" onerror="fallback(this,'${p.name}')">
+          <div class="overlay"></div>
         </div>
-        <div class="project-info">
-          <div class="project-tags">
-            <span class="tag">React</span>
-            <span class="tag">Node.js</span>
-            <span class="tag">MongoDB</span>
-          </div>
-          <h3>E-Commerce Dashboard Portal</h3>
-          <p style="color:var(--text-muted);font-size:.93rem;">Full-stack admin dashboard with real-time analytics, order management, and inventory control.</p>
-          <a href="#">View Project <i class="fas fa-arrow-right"></i></a>
+        <div class="proj-body">
+          <div class="proj-tags">${tagsHtml}</div>
+          <h3>${p.name}</h3>
+          <a href="${p.url}" target="_blank" rel="noopener">View Live Site <i class="fas fa-external-link-alt"></i></a>
         </div>
       </div>
+    `);
+  });
 
-      <div class="project-card">
-        <div class="project-img-container">
-          <img src="assets/images/project2.png" alt="Project 2" loading="lazy">
-          <div class="project-overlay"></div>
-          <span class="project-badge">Live</span>
-        </div>
-        <div class="project-info">
-          <div class="project-tags">
-            <span class="tag">Shopify</span>
-            <span class="tag">Liquid</span>
-            <span class="tag">Custom Theme</span>
-          </div>
-          <h3>Premium Shopify Store</h3>
-          <p style="color:var(--text-muted);font-size:.93rem;">Custom Shopify storefront with conversion-optimized UX and seamless checkout experience.</p>
-          <a href="#">View Project <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
+  /* ── SCROLL DISTANCE FIX ──
+     thum.io crops the page to `crop` px height at the requested width (1400px).
+     We request crop=2800 so we get a tall image.
+     The img is rendered at container width (~300-400px) with natural ratio preserved.
+     We compute rendered pixel height, subtract container height, and scroll that diff. */
+  function calcDy(img) {
+    const thumb  = img.closest('.proj-thumb');
+    const contH  = thumb.offsetHeight;                          // 220
+    const contW  = thumb.offsetWidth;
+    const nW     = img.naturalWidth  || 1400;
+    const nH     = img.naturalHeight || 2800;
+    const scale  = contW / nW;
+    const imgH   = nH * scale;                                  // rendered height in px
 
-      <div class="project-card">
-        <div class="project-img-container">
-          <img src="assets/images/project3.png" alt="Project 3" loading="lazy">
-          <div class="project-overlay"></div>
-          <span class="project-badge">Live</span>
-        </div>
-        <div class="project-info">
-          <div class="project-tags">
-            <span class="tag">Next.js</span>
-            <span class="tag">OpenAI</span>
-            <span class="tag">Tailwind</span>
-          </div>
-          <h3>AI-Powered SaaS Tool</h3>
-          <p style="color:var(--text-muted);font-size:.93rem;">GPT-integrated productivity tool with subscription billing, user auth, and API management.</p>
-          <a href="#">View Project <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
+    // Set explicit height so browser doesn't clip to contain
+    img.style.height    = imgH + 'px';
+    img.style.objectFit = 'unset';
 
-    </div>
-  </section>
+    const diff = imgH - contH;
+    const dy   = diff > 10 ? -(diff * 0.85) : -80;             // 85% of full diff
+    img.style.setProperty('--dy', Math.round(dy) + 'px');
+  }
 
-  <!-- ── BRANDS ── -->
-  <section class="section swiper-section" id="brands" style="background: var(--bg-secondary);">
-    <div class="section-header">
-      <h2>Brands I've <span class="text-gradient">Worked With</span></h2>
-      <p>Trusted by startups, agencies, and growing businesses worldwide.</p>
-    </div>
-    <div class="swiper swiper-wrap" id="brandsSwiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image"><img src="assets/images/brand1.jpg" alt="Brand 1" loading="lazy" onerror="this.parentElement.style.background='rgba(212,0,255,0.06)'"></div>
-            <i class="fas fa-building"></i>
-            <h3>Tech Startup</h3>
-            <p>Full-stack web app development and AI integration for a growing SaaS product.</p>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image"><img src="assets/images/brand2.jpg" alt="Brand 2" loading="lazy" onerror="this.parentElement.style.background='rgba(0,243,255,0.06)'"></div>
-            <i class="fas fa-store"></i>
-            <h3>E-Commerce Brand</h3>
-            <p>Shopify store redesign and conversion optimization resulting in 3x more sales.</p>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image"><img src="assets/images/brand3.jpg" alt="Brand 3" loading="lazy" onerror="this.parentElement.style.background='rgba(212,0,255,0.06)'"></div>
-            <i class="fas fa-hospital"></i>
-            <h3>Healthcare Clinic</h3>
-            <p>Custom patient portal with appointment booking, records management, and billing.</p>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="brand-card">
-            <div class="brand-image"><img src="assets/images/brand4.jpg" alt="Brand 4" loading="lazy" onerror="this.parentElement.style.background='rgba(0,243,255,0.06)'"></div>
-            <i class="fas fa-graduation-cap"></i>
-            <h3>Ed-Tech Platform</h3>
-            <p>LMS platform with video streaming, quizzes, and student progress tracking.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="swiper-nav">
-      <div class="swiper-btn" id="brandsPrev"><i class="fas fa-chevron-left"></i></div>
-      <div class="swiper-btn" id="brandsNext"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </section>
+  function fallback(img, name) {
+    img.onerror = null;
+    img.src = `https://via.placeholder.com/1200x2200/111111/00f3ff?text=${encodeURIComponent(name)}`;
+    setTimeout(() => calcDy(img), 300);
+  }
 
-  <!-- ── TESTIMONIALS ── -->
-  <section class="section swiper-section" id="testimonials">
-    <div class="section-header">
-      <h2>Client <span class="text-gradient">Reviews</span></h2>
-      <p>What people say after working with me.</p>
-    </div>
-    <div class="swiper swiper-wrap" id="testimonialsSwiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <p class="quote">"Karim delivered the project ahead of schedule and the quality was beyond what I expected. He communicated clearly and even added features I didn't ask for. Highly recommend!"</p>
-            <div class="client-meta">⭐⭐⭐⭐⭐ — Ahmed R., CEO @ TechLaunch</div>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <p class="quote">"Our Shopify store went from looking basic to absolutely stunning. Sales increased by 40% within the first month. The support after delivery was excellent too."</p>
-            <div class="client-meta">⭐⭐⭐⭐⭐ — Priya M., Founder @ StyleHub</div>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <p class="quote">"I needed an AI chatbot for my business and Karim built exactly what I envisioned. Super fast, very professional, and genuinely cares about the work."</p>
-            <div class="client-meta">⭐⭐⭐⭐⭐ — James K., Director @ AutoServe</div>
-          </div>
-        </div>
-        <div class="swiper-slide">
-          <div class="testimonial-card">
-            <p class="quote">"Working with Karim felt like having a co-founder. He understood the vision and built a dashboard that our whole team loves using every day."</p>
-            <div class="client-meta">⭐⭐⭐⭐⭐ — Sara L., Product Lead @ DataFlow</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="swiper-nav">
-      <div class="swiper-btn" id="testimonialsPrev"><i class="fas fa-chevron-left"></i></div>
-      <div class="swiper-btn" id="testimonialsNext"><i class="fas fa-chevron-right"></i></div>
-    </div>
-  </section>
-
-  <!-- ── CONTACT ── -->
-  <section class="contact-section" id="contact">
-    <div class="contact-box">
-      <div class="contact-content">
-        <h2 style="font-size:2.4rem; margin-bottom:14px;">Let's <span class="text-gradient">Work Together</span></h2>
-        <p style="color:var(--text-muted); max-width:540px; margin: 0 auto 28px; font-size:1.05rem;">
-          Have a project in mind? Reach out and let's turn your idea into a polished digital product.
-        </p>
-        <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:14px;">
-          <a href="https://wa.me/917631115414" target="_blank" class="btn btn-whatsapp">
-            <i class="fab fa-whatsapp"></i> WhatsApp Me
-          </a>
-          <a href="mailto:karim@example.com" class="btn btn-primary">
-            <i class="fas fa-envelope"></i> Send Email
-          </a>
-        </div>
-        <div class="social-row">
-          <a href="#" class="social-btn fb"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social-btn in"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#" class="social-btn wa"><i class="fab fa-whatsapp"></i></a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <p>&copy; 2025 ErKarim — Full Stack AI Developer. Built with ❤️</p>
-  </footer>
-
-  <a href="https://wa.me/917631115414" target="_blank" class="whatsapp-float">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script>
-    // Mobile menu toggle
-    function toggleMenu() {
-      document.getElementById('navItems').classList.toggle('active');
-    }
-
-    // Swipers
-    const brandsSwiper = new Swiper('#brandsSwiper', {
-      slidesPerView: 1,
-      spaceBetween: 24,
-      loop: true,
-      navigation: { nextEl: '#brandsNext', prevEl: '#brandsPrev' },
-      breakpoints: {
-        640: { slidesPerView: 2 },
-        1024: { slidesPerView: 3 }
-      }
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.proj-thumb img').forEach(img => {
+      if (img.complete && img.naturalWidth) calcDy(img);
     });
-
-    const testimonialsSwiper = new Swiper('#testimonialsSwiper', {
-      slidesPerView: 1,
-      spaceBetween: 24,
-      loop: true,
-      navigation: { nextEl: '#testimonialsNext', prevEl: '#testimonialsPrev' },
-      breakpoints: {
-        768: { slidesPerView: 2 },
-        1200: { slidesPerView: 3 }
-      }
-    });
-
-    // ── PROJECT IMAGE SCROLL FIX ──
-    // Dynamically calculate how far each image can scroll based on its natural height
-    document.querySelectorAll('.project-card').forEach(card => {
-      const container = card.querySelector('.project-img-container');
-      const img = card.querySelector('.project-img-container img');
-
-      function setScrollDistance() {
-        const containerH = container.offsetHeight;
-        const imgH = img.naturalHeight * (container.offsetWidth / img.naturalWidth);
-        const scrollPx = Math.max(0, imgH - containerH);
-        // Use pixel value so transition always works correctly
-        img.style.setProperty('--img-scroll', `-${Math.round(scrollPx * 0.75)}px`);
-      }
-
-      img.addEventListener('load', setScrollDistance);
-      if (img.complete) setScrollDistance();
-      window.addEventListener('resize', setScrollDistance);
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
