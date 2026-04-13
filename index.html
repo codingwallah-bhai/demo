@@ -47,29 +47,6 @@
 
     a {
       color: inherit;
-      text-decoration: none;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 15% 20%, rgba(212,0,255,0.09), transparent 30%),
-        radial-gradient(circle at 85% 15%, rgba(0,243,255,0.08), transparent 28%);
-      z-index: -1;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(18px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     @keyframes pulse {
@@ -81,6 +58,17 @@
     @keyframes marquee {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(212,0,255,0.09), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(0,243,255,0.08), transparent 28%);
+      z-index: -1;
     }
 
     nav {
@@ -118,6 +106,7 @@
     }
 
     .nav-items a {
+      text-decoration: none;
       font-weight: 500;
       font-size: 0.95rem;
       transition: 0.25s ease;
@@ -132,6 +121,7 @@
       display: none;
       font-size: 1.8rem;
       cursor: pointer;
+      color: #fff;
     }
 
     .hero {
@@ -162,7 +152,6 @@
       width: 100%;
       position: relative;
       z-index: 2;
-      animation: fadeInUp 0.8s ease;
     }
 
     .profile-row {
@@ -170,7 +159,7 @@
       align-items: center;
       gap: 16px;
       margin-bottom: 18px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     .profile-img {
@@ -195,6 +184,7 @@
       background: rgba(212, 0, 255, 0.12);
       border: 1px solid rgba(212, 0, 255, 0.28);
       white-space: nowrap;
+      line-height: 1;
     }
 
     .hero-mini-title {
@@ -261,6 +251,7 @@
     .btn {
       padding: 14px 28px;
       border-radius: 999px;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -338,7 +329,6 @@
       display: flex;
       justify-content: flex-end;
       position: relative;
-      animation: fadeInUp 1s ease;
     }
 
     .hero-visual {
@@ -675,6 +665,7 @@
 
     .project-info a {
       margin-top: auto;
+      text-decoration: none;
       color: var(--primary-accent);
       font-weight: 700;
       display: inline-flex;
@@ -725,6 +716,11 @@
       font-size: 1.8rem;
       margin-bottom: 12px;
       color: var(--primary-accent);
+    }
+
+    .testimonial-card {
+      min-height: 280px;
+      justify-content: space-between;
     }
 
     .testimonial-card .quote {
@@ -819,6 +815,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      text-decoration: none;
       border: 1px solid rgba(255,255,255,0.08);
       transition: 0.25s ease;
       font-size: 1.2rem;
@@ -855,6 +852,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      text-decoration: none;
       font-size: 1.7rem;
       z-index: 999;
       animation: pulse 2s infinite;
@@ -929,6 +927,7 @@
       .profile-row {
         align-items: center;
         gap: 12px;
+        flex-wrap: nowrap;
       }
 
       .profile-img {
@@ -1048,8 +1047,7 @@
       </h1>
 
       <p>
-        I design and develop premium, fast, conversion-focused digital experiences for brands, business owners, startups, agencies, and creators.
-        From landing pages to dashboards and custom portals, I build systems that look modern and solve real business problems.
+        I design and develop premium, fast, conversion-focused digital experiences for brands, business owners, startups, agencies, and creators. From landing pages to dashboards and custom portals, I build systems that look modern and solve real business problems.
       </p>
 
       <div class="hero-points">
@@ -1084,7 +1082,7 @@
     <div class="hero-right">
       <div class="hero-visual">
         <div class="hero-main-card">
-          <img src="1737800704026.jpeg" alt="Er Karim" onerror="this.onerror=null; this.src='assets/images/profile.jpeg';">
+          <img src="1737800704026.jpeg" alt="Er Karim">
           <div class="hero-main-overlay"></div>
         </div>
 
@@ -1127,4 +1125,180 @@
 
   <div class="marquee">
     <div class="marquee-content">
-      <span class="tech-pill"><
+      <span class="tech-pill"><i class="fab fa-shopify"></i> Shopify</span>
+      <span class="tech-pill"><i class="fab fa-wordpress"></i> WordPress</span>
+      <span class="tech-pill"><i class="fas fa-layer-group"></i> Elementor Pro</span>
+      <span class="tech-pill"><i class="fab fa-html5"></i> HTML5</span>
+      <span class="tech-pill"><i class="fab fa-css3-alt"></i> CSS3</span>
+      <span class="tech-pill"><i class="fab fa-js"></i> JavaScript</span>
+      <span class="tech-pill"><i class="fab fa-react"></i> React</span>
+      <span class="tech-pill"><i class="fas fa-server"></i> Full Stack Apps</span>
+      <span class="tech-pill"><i class="fas fa-chart-line"></i> SEO Strategy</span>
+      <span class="tech-pill"><i class="fas fa-robot"></i> AI Integrations</span>
+      <span class="tech-pill"><i class="fas fa-window-restore"></i> Dashboards</span>
+      <span class="tech-pill"><i class="fas fa-sitemap"></i> Portals</span>
+    </div>
+  </div>
+
+  <section class="section" id="services">
+    <div class="section-header">
+      <h2>My Expertise</h2>
+      <p>I provide complete digital solutions for businesses, creators, startups, agencies, and growing brands.</p>
+    </div>
+
+    <div class="equal-grid">
+      <div class="service-card">
+        <i class="fas fa-code service-icon"></i>
+        <h3>Web Development</h3>
+        <ul>
+          <li><i class="fas fa-check"></i><span>E-commerce (Shopify & WooCommerce)</span></li>
+          <li><i class="fas fa-check"></i><span>100% Custom Themes & UI</span></li>
+          <li><i class="fas fa-check"></i><span>WordPress & Elementor Pro</span></li>
+          <li><i class="fas fa-check"></i><span>High-converting Landing Pages</span></li>
+          <li><i class="fas fa-check"></i><span>Responsive Websites for All Devices</span></li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-laptop-code service-icon"></i>
+        <h3>Custom Web Apps</h3>
+        <ul>
+          <li><i class="fas fa-check"></i><span>Custom Business Applications</span></li>
+          <li><i class="fas fa-check"></i><span>CRM, Dashboard & Admin Panels</span></li>
+          <li><i class="fas fa-check"></i><span>Distributor & Vendor Portals</span></li>
+          <li><i class="fas fa-check"></i><span>Internal Tools & Automation Systems</span></li>
+          <li><i class="fas fa-check"></i><span>SaaS-style Interfaces</span></li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-robot service-icon"></i>
+        <h3>AI Integration</h3>
+        <ul>
+          <li><i class="fas fa-check"></i><span>ChatGPT & Gemini Integration</span></li>
+          <li><i class="fas fa-check"></i><span>AI Chatbots & Smart Workflows</span></li>
+          <li><i class="fas fa-check"></i><span>AI Content Systems</span></li>
+          <li><i class="fas fa-check"></i><span>Automation & Productivity Tools</span></li>
+          <li><i class="fas fa-check"></i><span>Business Process Improvements</span></li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-paint-brush service-icon"></i>
+        <h3>UI, Branding & Design</h3>
+        <ul>
+          <li><i class="fas fa-check"></i><span>Modern Premium Layout Design</span></li>
+          <li><i class="fas fa-check"></i><span>Creative Brand-focused UI</span></li>
+          <li><i class="fas fa-check"></i><span>Canva & Photoshop Support</span></li>
+          <li><i class="fas fa-check"></i><span>Clean Visual Identity Systems</span></li>
+          <li><i class="fas fa-check"></i><span>Better User Experience & Trust</span></li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-chart-line service-icon"></i>
+        <h3>SEO & Growth</h3>
+        <ul>
+          <li><i class="fas fa-check"></i><span>SEO Content & Structure</span></li>
+          <li><i class="fas fa-check"></i><span>Conversion-focused Pages</span></li>
+          <li><i class="fas fa-check"></i><span>Keyword Strategy</span></li>
+          <li><i class="fas fa-check"></i><span>Performance Optimization</span></li>
+          <li><i class="fas fa-check"></i><span>Lead Generation Improvement</span></li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <i class="fas fa-tools service-icon"></i>
+        <h3>Maintenance & Support</h3>
+        <ul>
+          <li><i class="fas fa-check"></i><span>Instant Reply & Fast Fixes</span></li>
+          <li><i class="fas fa-check"></i><span>Ongoing Updates</span></li>
+          <li><i class="fas fa-check"></i><span>Website Maintenance</span></li>
+          <li><i class="fas fa-check"></i><span>Business Guidance</span></li>
+          <li><i class="fas fa-check"></i><span>Long-term Technical Support</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="why-choose">
+    <div class="section-header">
+      <h2>Why Clients Choose Me</h2>
+      <p>I do not just deliver pages. I help businesses launch faster, solve problems quickly, and stay updated with modern technology.</p>
+    </div>
+
+    <div class="equal-grid">
+      <div class="trust-card">
+        <i class="fas fa-bolt trust-icon"></i>
+        <h3>Instant Communication</h3>
+        <p>I stay available and respond quickly. Clients do not have to wait days for updates or issue fixes.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-shield-alt trust-icon"></i>
+        <h3>Trust & Reliability</h3>
+        <p>I focus on clean work, honest communication, and proper delivery so clients feel confident throughout the project.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-infinity trust-icon"></i>
+        <h3>Long-term Support</h3>
+        <p>I stay connected after project delivery for maintenance, fixes, improvements, and future growth needs.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-screwdriver-wrench trust-icon"></i>
+        <h3>Maintenance & Problem Solving</h3>
+        <p>From design bugs to technical issues, I solve things fast and keep business operations running smoothly.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-lightbulb trust-icon"></i>
+        <h3>Business-minded Guidance</h3>
+        <p>I suggest better layouts, better conversions, better flow, and practical solutions that support actual business goals.</p>
+      </div>
+
+      <div class="trust-card">
+        <i class="fas fa-rocket trust-icon"></i>
+        <h3>Latest Technology Adoption</h3>
+        <p>I adapt quickly to new tools, AI systems, modern frameworks, and updated design patterns to keep projects future-ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="work">
+    <div class="section-header">
+      <h2>Recent Work</h2>
+      <p>Hover on any project to see a fast scrolling live-style preview of the website.</p>
+    </div>
+
+    <div class="portfolio-grid" id="portfolio-container"></div>
+  </section>
+
+  <section class="section swiper-section" id="brands">
+    <div class="section-header">
+      <h2>Client Trust & Collaboration</h2>
+      <p>Worked with agencies, brands, founders, educational platforms, and business teams. Carousel use kiya hai taki scrolling kam ho.</p>
+    </div>
+
+    <div class="swiper brandSwiper swiper-wrap">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <div class="brand-card">
+            <div class="brand-image">
+              <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80" alt="Agency team">
+            </div>
+            <i class="fas fa-building"></i>
+            <h3>Digital Marketing Agencies</h3>
+            <p>Trusted for development support, landing pages, fixes, and performance improvements.</p>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="brand-card">
+            <div class="brand-image">
+              <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=900&q=80" alt="Ecommerce">
+            </div>
+            <i class="fas fa-cart-shopping"></i>
+            <h3>E-commerce Brands</h3>
+            <p
